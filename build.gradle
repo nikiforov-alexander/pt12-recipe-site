@@ -25,14 +25,35 @@ repositories {
 dependencies {
     // spring data rest
     compile 'org.springframework.boot:spring-boot-starter-data-rest'
+
     // spring jpa
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+
     // spring hal
     compile 'org.springframework.data:spring-data-rest-hal-browser'
+
     // spring security
     compile 'org.springframework.boot:spring-boot-starter-security'
+
+    // thymeleaf
+    compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // thymeleaf security expressions
+    // https://mvnrepository.com/artifact/org.thymeleaf.extras/thymeleaf-extras-springsecurity4
+    compile group: 'org.thymeleaf.extras',
+            name: 'thymeleaf-extras-springsecurity4',
+            version: '2.1.2.RELEASE'
+
+    // making thymeleaf to be HTML5 compliant see TemplateConfig @Bean
+    // https://mvnrepository.com/artifact/net.sourceforge.nekohtml/nekohtml
+    compile group: 'net.sourceforge.nekohtml',
+            name: 'nekohtml',
+            version: '1.9.22'
+
+
     // h2 database
     compile 'com.h2database:h2:1.4.192'
+
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
     // spring boot starter test: includes Mockito and other helpful
