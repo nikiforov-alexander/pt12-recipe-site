@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RestResource(exported = false)
 public interface UserDao extends CrudRepository<User, Long> {
-
+    // "query" method of Spring data: finds user by username
+    User findByUsername(String username);
 }
