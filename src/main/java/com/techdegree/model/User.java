@@ -105,9 +105,12 @@ public class User implements UserDetails {
         this.role = null;
     }
 
-    public User(String username, String password) {
+    public User(String name,
+                String username,
+                String password) {
         this();
         this.username = username;
+        this.name = name;
         setPassword(password);
     }
 
