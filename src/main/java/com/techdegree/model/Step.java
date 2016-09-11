@@ -14,6 +14,11 @@ public class Step extends BaseEntity {
     @NotEmpty
     private String description;
 
+    @NotNull(message =
+        "Step cannot be created without recipe")
+    @NotEmpty
+    private Recipe recipe;
+
     // getters and setters
 
     public String getDescription() {
@@ -22,6 +27,14 @@ public class Step extends BaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Recipe getRecipe() {
+        return recipe;
+    }
+
+    public void setRecipe(Recipe recipe) {
+        this.recipe = recipe;
     }
 
     // constructors
