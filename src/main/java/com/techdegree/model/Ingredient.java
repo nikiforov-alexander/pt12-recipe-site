@@ -28,6 +28,15 @@ public class Ingredient extends BaseEntity {
     @NotEmpty
     private String quantity;
 
+    // this field is needed so that user cannot
+    // create Ingredient without Recipe. They are
+    // bound together. The may be independent
+    // but I leave them unique for each recipe
+    @NotNull(message =
+            "Ingredient cannot be created without recipe")
+    @NotEmpty
+    private Recipe recipe;
+
     // getters and setters
 
     public Item getItem() {
@@ -52,6 +61,14 @@ public class Ingredient extends BaseEntity {
 
     public void setQuantity(String quantity) {
         this.quantity = quantity;
+    }
+
+    public Recipe getRecipe() {
+        return recipe;
+    }
+
+    public void setRecipe(Recipe recipe) {
+        this.recipe = recipe;
     }
 
     // constructors
