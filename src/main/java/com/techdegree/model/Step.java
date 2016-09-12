@@ -2,10 +2,15 @@ package com.techdegree.model;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 // extends BaseEntity, so that
 // @Id and @Version are inherited
+@Entity
 public class Step extends BaseEntity {
 
     // fields
@@ -16,8 +21,8 @@ public class Step extends BaseEntity {
 
     @NotNull(message =
         "Step cannot be created without recipe")
-    @NotEmpty
-    private Recipe recipe;
+    @ManyToMany
+    private List<Recipe> recipes = new ArrayList<>();
 
     // getters and setters
 
@@ -29,12 +34,12 @@ public class Step extends BaseEntity {
         this.description = description;
     }
 
-    public Recipe getRecipe() {
-        return recipe;
+    public List<Recipe> getRecipes() {
+        return recipes;
     }
 
-    public void setRecipe(Recipe recipe) {
-        this.recipe = recipe;
+    public void setRecipes(List<Recipe> recipes) {
+        this.recipes = recipes;
     }
 
     // constructors
@@ -50,6 +55,10 @@ public class Step extends BaseEntity {
     public Step(String description) {
         this();
         this.description = description;
+    }
+
+    public void addRecipe(Recipe recipe) {
+        recipes.add(recipe);
     }
 
 }
