@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ public class Recipe extends BaseEntity{
     @NotNull
     private String description;
 
-    @NotEmpty
     @NotNull
     @Enumerated
     private RecipeCategory recipeCategory;
@@ -41,14 +41,12 @@ public class Recipe extends BaseEntity{
     @NotEmpty
     private String cookTime;
 
-    @NotEmpty
     @NotNull
-    @OneToMany
+    @OneToMany(mappedBy = "recipe")
     private List<Ingredient> ingredients = new ArrayList<>();
 
-    @NotEmpty
     @NotNull
-    @OneToMany
+    @ManyToMany
     private List<Step> steps = new ArrayList<>();
 
     // getters and setters
