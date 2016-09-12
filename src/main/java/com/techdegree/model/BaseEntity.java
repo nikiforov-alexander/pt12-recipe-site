@@ -1,9 +1,6 @@
 package com.techdegree.model;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @MappedSuperclass
 public class BaseEntity {
@@ -14,13 +11,9 @@ public class BaseEntity {
     // I will leave it as it is for now
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
-    @NotEmpty
     private Long id;
 
     @Version
-    @NotNull
-    @NotEmpty
     private Long version;
 
     // Getters and Setters
