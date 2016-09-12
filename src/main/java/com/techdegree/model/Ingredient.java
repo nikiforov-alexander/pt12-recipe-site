@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
@@ -15,7 +16,6 @@ public class Ingredient extends BaseEntity {
     // fields
 
     @NotNull
-    @NotEmpty
     @OneToOne
     @JoinColumn(name = "item_id")
     private Item item;
@@ -34,7 +34,7 @@ public class Ingredient extends BaseEntity {
     // but I leave them unique for each recipe
     @NotNull(message =
             "Ingredient cannot be created without recipe")
-    @NotEmpty
+    @ManyToOne
     private Recipe recipe;
 
     // getters and setters
