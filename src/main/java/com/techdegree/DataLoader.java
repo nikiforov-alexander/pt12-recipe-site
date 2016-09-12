@@ -48,9 +48,12 @@ public class DataLoader implements ApplicationRunner {
         Ingredient ingredient2 =
                 new Ingredient(item2, "condition 2", "quantity 2");
 
-        // create step
+        // create step and save,
+        // because they are in @ManyToMany now
         Step step1 = new Step("step 1");
         Step step2 = new Step("step 2");
+        stepDao.save(step1);
+        stepDao.save(step2);
 
         // create recipe
         Recipe recipe = new Recipe(
@@ -64,17 +67,14 @@ public class DataLoader implements ApplicationRunner {
         // put ingredients into recipe
         recipe.addIngredient(ingredient1);
         recipe.addIngredient(ingredient2);
-        // put steps into recipe
-        recipe.addStep(step1);
-        recipe.addStep(step2);
+        // put steps into recipe from
+        // already existing steps
+        recipe.addStep(stepDao.findOne(1L));
+        recipe.addStep(stepDao.findOne(1L));
 
         // set ingredient1-2.recipes to recipe
         ingredient1.setRecipe(recipe);
         ingredient2.setRecipe(recipe);
-
-        // set steps1-2.recipes to recipe
-        step1.setRecipe(recipe);
-        step2.setRecipe(recipe);
 
         // save recipe
         recipeDao.save(recipe);
