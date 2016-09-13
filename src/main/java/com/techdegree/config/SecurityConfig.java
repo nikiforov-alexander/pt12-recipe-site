@@ -45,15 +45,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     // configures redirect to "/login" page and back
     // for now we took @christherama version of
-    // this method. The one from REST we'll leave for
-    // now. I tried to add authorize requests, but
-    // can be changed ...
+    // this method.
+    // The one from REST authorizeAll mixes up stuff so
+    // we'll leave for removed now.
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .authorizeRequests()
-                    .anyRequest().authenticated()
-                .and()
                 .formLogin()
                     .loginPage("/login")
                     .successHandler(loginSuccessHandler())
