@@ -1,0 +1,74 @@
+<!doctype html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layout :: head('Login | My Recipes')">
+</head>
+
+<body>
+
+<!--/ *Custom nav different from layout.html's nav */-->
+<nav>
+    <a th:href="@{/sign-up}">
+        Sign-up
+    </a>
+    &bull;
+    <a th:href="@{/login}">
+        Login
+    </a>
+</nav>
+
+<div class="grid-container">
+
+    <div th:replace="layout :: my_recipes_logo"
+         class="grid-100">
+    </div>
+
+    <div th:replace="layout :: flash"></div>
+
+    <div class="grid-100">
+        <div class="recipes">
+
+            <form th:action="@{/login}"
+                  th:object="${user}"
+                  method="post">
+
+                <div class="prefix-20 grid-60 suffix-20">
+                    <p>
+                        <input th:field="*{username}"
+                               placeholder="Username">
+                    </p>
+                </div>
+
+                <div class="clear"></div>
+
+                <div class="prefix-20 grid-60 suffix-20">
+                    <p>
+                        <input th:field="*{password}"
+                               placeholder="Password"
+                               type="password">
+                    </p>
+
+                </div>
+
+                <div class="clear"></div>
+
+                <div class="prefix-20 grid-60 suffix-20">
+                    <p>
+                        <button th:action="@{/login}"
+                                type="submit">
+                            Login
+                        </button>
+                    </p>
+
+                </div>
+
+                <div class="clear"></div>
+
+            </form>
+
+        </div> <!-- recipes -->
+    </div> <!-- grid-100 -->
+</div> <!-- grid-container -->
+</body>
+</html>
