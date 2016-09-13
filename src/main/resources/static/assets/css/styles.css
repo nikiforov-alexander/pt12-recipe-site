@@ -1,6 +1,8 @@
 body {
   max-width: 800px;
-  background: #f6ebe5;
+  /*background: #f6ebe5;*/
+  /*background-color: paleturquoise;*/
+  background-color: darkslategray;
   color: #808080;
   font-family: 'Varela Round', Helvetica, Arial, sans-serif;
   text-align: center;
