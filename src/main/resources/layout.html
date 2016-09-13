@@ -1,0 +1,82 @@
+<!doctype html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(title)">
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+
+    <title th:text="${title}">Title</title>
+
+    <link href='https://fonts.googleapis.com/css?family=Varela+Round'
+          rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" th:href="@{/css/unsemantic-grid-responsive.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <!-- icons: used chefbot for now -->
+    <link rel="shortcut icon"
+          th:href="@{/images/chefbot.svg}"
+          type="image/x-icon">
+    <link rel="icon"
+          th:href="@{/images/chefbot.svg}"
+          type="image/x-icon">
+</head>
+
+<body>
+
+<!--/* Navigation fragment: Up right
+       We'll put user's name here, but later
+*/-->
+<nav th:fragment="nav">
+    <a th:href="@{/profile}">
+        Chandra S.
+    </a>
+    &bull;
+    <a th:href="@{/logout}">
+        Logout
+    </a>
+</nav>
+
+<div class="grid-container">
+
+    <!--/* Flash fragment with successful action of user: all CRUDS
+           and on failure as well on pages with really wrong data
+           for now : "grid-100" class
+     */-->
+    <div th:fragment="flash"
+         th:if="${flash != null}"
+         class="grid-100">
+        <div th:classappend="${#strings.toLowerCase(flash.status)}"
+             th:text="${flash.message}" class="flash">
+        </div>
+    </div>
+
+    <!--/* My Recipes Logo: Top middle with chefbot image */-->
+    <div th:fragment="my_recipes_logo"
+         class="grid-100">
+        <a th:href="@{/index.html}">
+            <h1>
+                <img th:src="@{/images/chefbot.svg}"
+                     alt="chefbot-logo"
+                     height="60px">
+                <br>
+                My Recipes
+            </h1>
+        </a>
+    </div>
+
+
+</div> <!-- grid-container -->
+
+<!-- /* JavaScript div */-->
+<div th:fragment="scripts">
+    <script src="https://code.jquery.com/jquery-3.1.0.js"
+            integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="
+            crossorigin="anonymous">
+    </script>
+    <script th:src="@{/app.js}"></script>
+</div>
+
+</body>
+</html>
