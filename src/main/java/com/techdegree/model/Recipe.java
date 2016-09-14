@@ -41,12 +41,10 @@ public class Recipe extends BaseEntity{
     @NotEmpty
     private String cookTime;
 
-    @NotNull
     @OneToMany(mappedBy = "recipe")
     private List<Ingredient> ingredients = new ArrayList<>();
 
-    @NotNull
-    @ManyToMany
+    @OneToMany(mappedBy = "recipe")
     private List<Step> steps = new ArrayList<>();
 
     // getters and setters
