@@ -1,280 +1,285 @@
 <!doctype html>
-<html lang="en">
-<head>
 
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-  <title>Recipe Editor | My Recipes</title>
-
-  <link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="../css/unsemantic-grid-responsive.css">
-  <link rel="stylesheet" href="../css/styles.css">
-
+<head th:replace="layout :: head('Recipe Editor | My Recipes')">
 </head>
 
 <body>
 
-  <nav>
-    <a href="profile.html">
-      Chandra S.
-    </a>
-    &bull;
-    <a href="login.html">
-      logout
-    </a>
-  </nav>
+<nav th:replace="layout :: nav">
+</nav>
 
-  <div class="grid-container">
+<div class="grid-container">
 
-    <div class="grid-100">
-      <a href="index.html">
-        <h1>
-          <img src="../images/chefbot.svg" height="60px">
-          <br>
-          My Recipes
-        </h1>
-      </a>
+    <div th:replace="layout :: flash">
+    </div>
+
+    <div th:replace="layout :: my_recipes_logo"
+         class="grid-100">
     </div>
 
     <div class="grid-100">
 
-      <div class="recipes">
+        <div class="recipes">
 
-        <div class="grid-100 row controls">
-          <div class="grid-50">
-            <h2> Recipe Editor </h2>
-          </div>
-          <div class="grid-50">
-            <div class="flush-right">
-              <button>Save Recipe</button>
-              <button class="secondary">Cancel</button>
+            <div class="grid-100 row controls">
+                <div class="grid-50">
+                    <h2> Recipe Editor </h2>
+                </div>
+                <div class="grid-50">
+                    <div class="flush-right">
+                        <button>Save Recipe</button>
+                        <!--/* For now anchor... later
+                            will change to button if
+                            neccessary
+                        */-->
+                        <a th:href="@{/}"
+                           class="secondary">Cancel</a>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div> <div class="clear"></div>
 
-        <div class="grid-100 row">
-          <div class="grid-20">
-            <p class="label-spacing">
-              <label> Photo </label>
-            </p>
-          </div>
-          <div class="grid-40">
-            <p>
-              <input placeholder="Url"> </input>
-            </p>
-          </div>
-        </div> <div class="clear"></div>
+            <div class="clear"></div>
 
-        <div class="grid-100 row">
-          <div class="grid-20">
-            <p class="label-spacing">
-              <label> Name </label>
-            </p>
-          </div>
-          <div class="grid-40">
-            <p>
-              <input> </input>
-            </p>
-          </div>
-        </div> <div class="clear"></div>
+            <!--/*will leave just /save for now*/-->
+            <form th:action="@{/save}"
+                  th:object="${recipe}"
+                    method="post">
 
-        <div class="grid-100 row">
-          <div class="grid-20">
-            <p class="label-spacing">
-              <label> Description </label>
-            </p>
-          </div>
-          <div class="grid-40">
-            <p>
-              <textarea> </textarea>
-            </p>
-          </div>
-        </div> <div class="clear"></div>
-
-        <div class="grid-100 row">
-          <div class="grid-20">
-            <p class="label-spacing">
-              <label> Category </label>
-            </p>
-          </div>
-          <div class="grid-30">
-            <p>
-              <select>
-                <option value="">All Categories</option>
-                <option value="breakfast">Breakfast</option>
-                <option value="lunch">Lunch</option>
-                <option value="dinner">Dinner</option>
-                <option value="dessert">Dessert</option>
-              </select>
-            </p>
-          </div>
-        </div> <div class="clear"></div>
-
-        <div class="grid-100 row">
-          <div class="grid-20">
-            <p class="label-spacing">
-              <label> Prep Time </label>
-            </p>
-          </div>
-          <div class="grid-20">
-            <p>
-              <input> </input>
-            </p>
-          </div>
-        </div> <div class="clear"></div>
-
-        <div class="grid-100 row">
-          <div class="grid-20">
-            <p class="label-spacing">
-              <label> Cook Time </label>
-            </p>
-          </div>
-          <div class="grid-20">
-            <p>
-              <input> </input>
-            </p>
-          </div>
-        </div> <div class="clear"></div>
-
-        <div class="grid-100 row">
-          <div class="grid-20">
-            <p class="label-spacing">
-              <label> Ingredients </label>
-            </p>
-          </div>
-          <div class="grid-30">
-            <p class="label-spacing">
-              <label> Item <label>
-              </p>
-            </div>
-            <div class="grid-30">
-              <p class="label-spacing">
-                <label> Condition <label>
-                </p>
-              </div>
-              <div class="grid-20">
-                <p class="label-spacing">
-                  <label> Quantity <label>
-                  </p>
-                </div>
-
-                <div class="ingredient-row">
-                  <div class="prefix-20 grid-30">
-                    <p>
-                      <select>
-                        <option value="">Select Item</option>
-                      </select>
-                    </p>
-                  </div>
-                  <div class="grid-30">
-                    <p>
-                      <input> </input>
-                    </p>
-                  </div>
-                  <div class="grid-10 suffix-10">
-                    <p>
-                      <input> </input>
-                    </p>
-                  </div>
-                </div>
-
-                <div class="ingredient-row">
-                  <div class="prefix-20 grid-30">
-                    <p>
-                      <select>
-                        <option value="">Select Item</option>
-                      </select>
-                    </p>
-                  </div>
-                  <div class="grid-30">
-                    <p>
-                      <input> </input>
-                    </p>
-                  </div>
-                  <div class="grid-10 suffix-10">
-                    <p>
-                      <input> </input>
-                    </p>
-                  </div>
-                </div>
-
-                <div class="ingredient-row">
-                  <div class="prefix-20 grid-30">
-                    <p>
-                      <select>
-                        <option value="">Select Item</option>
-                      </select>
-                    </p>
-                  </div>
-                  <div class="grid-30">
-                    <p>
-                      <input> </input>
-                    </p>
-                  </div>
-                  <div class="grid-10 suffix-10">
-                    <p>
-                      <input> </input>
-                    </p>
-                  </div>
-                </div>
-
-                <div class="prefix-20 grid-80 add-row">
-                  <p>
-                    <button>+ Add Another Ingredient</button>
-                  </p>
-                </div>
-
-              </div> <div class="clear"></div>
-
-              <div class="grid-100 row">
+            <div class="grid-100 row">
                 <div class="grid-20">
-                  <p class="label-spacing">
-                    <label> Steps </label>
-                  </p>
+                    <p class="label-spacing">
+                        <label> Photo </label>
+                    </p>
+                </div>
+                <div class="grid-40">
+                    <p>
+                        <input th:field="*{photoUrl}"
+                               placeholder="Url">
+                    </p>
+                </div>
+            </div> <div class="clear"></div>
+
+            <div class="grid-100 row">
+                <div class="grid-20">
+                    <p class="label-spacing">
+                        <label> Name </label>
+                    </p>
+                </div>
+                <div class="grid-40">
+                    <p>
+                        <input th:field="*{name}">
+                    </p>
+                </div>
+            </div>
+
+            <div class="clear"></div>
+
+            <div class="grid-100 row">
+                <div class="grid-20">
+                    <p class="label-spacing">
+                        <label> Description </label>
+                    </p>
+                </div>
+                <div class="grid-40">
+                    <p>
+                        <textarea th:field="*{description}">
+                        </textarea>
+                    </p>
+                </div>
+            </div>
+
+            <div class="clear"></div>
+
+            <div class="grid-100 row">
+                <div class="grid-20">
+                    <p class="label-spacing">
+                        <label> Category </label>
+                    </p>
+                </div>
+                <div class="grid-30">
+                    <p>
+                        <!--/* TODO: add JS here for color of option
+                               to be the same as selected category
+                               Also default category is needed to be
+                               added
+                         */-->
+                        <select th:field="*{category}"
+                                th:class="${defaultCategory.styleClass}">
+                            <!--/* This option is for default category 
+                                   only 
+                            */-->
+                            <option th:value="${defaultCategory}"
+                                    th:class="${defaultCategory.styleClass}"
+                                    th:text="${defaultCategory.name}">
+                                Default Category Name
+                            </option>
+                            <!--/* The rest options will be without
+                                   the default one
+                             */-->
+                            <option th:each="otherCategory : ${categoriesWithoutDefaultOne}"
+                                    th:class="${otherCategory.styleClass}"
+                                    th:value="${otherCategory}"
+                                    th:text="${otherCategory.name}"
+                                    >
+                                Other Categories Names
+                            </option>
+                        </select>
+                    </p>
+                </div>
+            </div>
+
+            <div class="clear"></div>
+
+            <div class="grid-100 row">
+                <div class="grid-20">
+                    <p class="label-spacing">
+                        <label> Prep Time </label>
+                    </p>
+                </div>
+                <div class="grid-20">
+                    <p>
+                        <input th:field="*{preparationTime}"
+                               type="text">
+                    </p>
+                </div>
+            </div>
+
+            <div class="clear"></div>
+
+            <div class="grid-100 row">
+                <div class="grid-20">
+                    <p class="label-spacing">
+                        <label> Cook Time </label>
+                    </p>
+                </div>
+                <div class="grid-20">
+                    <p>
+                        <input th:field="*{cookTime}"
+                               type="text">
+                    </p>
+                </div>
+            </div>
+
+            <div class="clear"></div>
+
+            <div class="grid-100 row">
+                <div class="grid-20">
+                    <p class="label-spacing">
+                        <label> Ingredients </label>
+                    </p>
+                </div>
+                <div class="grid-30">
+                    <p class="label-spacing">
+                        <label> Item </label>
+                    </p>
+                </div>
+                <div class="grid-30">
+                    <p class="label-spacing">
+                        <label> Condition </label>
+                    </p>
+                </div>
+                <div class="grid-20">
+                    <p class="label-spacing">
+                        <label> Quantity </label>
+                    </p>
+                </div>
+
+                <!--/* ${ingredients} or *{ingredients} */-->
+                <div th:each="ingredient : ${ingredients}" class="ingredient-row">
+                    <!--/* Hidden fields will make sure that edited Recipe
+                           will not be saved as new one
+                     */-->
+                    <input type="text" hidden
+                           th:field="*{ingredients[__${ingredientStat.index}__].id}">
+                    <input type="text" hidden
+                           th:field="*{ingredients[__${ingredientStat.index}__].version}">
+
+                    <div class="prefix-20 grid-30">
+                        <p>
+                            <!--/* TODO: add default select option here or
+                                   not ... may be just leave as <input text>
+                             */-->
+                            <select th:field="*{ingredients[__${ingredientStat.index}__].name}">
+                                <option th:each="item : ${items}"
+                                        th:value="${item.name}">
+                                    Select Item
+                                </option>
+                            </select>
+                        </p>
+                    </div>
+                    <div class="grid-30">
+                        <p>
+                            <input type="text" th:field="*{ingredients[__${ingredientStat.index}__].condition}">
+                        </p>
+                    </div>
+                    <div class="grid-10 suffix-10">
+                        <p>
+                            <input type="text" th:field="*{ingredients[__${ingredientStat.index}__].quantity}">
+                        </p>
+                    </div>
+                </div>
+
+                <!--/* TODO: add JS here to add another ingredient */-->
+                <div class="prefix-20 grid-80 add-row">
+                    <p>
+                        <button>+ Add Another Ingredient</button>
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="clear"></div>
+
+            <div class="grid-100 row">
+                <div class="grid-20">
+                    <p class="label-spacing">
+                        <label> Steps </label>
+                    </p>
                 </div>
                 <div class="grid-80">
-                  <p class="label-spacing">
-                    <label> Description <label>
+                    <p class="label-spacing">
+                        <label> Description </label>
                     </p>
-                  </div>
+                </div>
 
-                  <div class="step-row">
+                <!--/* TODO : test this with *{steps} like Florian ...
+                */-->
+                <div th:each="step : ${steps}" class="step-row">
+                    <input th:field="*{step[__${stepStat.index}__].id}"
+                           type="text"
+                           hidden>
+                    <input th:field="*{step[__${stepStat.index}__].version}"
+                           type="text"
+                           hidden>
                     <div class="prefix-20 grid-80">
-                      <p>
-                        <input></input>
-                      </p>
+                        <p>
+                            <input th:field="*{steps[__${stepStat.index}__].description}">
+                        </p>
                     </div>
-                  </div>
+                </div>
 
-                  <div class="step-row">
-                    <div class="prefix-20 grid-80">
-                      <p>
-                        <input></input>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="step-row">
-                    <div class="prefix-20 grid-80">
-                      <p>
-                        <input></input>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="prefix-20 grid-80 add-row">
+                <!--/*TODO : add JS to add another Step */-->
+                <div class="prefix-20 grid-80 add-row">
                     <p>
-                      <button>+ Add Another Step</button>
+                        <button>+ Add Another Step</button>
                     </p>
-                  </div>
+                </div>
 
-                </div> <div class="clear"></div>
+            </div>
 
-                <div class="row">&nbsp;</div>
+            <div class="clear"></div>
 
-              </div> <!-- recipes -->
-            </div> <!-- grid-100 -->
-          </div> <!-- grid-container -->
-        </body>
-        </html>
+            </form>
+
+            <div class="row">&nbsp;</div>
+
+        </div> <!-- recipes -->
+    </div> <!-- grid-100 -->
+</div> <!-- grid-container -->
+
+<div th:replace="layout :: scripts"></div>
+
+</body>
+</html>
