@@ -2,6 +2,7 @@ package com.techdegree.web.controller;
 
 import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
+import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,8 @@ public class RecipeController {
 
     @Autowired
     private RecipeService recipeService;
+    @Autowired
+    private ItemService itemsService;
 
     // autowire others ??? for now no ...
 
@@ -40,4 +43,24 @@ public class RecipeController {
         return "detail";
     }
 
+    // edit recipe page GET
+    // it does not work when "/id/edit" in tests :(
+    @RequestMapping("/edit/{id}")
+    public String editRecipePage(
+            @PathVariable Long id,
+            Model model) {
+
+        Recipe recipe = recipeService.findOne(id);
+
+        model.addAttribute("recipe", recipe);
+
+        model.addAttribute("categories", RecipeCategory.values());
+
+        // add items for ingredient.item field ... for now
+        // items are in @OneToOne relationship. Later this can be changed
+        // or improved. For now it is what it is
+        model.addAttribute("items", itemsService.findAll());
+
+        return "edit";
+    }
 }
