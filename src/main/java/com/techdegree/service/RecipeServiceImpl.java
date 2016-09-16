@@ -3,9 +3,11 @@ package com.techdegree.service;
 import com.techdegree.dao.RecipeDao;
 import com.techdegree.model.Recipe;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class RecipeServiceImpl implements RecipeService {
     @Autowired
     private RecipeDao recipeDao;
