@@ -1,7 +1,9 @@
 package com.techdegree.web.controller;
 
+import com.techdegree.model.Item;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
+import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +40,8 @@ public class RecipeControllerTest {
 
     @Mock
     private RecipeService recipeService;
+    @Mock
+    private ItemService itemService;
 
     @Before
     public void setUp() throws Exception {
@@ -47,6 +51,7 @@ public class RecipeControllerTest {
     }
 
     // test members and methods used to generate test data:
+    // both for Recipe and Item
 
     private Recipe testRecipe1 = new Recipe.RecipeBuilder(1L)
                 .withName("name 1")
@@ -74,6 +79,16 @@ public class RecipeControllerTest {
                 .build();
         return Arrays.asList(
                 testRecipe1, testRecipe2
+        );
+    }
+
+    private List<Item> createTwoTestItemsAndPutThemToList() {
+        Item testItem1 = new Item("item 1");
+        Item testItem2 = new Item("item 2");
+        testItem1.setId(1L);
+        testItem2.setId(2L);
+        return Arrays.asList(
+                testItem1, testItem2
         );
     }
 
@@ -139,5 +154,51 @@ public class RecipeControllerTest {
                 );
         // Then recipe service.findOne(1L) should be called
         verify(recipeService).findOne(1L);
+    }
+
+    @Test
+    public void editPage_rendersCorrectly() throws Exception {
+        // Arrange: mockMvc is set up with injected Controller
+        // recipeService will return testRecipe1 when
+        // findOne is called
+        when(recipeService.findOne(1L)).thenReturn(
+                testRecipe1
+        );
+        // Arrange itemService to return two test items
+        // when findAll() is called
+        List<Item> testItems = createTwoTestItemsAndPutThemToList();
+        when(itemService.findAll()).thenReturn(
+               testItems
+        );
+
+        // Act and Assert:
+        // When GET request to recipe edit page is made
+        // Then:
+        // - status should be OK
+        // - view should be "edit"
+        // - model should contain "recipe", "items", "categories"
+        // TODO: make a small class example, and show Craig and Chris
+        // that this does not work when /recipes/1/edit :(
+        mockMvc.perform(
+                get(BASE_URI + "/recipes/edit/1")
+        ).andDo(print())
+                .andExpect(
+                        status().isOk()
+                )
+                .andExpect(
+                        view().name("edit")
+                )
+                .andExpect(
+                        model().attribute("recipe", testRecipe1)
+                )
+                .andExpect(
+                        model().attribute("categories", RecipeCategory.values())
+                )
+                .andExpect(
+                        model().attribute("items", testItems)
+                );
+        // Then both recipe and itemService should be called
+        verify(recipeService).findOne(1L);
+        verify(itemService).findAll();
     }
 }
