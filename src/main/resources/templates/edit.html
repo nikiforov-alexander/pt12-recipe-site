@@ -34,7 +34,7 @@
                             will change to button if
                             neccessary
                         */-->
-                        <a th:href="@{/}"
+                        <a th:href="@{/recipes}"
                            class="secondary">Cancel</a>
                     </div>
                 </div>
@@ -59,7 +59,9 @@
                                placeholder="Url">
                     </p>
                 </div>
-            </div> <div class="clear"></div>
+            </div>
+
+            <div class="clear"></div>
 
             <div class="grid-100 row">
                 <div class="grid-20">
@@ -105,7 +107,7 @@
                                Also default category is needed to be
                                added
                          */-->
-                        <select th:field="*{category}"
+                        <select th:field="*{recipeCategory}"
                                 th:class="${defaultCategory.styleClass}">
                             <!--/* This option is for default category 
                                    only 
@@ -186,8 +188,8 @@
                     </p>
                 </div>
 
-                <!--/* ${ingredients} or *{ingredients} */-->
-                <div th:each="ingredient : ${ingredients}" class="ingredient-row">
+                <!--/* Resolved! : must be *{ingredients} */-->
+                <div th:each="ingredient : *{ingredients}" class="ingredient-row">
                     <!--/* Hidden fields will make sure that edited Recipe
                            will not be saved as new one
                      */-->
@@ -201,22 +203,33 @@
                             <!--/* TODO: add default select option here or
                                    not ... may be just leave as <input text>
                              */-->
-                            <select th:field="*{ingredients[__${ingredientStat.index}__].name}">
+                            <select th:field="*{ingredients[__${ingredientStat.index}__].item.id}">
+                                <!--/* In major item select I will pass
+                                       object itself as a value
+                                       It is a good idea to write
+                                       Conversion service ...
+                                       TODO: ask Florian about conversion
+                                       service
+                                 */-->
                                 <option th:each="item : ${items}"
-                                        th:value="${item.name}">
-                                    Select Item
+                                        th:text="${item.name}"
+                                        th:value="${item.id}">
+                                    Item Name
                                 </option>
+
                             </select>
                         </p>
                     </div>
                     <div class="grid-30">
                         <p>
-                            <input type="text" th:field="*{ingredients[__${ingredientStat.index}__].condition}">
+                            <input type="text"
+                                   th:field="*{ingredients[__${ingredientStat.index}__].condition}">
                         </p>
                     </div>
                     <div class="grid-10 suffix-10">
                         <p>
-                            <input type="text" th:field="*{ingredients[__${ingredientStat.index}__].quantity}">
+                            <input type="text"
+                                   th:field="*{ingredients[__${ingredientStat.index}__].quantity}">
                         </p>
                     </div>
                 </div>
@@ -246,11 +259,11 @@
 
                 <!--/* TODO : test this with *{steps} like Florian ...
                 */-->
-                <div th:each="step : ${steps}" class="step-row">
-                    <input th:field="*{step[__${stepStat.index}__].id}"
+                <div th:each="step : *{steps}" class="step-row">
+                    <input th:field="*{steps[__${stepStat.index}__].id}"
                            type="text"
                            hidden>
-                    <input th:field="*{step[__${stepStat.index}__].version}"
+                    <input th:field="*{steps[__${stepStat.index}__].version}"
                            type="text"
                            hidden>
                     <div class="prefix-20 grid-80">
