@@ -72,6 +72,9 @@ public class DataLoader implements ApplicationRunner {
         // set ingredient1-2.recipes to recipe
         ingredient1.setRecipe(recipe);
         ingredient2.setRecipe(recipe);
+        // set step1-2.recipes to recipe
+        step1.setRecipe(recipe);
+        step2.setRecipe(recipe);
 
         // save recipe
         recipeDao.save(recipe);
