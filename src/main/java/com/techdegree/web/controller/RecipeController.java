@@ -1,10 +1,12 @@
 package com.techdegree.web.controller;
 
+import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
 import com.techdegree.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -27,5 +29,15 @@ public class RecipeController {
     }
 
     // sorting recipes by .. pages
+
+    // detail recipe page
+    @RequestMapping("/{id}")
+    public String detailRecipePage(
+            @PathVariable Long id,
+            Model model) {
+        Recipe recipe = recipeService.findOne(id);
+        model.addAttribute("recipe", recipe);
+        return "detail";
+    }
 
 }
