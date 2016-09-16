@@ -46,14 +46,9 @@ public class RecipeControllerTest {
         ).build();
     }
 
-    /**
-     * It may be stupid to remove this code, but
-     * I feel it is too cumbersome and not important
-     * in some tests
-     * @return List<Recipe> with two test recipes
-     */
-    private List<Recipe> createTwoTestRecipesAndPutThemToList() {
-        Recipe recipe1 = new Recipe.RecipeBuilder(1L)
+    // test members and methods used to generate test data:
+
+    private Recipe testRecipe1 = new Recipe.RecipeBuilder(1L)
                 .withName("name 1")
                 .withDescription("description 1")
                 .withRecipeCategory(RecipeCategory.BREAKFAST)
@@ -61,7 +56,15 @@ public class RecipeControllerTest {
                 .withPreparationTime("prepTime 1")
                 .withCookTime("cookTime 1")
                 .build();
-        Recipe recipe2 = new Recipe.RecipeBuilder(2L)
+
+    /**
+     * It may be stupid to remove this code, but
+     * I feel it is too cumbersome and not important
+     * in some tests
+     * @return List<Recipe> with two test recipes
+     */
+    private List<Recipe> createTwoTestRecipesAndPutThemToList() {
+        Recipe testRecipe2 = new Recipe.RecipeBuilder(2L)
                 .withName("name 2")
                 .withDescription("description 2")
                 .withRecipeCategory(RecipeCategory.BREAKFAST)
@@ -70,7 +73,7 @@ public class RecipeControllerTest {
                 .withCookTime("cookTime 2")
                 .build();
         return Arrays.asList(
-                recipe1, recipe2
+                testRecipe1, testRecipe2
         );
     }
 
@@ -103,5 +106,38 @@ public class RecipeControllerTest {
                                 recipes
                         )
                 );
+        // Then recipe service.findAll() should be called
+        verify(recipeService).findAll();
+    }
+
+    @Test
+    public void detailRecipePage_shouldRenderSuccessfully()
+            throws Exception {
+        // Arrange : mockMvc is arranged with injected Controller
+        // we arrange recipeService to return first test Recipe
+        // when service.findOne(1L) will be called
+        when(recipeService.findOne(1L)).thenReturn(
+                testRecipe1
+        );
+
+        // Act and Assert
+        // When request to detail page is made
+        // Then:
+        // - status should be OK
+        // - view should be "detail"
+        // - model should contain "recipe" attribute
+        mockMvc.perform(
+                get(BASE_URI + "/recipes/1")
+        ).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("detail"))
+                .andExpect(
+                        model().attribute(
+                                "recipe",
+                                testRecipe1
+                        )
+                );
+        // Then recipe service.findOne(1L) should be called
+        verify(recipeService).findOne(1L);
     }
 }
