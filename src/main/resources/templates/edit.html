@@ -108,24 +108,16 @@
                                added
                          */-->
                         <select th:field="*{recipeCategory}"
-                                th:class="${defaultCategory.styleClass}">
-                            <!--/* This option is for default category 
-                                   only 
-                            */-->
-                            <option th:value="${defaultCategory}"
-                                    th:class="${defaultCategory.styleClass}"
-                                    th:text="${defaultCategory.name}">
-                                Default Category Name
-                            </option>
+                                th:class="*{recipeCategory.styleClass}">
                             <!--/* The rest options will be without
                                    the default one
                              */-->
-                            <option th:each="otherCategory : ${categoriesWithoutDefaultOne}"
-                                    th:class="${otherCategory.styleClass}"
-                                    th:value="${otherCategory}"
-                                    th:text="${otherCategory.name}"
+                            <option th:each="category : ${categories}"
+                                    th:class="${category.styleClass}"
+                                    th:value="${category}"
+                                    th:text="${category.name}"
                                     >
-                                Other Categories Names
+                                Category Name
                             </option>
                         </select>
                     </p>
