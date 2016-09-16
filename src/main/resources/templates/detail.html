@@ -94,7 +94,7 @@
                     </p>
                 </div>
                 <div class="grid-30">
-                    <p th:text="${recipe.category.name}">
+                    <p th:text="${recipe.recipeCategory.name}">
                         Recipe's Category Name
                     </p>
                 </div>
@@ -140,17 +140,17 @@
                 </div>
                 <div class="grid-30">
                     <p>
-                        <label> Item <label>
+                        <label> Item </label>
                     </p>
                 </div>
                 <div class="grid-30">
                     <p>
-                        <label> Condition <label>
+                        <label> Condition </label>
                     </p>
                 </div>
                 <div class="grid-20">
                     <p>
-                        <label> Quantity <label>
+                        <label> Quantity </label>
                     </p>
                 </div>
 
@@ -158,7 +158,7 @@
                      class="ingredient-row">
 
                     <div class="prefix-20 grid-30">
-                        <p th:text="${ingredient.name}">
+                        <p th:text="${ingredient.item.name}">
                             Ingredient Name
                         </p>
                     </div>
@@ -185,7 +185,7 @@
                 </div>
                 <div class="grid-80">
                     <p>
-                        <label> Description <label>
+                        <label> Description </label>
                     </p>
                 </div>
 
