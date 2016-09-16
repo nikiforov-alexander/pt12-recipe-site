@@ -232,7 +232,12 @@
                                    th:field="*{ingredients[__${ingredientStat.index}__].quantity}">
                         </p>
                     </div>
+                    <!--/*This div right here is very important : it makes
+                          ingredients differ one from another
+                    */-->
+                    <div class="clear"></div>
                 </div>
+
 
                 <!--/* TODO: add JS here to add another ingredient */-->
                 <div class="prefix-20 grid-80 add-row">
