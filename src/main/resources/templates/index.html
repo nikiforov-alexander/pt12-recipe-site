@@ -104,7 +104,11 @@
                     <div class="grid-30">
                         <div class="flush-right">
                             <p>
-                                <a th:href="@{|/recipes/${recipe.id}/edit|}">
+                                <!--/*
+                                    old variant: it didn't work :(
+                                    <a th:href="@{|/recipes/${recipe.id}/edit|}">
+                                */-->
+                                <a th:href="@{|/recipes/edit/${recipe.id}|}">
                                     <img th:src="@{/assets/images/edit.svg}"
                                          height="12px">
                                     Edit
