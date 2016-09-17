@@ -20,6 +20,12 @@
     </div>
 
     <div class="grid-100">
+        <!--/*
+            here is ${action}, can be "save", can be "add-new"
+        */-->
+        <form th:action="@{|${action}|}"
+              th:object="${recipe}"
+              method="post">
 
         <div class="recipes">
 
@@ -29,7 +35,10 @@
                 </div>
                 <div class="grid-50">
                     <div class="flush-right">
-                        <button>Save Recipe</button>
+                        <button th:action="@{|${action}|}"
+                                type="submit">
+                            Save Recipe
+                        </button>
                         <!--/* For now anchor... later
                             will change to button if
                             neccessary
@@ -41,11 +50,6 @@
             </div>
 
             <div class="clear"></div>
-
-            <!--/*will leave just /save for now*/-->
-            <form th:action="@{/save}"
-                  th:object="${recipe}"
-                    method="post">
 
             <div class="grid-100 row">
                 <div class="grid-20">
@@ -281,11 +285,12 @@
 
             <div class="clear"></div>
 
-            </form>
 
             <div class="row">&nbsp;</div>
 
         </div> <!-- recipes -->
+
+        </form>
     </div> <!-- grid-100 -->
 </div> <!-- grid-container -->
 
