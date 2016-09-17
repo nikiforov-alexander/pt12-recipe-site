@@ -1,154 +1,141 @@
 <!doctype html>
-<html lang="en">
-<head>
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-
-  <title>My Recipes</title>
-
-  <link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="../css/unsemantic-grid-responsive.css">
-  <link rel="stylesheet" href="../css/styles.css">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('My Recipes')">
 </head>
 
 <body>
 
-  <nav>
-    <a href="profile.html">
-      Chandra S.
-    </a>
-    &bull;
-    <a href="login.html">
-      logout
-    </a>
-  </nav>
+<nav th:replace="layout :: nav">
+</nav>
 
-  <div class="grid-container">
+<div class="grid-container">
 
-    <div class="grid-100">
-      <a href="index.html">
-        <h1>
-          <img src="../images/chefbot.svg" height="60px">
-          <br>
-          My Recipes
-        </h1>
-      </a>
+    <div th:replace="layout :: flash"></div>
+
+    <div th:replace="layout :: my_recipes_logo"
+         class="grid-100">
     </div>
 
     <div class="grid-100">
 
-      <div class="recipes">
+        <div class="recipes">
 
-        <div class="grid-100 row controls">
-          <div class="grid-30">
-            <select>
-              <option value="">All Categories</option>
-              <option value="breakfast">Breakfast</option>
-              <option value="lunch">Lunch</option>
-              <option value="dinner">Dinner</option>
-              <option value="dessert">Dessert</option>
-            </select>
-          </div>
-          <div class="grid-40">
-            <input placeholder="Search"></input>
-          </div>
-          <div class="grid-30">
-            <div class="flush-right">
-              <button>+ Add Recipe</button>
-            </div>
-          </div>
-        </div> <div class="clear"></div>
+            <div class="grid-100 row controls">
+                <div class="grid-30">
+                    <!--/*TODO: add Js here so that when
+                          category is selected, only
+                          recipes of that category are
+                          shown : should work like this:
+                          we give JS list, and JQuery does
+                          all the rest, by sorting this or that.
+                          Probably I'll make those available
+                          ../?sort-by-selected=category
+                          and Js will execute this. This is
+                          the way Treehouse works ... For
+                          now I don't know other solutions
+                     */-->
+                    <select th:class="${defaultCategory.styleClass}">
+                        <!--/* This option is for default category
+                               only
+                        */-->
+                        <option th:class="${defaultCategory.styleClass}"
+                                th:text="${defaultCategory.name}">
+                            Default Category Name
+                        </option>
+                        <!--/* The rest options will be without
+                               the default one
+                         */-->
+                        <option th:each="otherCategory : ${categoriesWithoutDefaultOne}"
+                                th:class="${otherCategory.styleClass}"
+                                th:text="${otherCategory.name}">
+                            Other Categories Names
+                        </option>
+                    </select>
+                </div>
+                <!--/*
+                      TODO: implement search by name index page
+                      this input should be in form that makes
+                      get request ... And I have to read about this more
+                      in Thymeleaf docs
+                */-->
+                <div class="grid-40">
+                    <input type="text"
+                           placeholder="Search">
+                </div>
 
-        <div class="grid-100 row addHover">
-          <a href="detail.html">
-            <div class="grid-70">
-              <p>
-                <span><img src="../images/favorite.svg" height="12px"> </span>
-                Baked Alaskan Salmon with Asparagus
-              </p>
-            </div>
-          </a>
-          <div class="hoverBlock">
-            <div class="grid-30">
-              <div class="flush-right">
-                <p>
-                  <a href="edit.html"> <img src="../images/edit.svg" height="12px"> Edit </a>
-                  <a href="#"> <img src="../images/delete.svg" height="12px"> Delete </a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div> <div class="clear"></div>
+                <!--/*
+                    TODO: Check here for proper Controller path
+                    Change anchor here back for button, so
+                    that styling is conserved
+                */-->
+                <div class="grid-30">
+                    <div class="flush-right">
+                        <a th:href="@{/recipes/add-new}">
+                            + Add Recipe
+                        </a>
+                    </div>
+                </div>
 
-        <div class="grid-100 row addHover">
-          <a href="detail.html">
-            <div class="grid-70">
-              <p>
-                <span><img src="../images/favorited.svg" height="12px"> </span>
-                Broiche French Toast with Nutella
-              </p>
             </div>
-          </a>
-          <div class="hoverBlock">
-            <div class="grid-30">
-              <div class="flush-right">
-                <p>
-                  <a href="#"> <img src="../images/edit.svg" height="12px"> Edit </a>
-                  <a href="#"> <img src="../images/delete.svg" height="12px"> Delete </a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div> <div class="clear"></div>
 
-        <div class="grid-100 row addHover">
-          <a href="detail.html">
-            <div class="grid-70">
-              <p>
-                <span><img src="../images/favorite.svg" height="12px"> </span>
-                Simple Miso Soup with Clams and Sake
-              </p>
-            </div>
-          </a>
-          <div class="hoverBlock">
-            <div class="grid-30">
-              <div class="flush-right">
-                <p>
-                  <a href="#"> <img src="../images/edit.svg" height="12px"> Edit </a>
-                  <a href="#"> <img src="../images/delete.svg" height="12px"> Delete </a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div> <div class="clear"></div>
+            <div class="clear"></div>
 
-        <div class="grid-100 row addHover">
-          <a href="detail.html">
-            <div class="grid-70">
-              <p>
-                <span><img src="../images/favorite.svg" height="12px"> </span>
-                Paleo Squash Noodles with Chicken Breast
-              </p>
-            </div>
-          </a>
-          <div class="hoverBlock">
-            <div class="grid-30">
-              <div class="flush-right">
-                <p>
-                  <a href="#"> <img src="../images/edit.svg" height="12px"> Edit </a>
-                  <a href="#"> <img src="../images/delete.svg" height="12px"> Delete </a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div> <div class="clear"></div>
+            <!--/* Recipes rows with edit button and favorite star */-->
 
-        <div class="row">&nbsp;</div>
+            <div th:each="recipe : ${recipes}"
+                 class="grid-100 row addHover">
 
-      </div> <!-- recipes -->
+                <a href="detail.html">
+                    <div class="grid-70">
+                        <p th:text="${recipe.name}">
+                            <!--/* Recipe favorite star image unclickable ?
+                                   TODO: make recipe favorite from index page
+                            */-->
+                            <span>
+                                <img th:src="@{/images/favorite.svg}"
+                                     height="12px">
+                            </span>
+                            Recipe Name
+                        </p>
+                    </div>
+                </a>
+
+                <div class="hoverBlock">
+                    <div class="grid-30">
+                        <div class="flush-right">
+                            <p>
+                                <!--/*
+                                    old variant: it didn't work :(
+                                    <a th:href="@{|/recipes/${recipe.id}/edit|}">
+                                */-->
+                                <a th:href="@{|/recipes/edit/${recipe.id}|}">
+                                    <img th:src="@{/assets/images/edit.svg}"
+                                         height="12px">
+                                    Edit
+                                </a>
+                                <a th:href="@{/recipes/${recipe.id}/delete}">
+                                    <img th:src="@{/assets/images/delete.svg}"
+                                         height="12px">
+                                    Delete
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clear"></div>
+
+            </div>
+
+            <div class="clear"></div>
+
+            <div class="row">&nbsp;</div>
+
+        </div> <!-- recipes -->
     </div> <!-- grid-100 -->
-  </div> <!-- grid-container -->
+</div> <!-- grid-container -->
+
+<div th:replace="layout :: scripts"></div>
+
 </body>
 </html>

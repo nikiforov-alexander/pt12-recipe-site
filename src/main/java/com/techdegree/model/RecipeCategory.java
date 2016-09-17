@@ -1,10 +1,14 @@
 package com.techdegree.model;
 
+import java.util.Arrays;
+import java.util.List;
+
 // This will be first iteration of RecipeCategory
 // it will be enum and values will be pre-defined
 // I think it is a good idea to extract RecipeCategory
 // from here and be able to add new one
 public enum RecipeCategory {
+    NONE("Select Category", "unselected"),
     BREAKFAST("Breakfast", "breakfast-category"),
     LUNCH("Lunch", "lunch-category"),
     DINNER("Dinner", "dinner-category"),
@@ -34,5 +38,17 @@ public enum RecipeCategory {
     RecipeCategory(String name, String styleClass) {
         this.name = name;
         this.styleClass = styleClass;
+    }
+
+    // TODO: fix this ugly code: for now it throws UnsupportedOpException
+    public static List<RecipeCategory> valuesWithoutOne() {
+       List<RecipeCategory> categoriesWithoutNone =
+               Arrays.asList(
+                    RecipeCategory.BREAKFAST,
+                    RecipeCategory.DESSERT,
+                    RecipeCategory.LUNCH,
+                    RecipeCategory.DINNER
+               );
+       return categoriesWithoutNone;
     }
 }

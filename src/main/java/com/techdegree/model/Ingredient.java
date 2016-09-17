@@ -35,6 +35,7 @@ public class Ingredient extends BaseEntity {
     @NotNull(message =
             "Ingredient cannot be created without recipe")
     @ManyToOne
+    @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
     // getters and setters

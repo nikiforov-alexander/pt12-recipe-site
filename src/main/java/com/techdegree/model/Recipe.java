@@ -41,12 +41,10 @@ public class Recipe extends BaseEntity{
     @NotEmpty
     private String cookTime;
 
-    @NotNull
     @OneToMany(mappedBy = "recipe")
     private List<Ingredient> ingredients = new ArrayList<>();
 
-    @NotNull
-    @ManyToMany
+    @OneToMany(mappedBy = "recipe")
     private List<Step> steps = new ArrayList<>();
 
     // getters and setters
@@ -150,5 +148,64 @@ public class Recipe extends BaseEntity{
 
     public void addStep(Step step) {
         steps.add(step);
+    }
+
+    // builder for Recipe
+
+    public static class RecipeBuilder {
+        private Long id;
+        private String name;
+        private String description;
+        private RecipeCategory recipeCategory;
+        private String photoUrl;
+        private String preparationTime;
+        private String cookTime;
+
+        public RecipeBuilder(Long id) {
+            this.id = id;
+        }
+
+        // TODO: ask why do we need empty constructor
+        // here ?
+        public RecipeBuilder() {
+
+        }
+
+        public RecipeBuilder withName(String name) {
+            this.name = name;
+            return this;
+        }
+        public RecipeBuilder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+        public RecipeBuilder withRecipeCategory(RecipeCategory recipeCategory) {
+            this.recipeCategory = recipeCategory;
+            return this;
+        }
+        public RecipeBuilder withPhotoUrl(String photoUrl) {
+            this.photoUrl = photoUrl;
+            return this;
+        }
+        public RecipeBuilder withCookTime(String cookTime) {
+            this.cookTime = cookTime;
+            return this;
+        }
+        public RecipeBuilder withPreparationTime(String preparationTime) {
+            this.preparationTime = preparationTime;
+            return this;
+        }
+
+        public Recipe build() {
+            Recipe recipe = new Recipe();
+            recipe.setId(id);
+            recipe.setName(name);
+            recipe.setDescription(description);
+            recipe.setRecipeCategory(recipeCategory);
+            recipe.setPhotoUrl(photoUrl);
+            recipe.setPreparationTime(preparationTime);
+            recipe.setCookTime(cookTime);
+            return recipe;
+        }
     }
 }
