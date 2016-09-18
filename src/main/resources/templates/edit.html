@@ -92,6 +92,8 @@
 
             <div class="clear"></div>
 
+            <!--/* Recipe.description field */-->
+
             <div class="grid-100 row">
                 <!--/* span with error message */-->
                 <span th:errors="*{description}" class="error">
@@ -112,6 +114,12 @@
 
             <div class="clear"></div>
 
+            <!--/* Recipe.recipeCategory field */-->
+
+            <!--/* For category I will not make a validation
+                   because well it can be anything and by
+                   default something is selected
+            */-->
             <div class="grid-100 row">
                 <div class="grid-20">
                     <p class="label-spacing">
@@ -120,16 +128,12 @@
                 </div>
                 <div class="grid-30">
                     <p>
-                        <!--/* TODO: add JS here for color of option
-                               to be the same as selected category
-                               Also default category is needed to be
-                               added
+                        <!--/* I decide to exclude unselected option
+                               I left other as default one. Let it be
+                               for now
                          */-->
                         <select th:field="*{recipeCategory}"
                                 th:class="*{recipeCategory.styleClass}">
-                            <!--/* The rest options will be without
-                                   the default one
-                             */-->
                             <option th:each="category : ${categories}"
                                     th:class="${category.styleClass}"
                                     th:value="${category}"
