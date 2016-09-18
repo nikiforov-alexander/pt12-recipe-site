@@ -51,16 +51,22 @@
 
             <div class="clear"></div>
 
+            <!--/* photoUrl field */-->
+
             <div class="grid-100 row">
+                <!--/* span with error message */-->
+                <span th:errors="*{photoUrl}" class="error">
+                </span>
                 <div class="grid-20">
                     <p class="label-spacing">
                         <label> Photo </label>
                     </p>
                 </div>
-                <div class="grid-40">
+                <div th:classappend="${#fields.hasErrors('photoUrl')}? 'error' : ''"
+                     class="grid-40">
                     <p>
                         <input th:field="*{photoUrl}"
-                               placeholder="Url">
+                               placeholder="URL">
                     </p>
                 </div>
             </div>
