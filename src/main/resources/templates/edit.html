@@ -148,13 +148,20 @@
 
             <div class="clear"></div>
 
+            <!--/* Recipe.preparationTime field */-->
+
             <div class="grid-100 row">
+                <!--/* span with error message this time with diff class */-->
+                <span th:errors="*{preparationTime}"
+                      class="error with-grid-20">
+                </span>
                 <div class="grid-20">
                     <p class="label-spacing">
                         <label> Prep Time </label>
                     </p>
                 </div>
-                <div class="grid-20">
+                <div th:classappend="${#fields.hasErrors('preparationTime')}? 'error' : ''"
+                     class="grid-20">
                     <p>
                         <input th:field="*{preparationTime}"
                                type="text">
