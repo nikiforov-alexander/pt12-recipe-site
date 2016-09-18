@@ -4,8 +4,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +41,12 @@ public class Recipe extends BaseEntity{
     @NotEmpty
     private String cookTime;
 
+    /*
+        This @Valid annotation is used to recursively check
+        which fields are wrong and then throw error
+        for fields like recipe.ingredients[0].name e.g.
+    */
+    @Valid
     @OneToMany(mappedBy = "recipe")
     private List<Ingredient> ingredients = new ArrayList<>();
 
