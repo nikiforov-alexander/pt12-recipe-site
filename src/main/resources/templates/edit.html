@@ -93,12 +93,16 @@
             <div class="clear"></div>
 
             <div class="grid-100 row">
+                <!--/* span with error message */-->
+                <span th:errors="*{description}" class="error">
+                </span>
                 <div class="grid-20">
                     <p class="label-spacing">
                         <label> Description </label>
                     </p>
                 </div>
-                <div class="grid-40">
+                <div th:classappend="${#fields.hasErrors('description')}? 'error' : ''"
+                     class="grid-40">
                     <p>
                         <textarea th:field="*{description}">
                         </textarea>
