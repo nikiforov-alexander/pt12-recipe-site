@@ -133,6 +133,14 @@ span.error {
     position: relative;
     top: 25px;
 }
+/* span with error message on input fields but if underlying
+   div has class="grid-20" */
+span.error.with-grid-20 {
+    color: brown;
+    position: relative;
+    top: 25px;
+    left: 10px;
+}
 
 /* recipe categories selects and option styles */
 select.category {
