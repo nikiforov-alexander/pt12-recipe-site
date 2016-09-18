@@ -1,5 +1,6 @@
 package com.techdegree.web.controller;
 
+import com.techdegree.model.Ingredient;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
 import com.techdegree.service.ItemService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,7 +27,12 @@ public class RecipeController {
     @Autowired
     private ItemService itemsService;
 
-    // autowire others ??? for now no ...
+    // validator is used this way because
+    // recipe.ingredients.recipe is null upon saving
+    // that is why we set ingredients to recipe, and
+    // then proceed
+    @Autowired
+    private Validator validator;
 
     // home page with all recipes
     @RequestMapping("/")
@@ -86,19 +93,22 @@ public class RecipeController {
     // POST request to change saved item
     @RequestMapping(value = "/{id}/save", method = RequestMethod.POST)
     public String saveRecipe(
-            @Valid Recipe recipe,
+            Recipe recipe, // no @Valid here, it comes later
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             @PathVariable Long id,
             Model model
     ) {
+        // for each recipe.ingredient we set
+        // recipe. Thymeleaf cannot make it right somehow ...
+        // after that we can write if (result.hasErrors())
+        recipe.getIngredients().forEach(
+                i -> i.setRecipe(recipe)
+        );
+        validator.validate(recipe, bindingResult);
+
         // check validation for simple fields
-        if (bindingResult.hasFieldErrors("name")
-                || bindingResult.hasFieldErrors("description")
-                || bindingResult.hasFieldErrors("recipeCategory")
-                || bindingResult.hasFieldErrors("photoUrl")
-                || bindingResult.hasFieldErrors("preparationTime")
-                || bindingResult.hasFieldErrors("cookTime")) {
+        if (bindingResult.hasErrors()) {
             // set flash message with
             // errors, recipe, bindingResult with errors
             // and redirect
