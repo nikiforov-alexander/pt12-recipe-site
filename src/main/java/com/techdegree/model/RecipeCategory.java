@@ -8,11 +8,11 @@ import java.util.List;
 // I think it is a good idea to extract RecipeCategory
 // from here and be able to add new one
 public enum RecipeCategory {
-    NONE("Select Category", "unselected"),
-    BREAKFAST("Breakfast", "breakfast-category"),
-    LUNCH("Lunch", "lunch-category"),
-    DINNER("Dinner", "dinner-category"),
-    DESSERT("Dessert", "dessert-category");
+    NONE("Other", "category other"),
+    BREAKFAST("Breakfast", "category breakfast"),
+    LUNCH("Lunch", "category lunch"),
+    DINNER("Dinner", "category dinner"),
+    DESSERT("Dessert", "category dessert");
 
     // fields
 
