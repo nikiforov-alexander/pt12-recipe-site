@@ -4,11 +4,17 @@ import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
+import com.techdegree.web.FlashMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/recipes")
@@ -52,7 +58,13 @@ public class RecipeController {
 
         Recipe recipe = recipeService.findOne(id);
 
-        model.addAttribute("recipe", recipe);
+        // if to this page we get from error post request, we
+        // will not add recipe to model, because it will
+        // be added with redirect attributes
+        // Otherwise, recipe will be added from database
+        if (!model.containsAttribute("recipe")) {
+            model.addAttribute("recipe", recipe);
+        }
 
         model.addAttribute("categories", RecipeCategory.values());
 
@@ -61,6 +73,52 @@ public class RecipeController {
         // or improved. For now it is what it is
         model.addAttribute("items", itemsService.findAll());
 
+        // check recipe
+        // add "action" attribute, will be "/recipes/id/save"
+        // in case of new will be "/recipes/add-new"
+        model.addAttribute("action", "/recipes/"
+                + recipe.getId() +
+                "/save");
+
         return "edit";
+    }
+
+    // POST request to change saved item
+    @RequestMapping(value = "/{id}/save", method = RequestMethod.POST)
+    public String saveRecipe(
+            @Valid Recipe recipe,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            @PathVariable Long id,
+            Model model
+    ) {
+        // check validation for simple fields
+        if (bindingResult.hasFieldErrors("name")
+                || bindingResult.hasFieldErrors("description")
+                || bindingResult.hasFieldErrors("recipeCategory")
+                || bindingResult.hasFieldErrors("photoUrl")
+                || bindingResult.hasFieldErrors("preparationTime")
+                || bindingResult.hasFieldErrors("cookTime")) {
+            // set flash message with
+            // errors, recipe, bindingResult with errors
+            // and redirect
+            redirectAttributes.addFlashAttribute(
+                    "org.springframework.validation.BindingResult.recipe",
+                    bindingResult
+            );
+            redirectAttributes.addFlashAttribute(
+                    "recipe", recipe
+            );
+            redirectAttributes.addFlashAttribute(
+                    "flash",
+                    new FlashMessage(
+                            "Oops! Some fields have errors",
+                            FlashMessage.Status.FAILURE
+                    )
+            );
+            // back to "edit" page
+            return "redirect:/recipes/edit/" + recipe.getId();
+        }
+        return "redirect:/recipes/";
     }
 }
