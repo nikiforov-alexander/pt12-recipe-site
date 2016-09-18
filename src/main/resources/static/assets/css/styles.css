@@ -133,3 +133,44 @@ span.error {
     position: relative;
     top: 25px;
 }
+
+/* recipe categories selects and option styles */
+select.category {
+   font-weight: bold;
+}
+
+select.category.other {
+    color: black;
+}
+select.category.breakfast {
+    color: darkseagreen;
+}
+select.category.lunch {
+    color: yellowgreen;
+}
+select.category.dinner {
+    color: orange;
+}
+select.category.dessert {
+    color: brown;
+}
+
+option.category {
+    font-weight: bold;
+}
+
+option.category.other {
+    color: black;
+}
+option.category.breakfast {
+    color: darkseagreen;
+}
+option.category.lunch {
+    color: yellowgreen;
+}
+option.category.dinner {
+    color: orange;
+}
+option.category.dessert {
+    color: brown;
+}
