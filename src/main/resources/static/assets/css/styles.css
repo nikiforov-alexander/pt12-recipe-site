@@ -123,6 +123,12 @@ button:hover {
 
 /* error divs on form input fields */
 
+.ingredient-error {
+    position: relative;
+    color: brown;
+    left: 21.2%;
+}
+
 .error input {
     border-color: brown;
 }
