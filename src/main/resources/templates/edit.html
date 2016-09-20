@@ -253,7 +253,8 @@
                             <!--/* TODO: add default select option here or
                                    not ... may be just leave as <input text>
                              */-->
-                            <select th:field="*{ingredients[__${ingredientStat.index}__].item.id}">
+                            <select th:field="*{ingredients[__${ingredientStat.index}__].item.id}"
+                                th:autofocus="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].item')}">
                                 <!--/* In major item select I will pass
                                        object itself as a value
                                        It is a good idea to write
@@ -288,14 +289,16 @@
                          class="grid-30">
                         <p>
                             <input th:field="*{ingredients[__${ingredientStat.index}__].condition}"
+                                   th:autofocus="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].condition')}"
                                    type="text">
                         </p>
                     </div>
                     <div th:classappend="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].quantity')}? 'error' : ''"
                          class="grid-10 suffix-10">
                         <p>
-                            <input type="text"
-                                   th:field="*{ingredients[__${ingredientStat.index}__].quantity}">
+                            <input th:field="*{ingredients[__${ingredientStat.index}__].quantity}"
+                                   th:autofocus="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].quantity')}"
+                                   type="text">
                         </p>
                     </div>
                     <!--/*This div right here is very important : it makes
