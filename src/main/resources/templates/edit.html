@@ -228,6 +228,25 @@
                     <input type="text" hidden
                            th:field="*{ingredients[__${ingredientStat.index}__].version}">
 
+                    <!--/*
+                        Error message for item, condition and quantity
+                        of each ingredient
+                    */-->
+                    <div class="ingredient-error">
+                        <span th:errors="*{ingredients[__${ingredientStat.index}__].item}">
+                        </span>
+                    </div>
+                    <div class="ingredient-error">
+                        <span th:errors="*{ingredients[__${ingredientStat.index}__].condition}">
+                        </span>
+                    </div>
+                    <div class="ingredient-error">
+                        <span th:errors="*{ingredients[__${ingredientStat.index}__].quantity}">
+                        </span>
+                    </div>
+
+                    <!--/* div with Ingredients input fields */-->
+
                     <div class="prefix-20 grid-30">
                         <p>
                             <!--/* TODO: add default select option here or
@@ -258,10 +277,17 @@
                             </select>
                         </p>
                     </div>
-                    <div class="grid-30">
+                    <!--/* This class gets error appended to "class"
+                            attribute. See closer that we have to
+                            use __${}__ inside, otherwise will give
+                            error: see here
+                            http://stackoverflow.com/questions/31533044/calling-a-method-with-a-variable-using-spring-el-from-thymeleaf
+                    */-->
+                    <div th:classappend="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].condition')}? 'error' : ''"
+                         class="grid-30">
                         <p>
-                            <input type="text"
-                                   th:field="*{ingredients[__${ingredientStat.index}__].condition}">
+                            <input th:field="*{ingredients[__${ingredientStat.index}__].condition}"
+                                   type="text">
                         </p>
                     </div>
                     <div class="grid-10 suffix-10">
