@@ -247,7 +247,8 @@
 
                     <!--/* div with Ingredients input fields */-->
 
-                    <div class="prefix-20 grid-30">
+                    <div th:classappend="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].item')}? 'error' : ''"
+                         class="prefix-20 grid-30">
                         <p>
                             <!--/* TODO: add default select option here or
                                    not ... may be just leave as <input text>
@@ -290,7 +291,8 @@
                                    type="text">
                         </p>
                     </div>
-                    <div class="grid-10 suffix-10">
+                    <div th:classappend="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].quantity')}? 'error' : ''"
+                         class="grid-10 suffix-10">
                         <p>
                             <input type="text"
                                    th:field="*{ingredients[__${ingredientStat.index}__].quantity}">
