@@ -50,6 +50,7 @@ public class Recipe extends BaseEntity{
     @OneToMany(mappedBy = "recipe")
     private List<Ingredient> ingredients = new ArrayList<>();
 
+    @Valid
     @OneToMany(mappedBy = "recipe")
     private List<Step> steps = new ArrayList<>();
 
