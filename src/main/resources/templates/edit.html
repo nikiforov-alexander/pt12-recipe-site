@@ -194,6 +194,8 @@
 
             <div class="clear"></div>
 
+            <!--/* Recipe.ingredient */-->
+
             <div class="grid-100 row">
                 <div class="grid-20">
                     <p class="label-spacing">
@@ -239,6 +241,14 @@
                                        TODO: ask Florian about conversion
                                        service
                                  */-->
+                                <!--/* Default option will be considered as
+                                       error: "Select Item" option
+                                */-->
+                                <option th:if="${recipe.id != null}"
+                                        selected
+                                        th:text="'Select Item'"
+                                        value="0">
+                                </option>
                                 <option th:each="item : ${items}"
                                         th:text="${item.name}"
                                         th:value="${item.id}">
