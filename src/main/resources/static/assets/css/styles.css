@@ -121,6 +121,11 @@ button:hover {
     border-radius: 10px;
 }
 
+/* changing select element of recipe.ingredients.item select */
+.prefix-20.grid-30.error select {
+    border-color: brown;
+}
+
 /* error divs on form input fields */
 
 .ingredient-error {
