@@ -121,6 +121,13 @@ button:hover {
     border-radius: 10px;
 }
 
+/* step-row.span actually is used to print error */
+.step-row span {
+    position: relative;
+    left: 21.2%;
+    color: brown;
+}
+
 /* changing select element of recipe.ingredients.item select */
 .prefix-20.grid-30.error select {
     border-color: brown;
