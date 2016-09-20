@@ -327,6 +327,8 @@
 
             <div class="clear"></div>
 
+            <!--/* Recipe.steps */-->
+
             <div class="grid-100 row">
                 <div class="grid-20">
                     <p class="label-spacing">
@@ -348,9 +350,12 @@
                     <input th:field="*{steps[__${stepStat.index}__].version}"
                            type="text"
                            hidden>
-                    <div class="prefix-20 grid-80">
+                    <div th:classappend="${#fields.hasErrors('steps[' + __${stepStat.index}__ + '].description')}? 'error' : ''"
+                        class="prefix-20 grid-80">
                         <p>
-                            <input th:field="*{steps[__${stepStat.index}__].description}">
+                            <input th:field="*{steps[__${stepStat.index}__].description}"
+                                   th:autofocus="${#fields.hasErrors('steps[' + __${stepStat.index}__ + '].description')}"
+                            >
                         </p>
                     </div>
                 </div>
