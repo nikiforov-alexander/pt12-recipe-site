@@ -66,6 +66,7 @@
                      class="grid-40">
                     <p>
                         <input th:field="*{photoUrl}"
+                               th:autofocus="${#fields.hasErrors('photoUrl')}"
                                placeholder="URL">
                     </p>
                 </div>
@@ -85,7 +86,9 @@
                 <div th:classappend="${#fields.hasErrors('name')}? 'error' : ''"
                      class="grid-40">
                     <p>
-                        <input th:field="*{name}">
+                        <input th:field="*{name}"
+                               th:autofocus="${#fields.hasErrors('name')}"
+                        >
                     </p>
                 </div>
             </div>
@@ -106,7 +109,9 @@
                 <div th:classappend="${#fields.hasErrors('description')}? 'error' : ''"
                      class="grid-40">
                     <p>
-                        <textarea th:field="*{description}">
+                        <textarea th:field="*{description}"
+                                  th:autofocus="${#fields.hasErrors('description')}"
+                        >
                         </textarea>
                     </p>
                 </div>
@@ -133,6 +138,7 @@
                                for now
                          */-->
                         <select th:field="*{recipeCategory}"
+                                th:autofocus="${#fields.hasErrors('recipeCategory')}"
                                 th:class="*{recipeCategory.styleClass}">
                             <option th:each="category : ${categories}"
                                     th:class="${category.styleClass}"
@@ -164,6 +170,7 @@
                      class="grid-20">
                     <p>
                         <input th:field="*{preparationTime}"
+                               th:autofocus="${#fields.hasErrors('preparationTime')}"
                                type="text">
                     </p>
                 </div>
@@ -187,6 +194,7 @@
                      class="grid-20">
                     <p>
                         <input th:field="*{cookTime}"
+                               th:autofocus="${#fields.hasErrors('cookTime')}"
                                type="text">
                     </p>
                 </div>
