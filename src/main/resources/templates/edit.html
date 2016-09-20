@@ -27,6 +27,13 @@
               th:object="${recipe}"
               method="post">
 
+        <!--/* Hidden Recipe.id and Recipe.Version fields
+              to make sure we update recipe if we edit
+              one
+        */-->
+        <input th:field="*{id}" hidden type="text">
+        <input th:field="*{version}" hidden type="text">
+
         <div class="recipes">
 
             <div class="grid-100 row controls">
