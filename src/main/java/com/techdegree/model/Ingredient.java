@@ -25,15 +25,15 @@ public class Ingredient extends BaseEntity {
     @NotNull
     @OneToOne
     @JoinColumn(name = "item_id")
-    @ValidItem(message = "Please Select Item")
+    @ValidItem(message = "Please select item")
     private Item item;
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Please input condition")
     private String condition;
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Please input quantity")
     private String quantity;
 
     // this field is needed so that user cannot
