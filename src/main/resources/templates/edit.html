@@ -344,12 +344,17 @@
                 <!--/* TODO : test this with *{steps} like Florian ...
                 */-->
                 <div th:each="step : *{steps}" class="step-row">
+                    <!--/* span with error message */-->
+                    <span th:errors="*{steps[__${stepStat.index}__].description}">
+                    </span>
+
                     <input th:field="*{steps[__${stepStat.index}__].id}"
                            type="text"
                            hidden>
                     <input th:field="*{steps[__${stepStat.index}__].version}"
                            type="text"
                            hidden>
+
                     <div th:classappend="${#fields.hasErrors('steps[' + __${stepStat.index}__ + '].description')}? 'error' : ''"
                         class="prefix-20 grid-80">
                         <p>
