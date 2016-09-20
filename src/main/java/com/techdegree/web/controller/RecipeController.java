@@ -99,11 +99,14 @@ public class RecipeController {
             @PathVariable Long id,
             Model model
     ) {
-        // for each recipe.ingredient we set
+        // for each recipe.ingredient and recipe.step we set
         // recipe. Thymeleaf cannot make it right somehow ...
         // after that we can write if (result.hasErrors())
         recipe.getIngredients().forEach(
                 i -> i.setRecipe(recipe)
+        );
+        recipe.getSteps().forEach(
+                s -> s.setRecipe(recipe)
         );
         validator.validate(recipe, bindingResult);
 
@@ -129,6 +132,10 @@ public class RecipeController {
             // back to "edit" page
             return "redirect:/recipes/edit/" + recipe.getId();
         }
+
+        // if everything is OK, we save and redirect home
+        recipeService.save(recipe);
+
         return "redirect:/recipes/";
     }
 }
