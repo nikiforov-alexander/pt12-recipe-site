@@ -5,6 +5,7 @@ import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
+import com.techdegree.service.StepService;
 import com.techdegree.web.FlashMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,6 +27,8 @@ public class RecipeController {
     private RecipeService recipeService;
     @Autowired
     private ItemService itemsService;
+    @Autowired
+    private StepService stepService;
 
     // validator is used this way because
     // recipe.ingredients.recipe is null upon saving
@@ -133,9 +136,13 @@ public class RecipeController {
             return "redirect:/recipes/edit/" + recipe.getId();
         }
 
-        // if everything is OK, we save and redirect home
+        // if everything is OK, we save recipes and steps
+        // because steps have foreign key in their table
+        // so we have to do that
         recipeService.save(recipe);
-
+        recipe.getSteps().forEach(
+            step -> stepService.save(step)
+        );
         return "redirect:/recipes/";
     }
 }
