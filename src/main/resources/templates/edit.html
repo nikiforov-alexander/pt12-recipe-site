@@ -245,17 +245,20 @@
 
                     <!--/*
                         Error message for item, condition and quantity
-                        of each ingredient
+                        of each ingredient. Divs appear only if errors exist
                     */-->
-                    <div class="ingredient-error">
+                    <div th:if="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].item')}"
+                        class="ingredient-error">
                         <span th:errors="*{ingredients[__${ingredientStat.index}__].item}">
                         </span>
                     </div>
-                    <div class="ingredient-error">
+                    <div th:if="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].condition')}"
+                         class="ingredient-error">
                         <span th:errors="*{ingredients[__${ingredientStat.index}__].condition}">
                         </span>
                     </div>
-                    <div class="ingredient-error">
+                    <div th:if="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].quantity')}"
+                         class="ingredient-error">
                         <span th:errors="*{ingredients[__${ingredientStat.index}__].quantity}">
                         </span>
                     </div>
@@ -323,10 +326,14 @@
                 </div>
 
 
-                <!--/* TODO: add JS here to add another ingredient */-->
+                <!--/* JS here is up and running
+                    to add another ingredient
+                    */-->
                 <div class="prefix-20 grid-80 add-row">
                     <p>
-                        <button>+ Add Another Ingredient</button>
+                        <button id="add-another-ingredient-button">
+                            + Add Another Ingredient
+                        </button>
                     </p>
                 </div>
 
