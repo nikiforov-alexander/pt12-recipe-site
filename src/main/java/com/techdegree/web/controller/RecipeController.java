@@ -3,6 +3,7 @@ package com.techdegree.web.controller;
 import com.techdegree.model.Ingredient;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
+import com.techdegree.service.IngredientService;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
 import com.techdegree.service.StepService;
@@ -29,6 +30,8 @@ public class RecipeController {
     private ItemService itemsService;
     @Autowired
     private StepService stepService;
+    @Autowired
+    private IngredientService ingredientService;
 
     // validator is used this way because
     // recipe.ingredients.recipe is null upon saving
@@ -136,10 +139,15 @@ public class RecipeController {
             return "redirect:/recipes/edit/" + recipe.getId();
         }
 
-        // if everything is OK, we save recipes and steps
-        // because steps have foreign key in their table
+        // if everything is OK, we save recipes, steps
+        // and ingredients
+        // because steps and ingredients
+        // have foreign key in their table
         // so we have to do that
         recipeService.save(recipe);
+        recipe.getIngredients().forEach(
+                i -> ingredientService.save(i)
+        );
         recipe.getSteps().forEach(
             step -> stepService.save(step)
         );
