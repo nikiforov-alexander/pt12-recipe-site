@@ -113,12 +113,19 @@ button:hover {
 
 /* flash messages */
 
-.flash.failure {
-    background-color: brown;
+.flash {
     color: white;
     padding-bottom: 20px;
     padding-top: 20px;
     border-radius: 10px;
+}
+
+.flash.success {
+    background-color: darkcyan;
+}
+
+.flash.failure {
+    background-color: brown;
 }
 
 /* step-row.span actually is used to print error */
