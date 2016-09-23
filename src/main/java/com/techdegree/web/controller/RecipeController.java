@@ -89,15 +89,15 @@ public class RecipeController {
         // check recipe
         // add "action" attribute, will be "/recipes/id/save"
         // in case of new will be "/recipes/add-new"
-        model.addAttribute("action", "/recipes/"
-                + recipe.getId() +
-                "/save");
+        model.addAttribute("action", "/recipes/" +
+                "/save/" +
+                + id);
 
         return "edit";
     }
 
     // POST request to change saved item
-    @RequestMapping(value = "/{id}/save", method = RequestMethod.POST)
+    @RequestMapping(value = "/save/{id}", method = RequestMethod.POST)
     public String saveRecipe(
             Recipe recipe, // no @Valid here, it comes later
             BindingResult bindingResult,
@@ -162,6 +162,18 @@ public class RecipeController {
         );
         recipe.getSteps().forEach(
             step -> stepService.save(step)
+        );
+
+        // we also set good flash message with redirect
+        // attributes, that recipes is successfully
+        // updates
+        redirectAttributes.addFlashAttribute(
+                "flash",
+                new FlashMessage(
+                        "Recipe '" + recipe.getName() + "' was " +
+                                "successfully updated!",
+                        FlashMessage.Status.SUCCESS
+                )
         );
         return "redirect:/recipes/";
     }
