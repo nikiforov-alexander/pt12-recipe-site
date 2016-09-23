@@ -14,4 +14,9 @@ public class IngredientServiceImpl implements IngredientService{
     public Ingredient save(Ingredient ingredient) {
         return ingredientDao.save(ingredient);
     }
+
+    @Override
+    public Ingredient findOne(Long id) {
+        return ingredientDao.findOne(id);
+    }
 }

@@ -14,4 +14,9 @@ public class StepServiceImpl implements StepService{
     public Step save(Step step) {
         return stepDao.save(step);
     }
+
+    @Override
+    public Step findOne(Long id) {
+        return stepDao.findOne(id);
+    }
 }
