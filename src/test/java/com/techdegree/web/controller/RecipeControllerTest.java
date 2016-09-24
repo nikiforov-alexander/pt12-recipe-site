@@ -5,6 +5,7 @@ import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -201,4 +202,56 @@ public class RecipeControllerTest {
         verify(recipeService).findOne(1L);
         verify(itemService).findAll();
     }
+
+    @Test
+    public void addNewRecipePageGetRequestGeneratesCorrectly() throws Exception {
+
+        // Arrange: mockMvc is set up with injected Controller
+        // Arrange itemService to return two test items
+        // when findAll() is called
+        List<Item> testItems = createTwoTestItemsAndPutThemToList();
+        when(itemService.findAll()).thenReturn(
+                testItems
+        );
+
+        // Act and Assert:
+        // When GET request to recipe edit page is made
+        // Then:
+        // - status should be OK
+        // - view should be "edit"
+        // - model should contain :
+        //  - "recipe",
+        //  - "items",
+        //  - "categories"
+        //  - "action"
+        mockMvc.perform(
+                get(BASE_URI + "/recipes/add-new")
+        ).andDo(print())
+                .andExpect(
+                        status().isOk()
+                )
+                .andExpect(
+                        view().name("edit")
+                )
+                .andExpect(
+                        model().attribute("recipe",
+                                Matchers.any(Recipe.class)
+                        )
+                )
+                .andExpect(
+                        model().attribute("categories", RecipeCategory.values())
+                )
+                .andExpect(
+                        model().attribute(
+                                "action",
+                                "/recipes/save"
+                        )
+                )
+                .andExpect(
+                        model().attribute("items", testItems)
+                );
+        // Then itemService should be called
+        verify(itemService).findAll();
+    }
+
 }
