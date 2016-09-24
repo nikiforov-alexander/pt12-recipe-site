@@ -257,12 +257,16 @@ public class RecipeControllerItTest {
                 is(numberOfRecipesBeforePostRequest)
         );
     }
+
     @Test
     public void savingNewRecipeWithAllValidFieldsWorks()
             throws Exception {
         // Arrange:
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
+        // Calculate number of recipes before request
+        int numberOfRecipesBeforePostRequest =
+                recipeService.findAll().size();
 
         // When POST request
         // or adding new one (because they are same)
@@ -305,6 +309,11 @@ public class RecipeControllerItTest {
                                 equalTo(FlashMessage.Status.SUCCESS)
                         )
                 )
+        );
+        // Assert that number of recipes increased
+        assertThat(
+                recipeService.findAll().size(),
+                is(numberOfRecipesBeforePostRequest + 1)
         );
     }
 }
