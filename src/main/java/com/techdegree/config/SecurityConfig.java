@@ -72,7 +72,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // on success we go back home "/"
     // later will change that back to referrer maybe ...
     public AuthenticationSuccessHandler loginSuccessHandler() {
-        return (request, response, authentication) -> response.sendRedirect("/");
+        return (request, response, authentication) ->
+                response.sendRedirect("/recipes/");
     }
 
     // in case of failure we redirect back to "/login" with error
