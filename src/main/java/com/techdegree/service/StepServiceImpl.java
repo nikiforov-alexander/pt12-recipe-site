@@ -5,6 +5,8 @@ import com.techdegree.model.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class StepServiceImpl implements StepService{
     @Autowired
@@ -18,5 +20,10 @@ public class StepServiceImpl implements StepService{
     @Override
     public Step findOne(Long id) {
         return stepDao.findOne(id);
+    }
+
+    @Override
+    public List<Step> findAll() {
+        return (List<Step>) stepDao.findAll();
     }
 }

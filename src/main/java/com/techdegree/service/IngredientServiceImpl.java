@@ -5,6 +5,8 @@ import com.techdegree.model.Ingredient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class IngredientServiceImpl implements IngredientService{
     @Autowired
@@ -18,5 +20,10 @@ public class IngredientServiceImpl implements IngredientService{
     @Override
     public Ingredient findOne(Long id) {
         return ingredientDao.findOne(id);
+    }
+
+    @Override
+    public List<Ingredient> findAll() {
+        return (List<Ingredient>) ingredientDao.findAll();
     }
 }
