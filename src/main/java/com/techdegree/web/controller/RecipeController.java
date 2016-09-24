@@ -1,7 +1,6 @@
 package com.techdegree.web.controller;
 
-import com.techdegree.model.Recipe;
-import com.techdegree.model.RecipeCategory;
+import com.techdegree.model.*;
 import com.techdegree.service.IngredientService;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
@@ -59,15 +58,45 @@ public class RecipeController {
         return "detail";
     }
 
-    // edit recipe page GET
-    // it does not work when "/id/edit" in tests :(
-    @RequestMapping("/edit/{id}")
-    public String editRecipePage(
-            @PathVariable Long id,
-            Model model) {
+    /**
+     *  Method generates Recipe with one ingredient
+     *  with empty Item and other fields and empty
+     *  Step, this way when it is passed to model,
+     *  the page will be generated the way I wanted to,
+     *  with one Ingredient and one step
+     * @return Recipe with ingredient and step to be added
+     * to model in "add-new" recipe page
+     */
+    private Recipe generateEmptyRecipeToPassToAddNewPage() {
+        Recipe recipe = new Recipe();
+        Item item = new Item();
+        Ingredient ingredient = new Ingredient(item, "", "");
+        recipe.addIngredient(ingredient);
 
-        Recipe recipe = recipeService.findOne(id);
+        Step step = new Step("");
+        recipe.addStep(step);
+        return recipe;
+    }
 
+    /**
+     * Because the same attributes are passed to Model when
+     * generating add-new and edit recipe pages, I decided
+     * to re-use that in a tricky way: I pass two args:
+     * model and recipe, and in this method following attributes
+     * are added:
+     * "recipe" - if model does not contain it already
+     * "categories" - values of RecipeCategories enum
+     * "items" - possible Items from database
+     * "action" - that is same for both "add-new" and "edit", action
+     * is address where POST request will be made
+     * @param recipe : recipe to be added to model
+     * @param model : model to which attributes will be added
+     * @return model that is filled with attrbutes
+     */
+    private Model addAttributesToModelForBothEditAndAddNewPages(
+            Recipe recipe,
+            Model model
+    ) {
         // if to this page we get from error post request, we
         // will not add recipe to model, because it will
         // be added with redirect attributes
@@ -86,21 +115,58 @@ public class RecipeController {
         // check recipe
         // add "action" attribute, will be "/recipes/id/save"
         // in case of new will be "/recipes/add-new"
-        model.addAttribute("action", "/recipes/" +
-                "/save/" +
-                + id);
+        model.addAttribute("action", "/recipes"
+                + "/save");
+        return model;
+    }
+
+    // add new recipe page GET
+    @RequestMapping("/add-new")
+    public String addNewRecipePage(Model model) {
+        // empty recipe with ingredients and steps
+        // is generated in separate method for
+        // testing purposes
+        model = addAttributesToModelForBothEditAndAddNewPages(
+                generateEmptyRecipeToPassToAddNewPage(),
+                model
+        );
+
+        return "edit";
+    }
+
+    // edit recipe page GET
+    // it does not work when "/id/edit" in tests :(
+    @RequestMapping("/edit/{id}")
+    public String editRecipePage(
+            @PathVariable Long id,
+            Model model) {
+        // here recipe found in database will be added
+        model = addAttributesToModelForBothEditAndAddNewPages(
+                recipeService.findOne(id),
+                model
+        );
 
         return "edit";
     }
 
     // POST request to change saved item
-    @RequestMapping(value = "/save/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
     public String saveRecipe(
             Recipe recipe, // no @Valid here, it comes later
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes,
-            @PathVariable Long id
+            RedirectAttributes redirectAttributes
     ) {
+        // This is courage try to re-use method adding new
+        // or saving edited item ... It may be wrong to do so
+        // but I decided that methods look too similar
+        // to make them separate ...
+        // So if recipe passed has id, then we will be redirected
+        // to "/edit/id" page, if not - to "/add-new"
+        String pageFromWherePostReqWasMade = "/recipes/add-new";
+        if (recipe.getId() != null) {
+            pageFromWherePostReqWasMade = "/recipes/edit/" +
+                    recipe.getId();
+        }
         // for each recipe.ingredient and recipe.step we set
         // recipe. Thymeleaf cannot make it right somehow ...
         // after that we can write if (result.hasErrors())
@@ -131,8 +197,8 @@ public class RecipeController {
                             FlashMessage.Status.FAILURE
                     )
             );
-            // back to "edit" page
-            return "redirect:/recipes/edit/" + id;
+            // back to "edit" or "add-new" page
+            return "redirect:" + pageFromWherePostReqWasMade;
         }
 
         // for each recipe.ingredient.item we take id and
@@ -168,7 +234,7 @@ public class RecipeController {
                 "flash",
                 new FlashMessage(
                         "Recipe '" + recipe.getName() + "' was " +
-                                "successfully updated!",
+                                "successfully saved!",
                         FlashMessage.Status.SUCCESS
                 )
         );
