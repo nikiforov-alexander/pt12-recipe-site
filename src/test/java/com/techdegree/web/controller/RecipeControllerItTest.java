@@ -82,23 +82,78 @@ public class RecipeControllerItTest {
     // test members and methods used to generate test data:
     // both for Recipe and Item
 
-
     @Test
-    public void updatingRecipeWithAllInvalidFieldsShouldGiveThatNumberOfErrors()
+    public void updatingRecipeWithAllNullInvalidFieldsShouldGiveThatNumberOfErrors()
             throws Exception {
         // Arrange:
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
 
-        // When POST request changing existing Recipe with all
+        // When POST request updating Recipe with all
+        // invalid fields is made
         // Then:
         // - status should be 3xx : redirect
         // - redirected page should be "/recipes/edit/1"
         // - flash message should be sent with failure status
         // - bindingResult should have 11 errors by the number of
-        // input fields
+        //  input fields:
+        //  - name @NotNull, @NotEmpty
+        //  - description @NotNull, @NotEmpty
+        //  - recipeCategory @NotNull
+        //  - photoUrl @NotNull, @NotEmpty
+        //  - cookTime @NotNull, @NotEmpty
+        //  - preparationTime @NotNull, @NotEmpty
+        //  - ingredients[0].item.id can be null
+        //  - ingredients[0].condition can be null
+        //  - ingredients[0].quantity can be null
+        //  - steps[0].description can be null
         mockMvc.perform(
-                post(BASE_URI + "/recipes/save/1")
+                post(BASE_URI + "/recipes/save")
+                        .param("id", "1")
+                        .param("version", "0")
+        ).andDo(print())
+                .andExpect(
+                        status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl("/recipes/edit/1")
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "status",
+                                        equalTo(FlashMessage.Status.FAILURE)
+                                )
+                        )
+                )
+                .andExpect(
+                        flash().attribute(
+                                "org.springframework.validation.BindingResult.recipe",
+                                hasProperty("fieldErrorCount",
+                                        equalTo(11)
+                                )
+                        )
+                );
+    }
+
+    @Test
+    public void addingRecipeWithAllEmptyInvalidFieldsShouldGiveThatNumberOfErrors()
+            throws Exception {
+        // Arrange:
+        // mockMvc is set up as real all, DatabaseLoader is used
+        // to populate data
+
+        // When POST request adding new Recipe with all
+        // invalid fields is made
+        // Then:
+        // - status should be 3xx : redirect
+        // - redirected page should be "/recipes/add-new"
+        // - flash message should be sent with failure status
+        // - bindingResult should have 11 errors by the number of
+        // input fields:
+        mockMvc.perform(
+                post(BASE_URI + "/recipes/save")
                         .param("name", "") // @NotEmpty
                         .param("description", "") // @NotEmpty
                         .param("recipeCategory", "") // @NotEmpty
@@ -114,7 +169,7 @@ public class RecipeControllerItTest {
             status().is3xxRedirection()
         )
         .andExpect(
-            redirectedUrl("/recipes/edit/1")
+            redirectedUrl("/recipes/add-new")
         )
         .andExpect(
             flash().attribute(
@@ -136,20 +191,22 @@ public class RecipeControllerItTest {
     }
 
     @Test
-    public void updatingRecipeWithAllValidFieldsWorks()
+    public void savingNewRecipeWithAllValidFieldsWorks()
             throws Exception {
         // Arrange:
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
 
-        // When POST request changing existing Recipe with all
+        // When POST request
+        // or adding new one (because they are same)
+        // with all
         // correct parameters is made
         // Then:
         // - status should be 3xx : redirect
         // - redirected page should be "/recipes/"
         // - flash message should be sent with success status
         mockMvc.perform(
-            post(BASE_URI + "/recipes/save/1")
+            post(BASE_URI + "/recipes/save")
                 .param("name",
                         testRecipeWithAllValidFields1.getName())
                 .param("description",
