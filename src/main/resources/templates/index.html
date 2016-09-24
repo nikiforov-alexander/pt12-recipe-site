@@ -114,11 +114,15 @@
                                          height="12px">
                                     Edit
                                 </a>
-                                <a th:href="@{/recipes/${recipe.id}/delete}">
+                                <form th:action="@{|/recipes/delete/${recipe.id}|}"
+                                      method="post"
+                                      class="inline">
                                     <img th:src="@{/assets/images/delete.svg}"
                                          height="12px">
-                                    Delete
-                                </a>
+                                    <button type="submit">
+                                        Delete
+                                    </button>
+                                </form>
                             </p>
                         </div>
                     </div>
