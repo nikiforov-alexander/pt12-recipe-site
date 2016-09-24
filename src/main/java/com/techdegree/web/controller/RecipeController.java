@@ -58,23 +58,34 @@ public class RecipeController {
         return "detail";
     }
 
-    // add new recipe page GET
-    @RequestMapping("/add-new")
-    public String addNewRecipePage(Model model) {
-
+    /**
+     *  Method generates Recipe with one ingredient
+     *  with empty Item and other fields and empty
+     *  Step, this way when it is passed to model,
+     *  the page will be generated the way I wanted to,
+     *  with one Ingredient and one step
+     * @return Recipe with ingredient and step to be added
+     * to model in "add-new" recipe page
+     */
+    private Recipe generateEmptyRecipeToPassToAddNewPage() {
         Recipe recipe = new Recipe();
-
-        // Here I also add one Ingredient with new Item()
-        // empty steps array because I want for user to input
-        // at least one Ingredient and at least one Step
-        // and my javascript will break without these lines
         Item item = new Item();
         Ingredient ingredient = new Ingredient(item, "", "");
         recipe.addIngredient(ingredient);
 
         Step step = new Step("");
         recipe.addStep(step);
+        return recipe;
+    }
 
+
+    // add new recipe page GET
+    @RequestMapping("/add-new")
+    public String addNewRecipePage(Model model) {
+        // empty recipe with ingredients and steps
+        // is generated in separate method for
+        // testing purposes
+        Recipe recipe = generateEmptyRecipeToPassToAddNewPage();
         // if to this page we get from error post request, we
         // will not add recipe to model, because it will
         // be added with redirect attributes
@@ -93,7 +104,7 @@ public class RecipeController {
         // check recipe
         // add "action" attribute, will be "/recipes/id/save"
         // in case of new will be "/recipes/add-new"
-        model.addAttribute("action", "/recipes/"
+        model.addAttribute("action", "/recipes"
                 + "/save");
 
         return "edit";
@@ -126,7 +137,7 @@ public class RecipeController {
         // check recipe
         // add "action" attribute, will be "/recipes/id/save"
         // in case of new will be "/recipes/add-new"
-        model.addAttribute("action", "/recipes/"
+        model.addAttribute("action", "/recipes"
                 + "/save");
 
         return "edit";
