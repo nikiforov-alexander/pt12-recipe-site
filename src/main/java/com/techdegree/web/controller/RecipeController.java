@@ -1,7 +1,6 @@
 package com.techdegree.web.controller;
 
-import com.techdegree.model.Recipe;
-import com.techdegree.model.RecipeCategory;
+import com.techdegree.model.*;
 import com.techdegree.service.IngredientService;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
@@ -57,6 +56,47 @@ public class RecipeController {
         Recipe recipe = recipeService.findOne(id);
         model.addAttribute("recipe", recipe);
         return "detail";
+    }
+
+    // add new recipe page GET
+    @RequestMapping("/add-new")
+    public String addNewRecipePage(Model model) {
+
+        Recipe recipe = new Recipe();
+
+        // Here I also add one Ingredient with new Item()
+        // empty steps array because I want for user to input
+        // at least one Ingredient and at least one Step
+        // and my javascript will break without these lines
+        Item item = new Item();
+        Ingredient ingredient = new Ingredient(item, "", "");
+        recipe.addIngredient(ingredient);
+
+        Step step = new Step("");
+        recipe.addStep(step);
+
+        // if to this page we get from error post request, we
+        // will not add recipe to model, because it will
+        // be added with redirect attributes
+        // Otherwise, recipe will be added from database
+        if (!model.containsAttribute("recipe")) {
+            model.addAttribute("recipe", recipe);
+        }
+
+        model.addAttribute("categories", RecipeCategory.values());
+
+        // add items for ingredient.item field ... for now
+        // items are in @OneToOne relationship. Later this can be changed
+        // or improved. For now it is what it is
+        model.addAttribute("items", itemsService.findAll());
+
+        // check recipe
+        // add "action" attribute, will be "/recipes/id/save"
+        // in case of new will be "/recipes/add-new"
+        model.addAttribute("action", "/recipes/"
+                + "/save");
+
+        return "edit";
     }
 
     // edit recipe page GET
