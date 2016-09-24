@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -52,9 +53,12 @@ public class RecipeControllerItTest {
     private WebApplicationContext webApplicationContext;
 
     private Recipe testRecipeWithAllValidFields1;
+    private Recipe firstRecipeFromDatabase;
 
     private void createTestRecipeWithAllValidFields() {
-        testRecipeWithAllValidFields1 = new Recipe.RecipeBuilder(1L)
+        testRecipeWithAllValidFields1 = new Recipe
+                .RecipeBuilder(null) // both id and version are null
+                .withVersion(null)   // so that when saved recipe is new
                 .withName("name 1")
                 .withDescription("description 1")
                 .withRecipeCategory(RecipeCategory.BREAKFAST)
@@ -77,6 +81,7 @@ public class RecipeControllerItTest {
                 webAppContextSetup(webApplicationContext)
                         .build();
         createTestRecipeWithAllValidFields();
+        firstRecipeFromDatabase = recipeService.findOne(1L);
     }
 
     // test members and methods used to generate test data:
@@ -190,6 +195,68 @@ public class RecipeControllerItTest {
         );
     }
 
+    @Test
+    public void updatingRecipeWithAllValidFieldsWorks()
+            throws Exception {
+        // Arrange:
+        // mockMvc is set up as real all, DatabaseLoader is used
+        // to populate data
+        int numberOfRecipesBeforePostRequest =
+                recipeService.findAll().size();
+
+        // When POST request for updating firstRecipeFromDatabase
+        // with all correct parameters is made
+        // Then:
+        // - status should be 3xx : redirect
+        // - redirected page should be "/recipes/"
+        // - flash message should be sent with success status
+        mockMvc.perform(
+        post(BASE_URI + "/recipes/save")
+                .param("id",
+                        firstRecipeFromDatabase.getId().toString())
+                .param("version",
+                        firstRecipeFromDatabase.getVersion().toString())
+                .param("name",
+                        testRecipeWithAllValidFields1.getName())
+                .param("description",
+                        testRecipeWithAllValidFields1.getDescription())
+                .param("recipeCategory",
+                        testRecipeWithAllValidFields1.getRecipeCategory()
+                                .toString())
+                .param("photoUrl",
+                        testRecipeWithAllValidFields1.getPhotoUrl())
+                .param("cookTime",
+                        testRecipeWithAllValidFields1.getCookTime())
+                .param("preparationTime",
+                        testRecipeWithAllValidFields1.getPreparationTime())
+                .param("recipe.ingredients[0]",
+                        testRecipeWithAllValidFields1.getIngredients().get(0)
+                                .toString())
+                .param("recipe.steps[0]",
+                        testRecipeWithAllValidFields1.getSteps().get(0)
+                                .toString())
+        ).andDo(print())
+                .andExpect(
+                        status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl("/recipes/")
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "status",
+                                        equalTo(FlashMessage.Status.SUCCESS)
+                                )
+                        )
+                );
+        // Assert that number of recipes didn't change
+        assertThat(
+                recipeService.findAll().size(),
+                is(numberOfRecipesBeforePostRequest)
+        );
+    }
     @Test
     public void savingNewRecipeWithAllValidFieldsWorks()
             throws Exception {
