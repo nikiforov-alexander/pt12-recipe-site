@@ -5,6 +5,7 @@ import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
+import com.techdegree.web.FlashMessage;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -254,4 +256,50 @@ public class RecipeControllerTest {
         verify(itemService).findAll();
     }
 
+    // deleting
+
+    @Test
+    public void deletingRecipeShouldBePossible() throws Exception {
+        // Arrange: mockMvc is arranged with Controller and mocks
+        // make findOne return testRecipe when it is called
+        when(recipeService.findOne(1L)).thenReturn(
+                testRecipe1
+        );
+        // make delete do something
+        doAnswer(
+            invocation -> {
+                Recipe r = invocation.getArgumentAt(0, Recipe.class);
+                r.setId(1L);
+                return r;
+            }
+        ).when(recipeService).delete(any(Recipe.class));
+
+        // Act and Assert:
+        // When delete request is made to "/recipes/delete/1"
+        // Then:
+        // - status should be redirect 3xx
+        // - successful flash should be as attribute
+        // - redirect page should be "/recipes/" home page
+        mockMvc.perform(
+                post("/recipes/delete/1")
+        ).andDo(print())
+        .andExpect(
+                status().is3xxRedirection()
+        )
+        .andExpect(
+                redirectedUrl("/recipes/")
+        )
+        .andExpect(
+                flash().attribute(
+                        "flash",
+                        Matchers.hasProperty(
+                                "status",
+                                Matchers.equalTo(FlashMessage.Status.SUCCESS)
+                        )
+                )
+        );
+        // Assert that delete and findByOne methods were called
+        verify(recipeService).delete(any(Recipe.class));
+        verify(recipeService).findOne(1L);
+    }
 }
