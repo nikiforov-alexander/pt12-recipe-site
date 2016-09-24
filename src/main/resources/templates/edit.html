@@ -12,11 +12,11 @@
 
 <div class="grid-container">
 
-    <div th:replace="layout :: flash">
-    </div>
-
     <div th:replace="layout :: my_recipes_logo"
          class="grid-100">
+    </div>
+
+    <div th:replace="layout :: flash">
     </div>
 
     <div class="grid-100">
@@ -26,6 +26,13 @@
         <form th:action="@{|${action}|}"
               th:object="${recipe}"
               method="post">
+
+        <!--/* Hidden Recipe.id and Recipe.Version fields
+              to make sure we update recipe if we edit
+              one
+        */-->
+        <input th:field="*{id}" hidden type="text">
+        <input th:field="*{version}" hidden type="text">
 
         <div class="recipes">
 
@@ -51,16 +58,23 @@
 
             <div class="clear"></div>
 
+            <!--/* photoUrl field */-->
+
             <div class="grid-100 row">
+                <!--/* span with error message */-->
+                <span th:errors="*{photoUrl}" class="error">
+                </span>
                 <div class="grid-20">
                     <p class="label-spacing">
                         <label> Photo </label>
                     </p>
                 </div>
-                <div class="grid-40">
+                <div th:classappend="${#fields.hasErrors('photoUrl')}? 'error' : ''"
+                     class="grid-40">
                     <p>
                         <input th:field="*{photoUrl}"
-                               placeholder="Url">
+                               th:autofocus="${#fields.hasErrors('photoUrl')}"
+                               placeholder="URL">
                     </p>
                 </div>
             </div>
@@ -68,29 +82,43 @@
             <div class="clear"></div>
 
             <div class="grid-100 row">
+                <!--/* span with error message */-->
+                <span th:errors="*{name}" class="error">
+                </span>
                 <div class="grid-20">
                     <p class="label-spacing">
                         <label> Name </label>
                     </p>
                 </div>
-                <div class="grid-40">
+                <div th:classappend="${#fields.hasErrors('name')}? 'error' : ''"
+                     class="grid-40">
                     <p>
-                        <input th:field="*{name}">
+                        <input th:field="*{name}"
+                               th:autofocus="${#fields.hasErrors('name')}"
+                        >
                     </p>
                 </div>
             </div>
 
             <div class="clear"></div>
 
+            <!--/* Recipe.description field */-->
+
             <div class="grid-100 row">
+                <!--/* span with error message */-->
+                <span th:errors="*{description}" class="error">
+                </span>
                 <div class="grid-20">
                     <p class="label-spacing">
                         <label> Description </label>
                     </p>
                 </div>
-                <div class="grid-40">
+                <div th:classappend="${#fields.hasErrors('description')}? 'error' : ''"
+                     class="grid-40">
                     <p>
-                        <textarea th:field="*{description}">
+                        <textarea th:field="*{description}"
+                                  th:autofocus="${#fields.hasErrors('description')}"
+                        >
                         </textarea>
                     </p>
                 </div>
@@ -98,6 +126,12 @@
 
             <div class="clear"></div>
 
+            <!--/* Recipe.recipeCategory field */-->
+
+            <!--/* For category I will not make a validation
+                   because well it can be anything and by
+                   default something is selected
+            */-->
             <div class="grid-100 row">
                 <div class="grid-20">
                     <p class="label-spacing">
@@ -106,16 +140,13 @@
                 </div>
                 <div class="grid-30">
                     <p>
-                        <!--/* TODO: add JS here for color of option
-                               to be the same as selected category
-                               Also default category is needed to be
-                               added
+                        <!--/* I decide to exclude unselected option
+                               I left other as default one. Let it be
+                               for now
                          */-->
                         <select th:field="*{recipeCategory}"
+                                th:autofocus="${#fields.hasErrors('recipeCategory')}"
                                 th:class="*{recipeCategory.styleClass}">
-                            <!--/* The rest options will be without
-                                   the default one
-                             */-->
                             <option th:each="category : ${categories}"
                                     th:class="${category.styleClass}"
                                     th:value="${category}"
@@ -130,15 +161,23 @@
 
             <div class="clear"></div>
 
+            <!--/* Recipe.preparationTime field */-->
+
             <div class="grid-100 row">
+                <!--/* span with error message this time with diff class */-->
+                <span th:errors="*{preparationTime}"
+                      class="error with-grid-20">
+                </span>
                 <div class="grid-20">
                     <p class="label-spacing">
                         <label> Prep Time </label>
                     </p>
                 </div>
-                <div class="grid-20">
+                <div th:classappend="${#fields.hasErrors('preparationTime')}? 'error' : ''"
+                     class="grid-20">
                     <p>
                         <input th:field="*{preparationTime}"
+                               th:autofocus="${#fields.hasErrors('preparationTime')}"
                                type="text">
                     </p>
                 </div>
@@ -146,21 +185,31 @@
 
             <div class="clear"></div>
 
+            <!--/* Recipe.cookTime field */-->
+
             <div class="grid-100 row">
+                <!--/* span with error message this time with diff class */-->
+                <span th:errors="*{cookTime}"
+                      class="error with-grid-20">
+                </span>
                 <div class="grid-20">
                     <p class="label-spacing">
                         <label> Cook Time </label>
                     </p>
                 </div>
-                <div class="grid-20">
+                <div th:classappend="${#fields.hasErrors('cookTime')}? 'error' : ''"
+                     class="grid-20">
                     <p>
                         <input th:field="*{cookTime}"
+                               th:autofocus="${#fields.hasErrors('cookTime')}"
                                type="text">
                     </p>
                 </div>
             </div>
 
             <div class="clear"></div>
+
+            <!--/* Recipe.ingredient */-->
 
             <div class="grid-100 row">
                 <div class="grid-20">
@@ -194,12 +243,36 @@
                     <input type="text" hidden
                            th:field="*{ingredients[__${ingredientStat.index}__].version}">
 
-                    <div class="prefix-20 grid-30">
+                    <!--/*
+                        Error message for item, condition and quantity
+                        of each ingredient. Divs appear only if errors exist
+                    */-->
+                    <div th:if="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].item')}"
+                        class="ingredient-error">
+                        <span th:errors="*{ingredients[__${ingredientStat.index}__].item}">
+                        </span>
+                    </div>
+                    <div th:if="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].condition')}"
+                         class="ingredient-error">
+                        <span th:errors="*{ingredients[__${ingredientStat.index}__].condition}">
+                        </span>
+                    </div>
+                    <div th:if="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].quantity')}"
+                         class="ingredient-error">
+                        <span th:errors="*{ingredients[__${ingredientStat.index}__].quantity}">
+                        </span>
+                    </div>
+
+                    <!--/* div with Ingredients input fields */-->
+
+                    <div th:classappend="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].item')}? 'error' : ''"
+                         class="prefix-20 grid-30">
                         <p>
                             <!--/* TODO: add default select option here or
                                    not ... may be just leave as <input text>
                              */-->
-                            <select th:field="*{ingredients[__${ingredientStat.index}__].item.id}">
+                            <select th:field="*{ingredients[__${ingredientStat.index}__].item.id}"
+                                th:autofocus="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].item')}">
                                 <!--/* In major item select I will pass
                                        object itself as a value
                                        It is a good idea to write
@@ -207,6 +280,14 @@
                                        TODO: ask Florian about conversion
                                        service
                                  */-->
+                                <!--/* Default option will be considered as
+                                       error: "Select Item" option
+                                */-->
+                                <option th:if="${recipe.id != null}"
+                                        selected
+                                        th:text="'Select Item'"
+                                        value="0">
+                                </option>
                                 <option th:each="item : ${items}"
                                         th:text="${item.name}"
                                         th:value="${item.id}">
@@ -216,16 +297,26 @@
                             </select>
                         </p>
                     </div>
-                    <div class="grid-30">
+                    <!--/* This class gets error appended to "class"
+                            attribute. See closer that we have to
+                            use __${}__ inside, otherwise will give
+                            error: see here
+                            http://stackoverflow.com/questions/31533044/calling-a-method-with-a-variable-using-spring-el-from-thymeleaf
+                    */-->
+                    <div th:classappend="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].condition')}? 'error' : ''"
+                         class="grid-30">
                         <p>
-                            <input type="text"
-                                   th:field="*{ingredients[__${ingredientStat.index}__].condition}">
+                            <input th:field="*{ingredients[__${ingredientStat.index}__].condition}"
+                                   th:autofocus="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].condition')}"
+                                   type="text">
                         </p>
                     </div>
-                    <div class="grid-10 suffix-10">
+                    <div th:classappend="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].quantity')}? 'error' : ''"
+                         class="grid-10 suffix-10">
                         <p>
-                            <input type="text"
-                                   th:field="*{ingredients[__${ingredientStat.index}__].quantity}">
+                            <input th:field="*{ingredients[__${ingredientStat.index}__].quantity}"
+                                   th:autofocus="${#fields.hasErrors('ingredients[' + __${ingredientStat.index}__ + '].quantity')}"
+                                   type="text">
                         </p>
                     </div>
                     <!--/*This div right here is very important : it makes
@@ -235,16 +326,22 @@
                 </div>
 
 
-                <!--/* TODO: add JS here to add another ingredient */-->
+                <!--/* JS here is up and running
+                    to add another ingredient
+                    */-->
                 <div class="prefix-20 grid-80 add-row">
                     <p>
-                        <button>+ Add Another Ingredient</button>
+                        <button id="add-another-ingredient-button">
+                            + Add Another Ingredient
+                        </button>
                     </p>
                 </div>
 
             </div>
 
             <div class="clear"></div>
+
+            <!--/* Recipe.steps */-->
 
             <div class="grid-100 row">
                 <div class="grid-20">
@@ -261,23 +358,37 @@
                 <!--/* TODO : test this with *{steps} like Florian ...
                 */-->
                 <div th:each="step : *{steps}" class="step-row">
+                    <!--/* span with error message */-->
+                    <span th:errors="*{steps[__${stepStat.index}__].description}">
+                    </span>
+
                     <input th:field="*{steps[__${stepStat.index}__].id}"
                            type="text"
                            hidden>
                     <input th:field="*{steps[__${stepStat.index}__].version}"
                            type="text"
                            hidden>
-                    <div class="prefix-20 grid-80">
+
+                    <div th:classappend="${#fields.hasErrors('steps[' + __${stepStat.index}__ + '].description')}? 'error' : ''"
+                        class="prefix-20 grid-80">
                         <p>
-                            <input th:field="*{steps[__${stepStat.index}__].description}">
+                            <input th:field="*{steps[__${stepStat.index}__].description}"
+                                   th:autofocus="${#fields.hasErrors('steps[' + __${stepStat.index}__ + '].description')}"
+                            >
                         </p>
                     </div>
                 </div>
 
-                <!--/*TODO : add JS to add another Step */-->
+                <!--/JS
+                        is used to add another Step
+                        see function attached to id below
+                 */-->
                 <div class="prefix-20 grid-80 add-row">
                     <p>
-                        <button>+ Add Another Step</button>
+                        <button type="button"
+                                id="add-another-step-button">
+                            + Add Another Step
+                        </button>
                     </p>
                 </div>
 

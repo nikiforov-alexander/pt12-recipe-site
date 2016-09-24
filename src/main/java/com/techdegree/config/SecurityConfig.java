@@ -48,24 +48,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // this method.
     // The one from REST authorizeAll mixes up stuff so
     // we'll leave for removed now.
+    // took code from Florian, have to read about it later ...
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .authorizeRequests()
+                .anyRequest()
+                .hasRole("USER")
+                .and()
                 .formLogin()
                     .loginPage("/login")
+                    .permitAll()
                     .successHandler(loginSuccessHandler())
                     .failureHandler(loginFailureHandler())
                 .and()
                 .logout()
+                    .permitAll()
                     .logoutSuccessUrl("/login")
                 .and()
-                .csrf();
+                .csrf().disable();
     }
 
     // on success we go back home "/"
     // later will change that back to referrer maybe ...
     public AuthenticationSuccessHandler loginSuccessHandler() {
-        return (request, response, authentication) -> response.sendRedirect("/");
+        return (request, response, authentication) ->
+                response.sendRedirect("/recipes/");
     }
 
     // in case of failure we redirect back to "/login" with error

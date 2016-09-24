@@ -1,5 +1,6 @@
 package com.techdegree.model;
 
+import com.techdegree.validator.ValidItem;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
@@ -15,17 +16,24 @@ public class Ingredient extends BaseEntity {
 
     // fields
 
+    // @ValidItem annotation is used to validate
+    // whether the Item is valid. It is used
+    // because when we select Item for ingredient
+    // by default nothing is selected, and if
+    // nothing is selected, Item.id will be 0
+    // exactly this is checked here.
     @NotNull
     @OneToOne
     @JoinColumn(name = "item_id")
+    @ValidItem(message = "Please select item")
     private Item item;
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Please input condition")
     private String condition;
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Please input quantity")
     private String quantity;
 
     // this field is needed so that user cannot

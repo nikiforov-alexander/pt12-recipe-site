@@ -2,13 +2,20 @@ package com.techdegree.web.controller;
 
 import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
+import com.techdegree.service.IngredientService;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
+import com.techdegree.service.StepService;
+import com.techdegree.web.FlashMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/recipes")
@@ -18,8 +25,17 @@ public class RecipeController {
     private RecipeService recipeService;
     @Autowired
     private ItemService itemsService;
+    @Autowired
+    private StepService stepService;
+    @Autowired
+    private IngredientService ingredientService;
 
-    // autowire others ??? for now no ...
+    // validator is used this way because
+    // recipe.ingredients.recipe is null upon saving
+    // that is why we set ingredients to recipe, and
+    // then proceed
+    @Autowired
+    private Validator validator;
 
     // home page with all recipes
     @RequestMapping("/")
@@ -52,7 +68,13 @@ public class RecipeController {
 
         Recipe recipe = recipeService.findOne(id);
 
-        model.addAttribute("recipe", recipe);
+        // if to this page we get from error post request, we
+        // will not add recipe to model, because it will
+        // be added with redirect attributes
+        // Otherwise, recipe will be added from database
+        if (!model.containsAttribute("recipe")) {
+            model.addAttribute("recipe", recipe);
+        }
 
         model.addAttribute("categories", RecipeCategory.values());
 
@@ -61,6 +83,95 @@ public class RecipeController {
         // or improved. For now it is what it is
         model.addAttribute("items", itemsService.findAll());
 
+        // check recipe
+        // add "action" attribute, will be "/recipes/id/save"
+        // in case of new will be "/recipes/add-new"
+        model.addAttribute("action", "/recipes/" +
+                "/save/" +
+                + id);
+
         return "edit";
+    }
+
+    // POST request to change saved item
+    @RequestMapping(value = "/save/{id}", method = RequestMethod.POST)
+    public String saveRecipe(
+            Recipe recipe, // no @Valid here, it comes later
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            @PathVariable Long id
+    ) {
+        // for each recipe.ingredient and recipe.step we set
+        // recipe. Thymeleaf cannot make it right somehow ...
+        // after that we can write if (result.hasErrors())
+        recipe.getIngredients().forEach(
+                i -> i.setRecipe(recipe)
+        );
+        recipe.getSteps().forEach(
+                s -> s.setRecipe(recipe)
+        );
+        validator.validate(recipe, bindingResult);
+
+        // check validation for simple fields
+        if (bindingResult.hasErrors()) {
+            // set flash message with
+            // errors, recipe, bindingResult with errors
+            // and redirect
+            redirectAttributes.addFlashAttribute(
+                    "org.springframework.validation.BindingResult.recipe",
+                    bindingResult
+            );
+            redirectAttributes.addFlashAttribute(
+                    "recipe", recipe
+            );
+            redirectAttributes.addFlashAttribute(
+                    "flash",
+                    new FlashMessage(
+                            "Oops! Some fields have errors",
+                            FlashMessage.Status.FAILURE
+                    )
+            );
+            // back to "edit" page
+            return "redirect:/recipes/edit/" + id;
+        }
+
+        // for each recipe.ingredient.item we take id and
+        // get item from database, because I don't know how
+        // to pass in thymeleaf whole item object
+        // at this point we are sure that item id will be set
+        // because otherwise it will throw error in hasErrors()
+        // check above
+        recipe.getIngredients().forEach(
+                i -> i.setItem(
+                        itemsService.findOne(
+                                i.getItem().getId()
+                        )
+                )
+        );
+        // if everything is OK, we save recipes, steps
+        // and ingredients
+        // because steps and ingredients
+        // have foreign key in their table
+        // so we have to do that
+        recipeService.save(recipe);
+        recipe.getIngredients().forEach(
+                i -> ingredientService.save(i)
+        );
+        recipe.getSteps().forEach(
+            step -> stepService.save(step)
+        );
+
+        // we also set good flash message with redirect
+        // attributes, that recipes is successfully
+        // updates
+        redirectAttributes.addFlashAttribute(
+                "flash",
+                new FlashMessage(
+                        "Recipe '" + recipe.getName() + "' was " +
+                                "successfully updated!",
+                        FlashMessage.Status.SUCCESS
+                )
+        );
+        return "redirect:/recipes/";
     }
 }
