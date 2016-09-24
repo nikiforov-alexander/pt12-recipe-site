@@ -86,21 +86,30 @@ public class RecipeController {
         // check recipe
         // add "action" attribute, will be "/recipes/id/save"
         // in case of new will be "/recipes/add-new"
-        model.addAttribute("action", "/recipes/" +
-                "/save/" +
-                + id);
+        model.addAttribute("action", "/recipes/"
+                + "/save");
 
         return "edit";
     }
 
     // POST request to change saved item
-    @RequestMapping(value = "/save/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
     public String saveRecipe(
             Recipe recipe, // no @Valid here, it comes later
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes,
-            @PathVariable Long id
+            RedirectAttributes redirectAttributes
     ) {
+        // This is courage try to re-use method adding new
+        // or saving edited item ... It may be wrong to do so
+        // but I decided that methods look too similar
+        // to make them separate ...
+        // So if recipe passed has id, then we will be redirected
+        // to "/edit/id" page, if not - to "/add-new"
+        String pageFromWherePostReqWasMade = "/recipes/add-new";
+        if (recipe.getId() != null) {
+            pageFromWherePostReqWasMade = "/recipes/edit/" +
+                    recipe.getId();
+        }
         // for each recipe.ingredient and recipe.step we set
         // recipe. Thymeleaf cannot make it right somehow ...
         // after that we can write if (result.hasErrors())
@@ -131,8 +140,8 @@ public class RecipeController {
                             FlashMessage.Status.FAILURE
                     )
             );
-            // back to "edit" page
-            return "redirect:/recipes/edit/" + id;
+            // back to "edit" or "add-new" page
+            return "redirect:" + pageFromWherePostReqWasMade;
         }
 
         // for each recipe.ingredient.item we take id and
@@ -168,7 +177,7 @@ public class RecipeController {
                 "flash",
                 new FlashMessage(
                         "Recipe '" + recipe.getName() + "' was " +
-                                "successfully updated!",
+                                "successfully saved!",
                         FlashMessage.Status.SUCCESS
                 )
         );
