@@ -78,14 +78,25 @@ public class RecipeController {
         return recipe;
     }
 
-
-    // add new recipe page GET
-    @RequestMapping("/add-new")
-    public String addNewRecipePage(Model model) {
-        // empty recipe with ingredients and steps
-        // is generated in separate method for
-        // testing purposes
-        Recipe recipe = generateEmptyRecipeToPassToAddNewPage();
+    /**
+     * Because the same attributes are passed to Model when
+     * generating add-new and edit recipe pages, I decided
+     * to re-use that in a tricky way: I pass two args:
+     * model and recipe, and in this method following attributes
+     * are added:
+     * "recipe" - if model does not contain it already
+     * "categories" - values of RecipeCategories enum
+     * "items" - possible Items from database
+     * "action" - that is same for both "add-new" and "edit", action
+     * is address where POST request will be made
+     * @param recipe : recipe to be added to model
+     * @param model : model to which attributes will be added
+     * @return model that is filled with attrbutes
+     */
+    private Model addAttributesToModelForBothEditAndAddNewPages(
+            Recipe recipe,
+            Model model
+    ) {
         // if to this page we get from error post request, we
         // will not add recipe to model, because it will
         // be added with redirect attributes
@@ -106,6 +117,19 @@ public class RecipeController {
         // in case of new will be "/recipes/add-new"
         model.addAttribute("action", "/recipes"
                 + "/save");
+        return model;
+    }
+
+    // add new recipe page GET
+    @RequestMapping("/add-new")
+    public String addNewRecipePage(Model model) {
+        // empty recipe with ingredients and steps
+        // is generated in separate method for
+        // testing purposes
+        model = addAttributesToModelForBothEditAndAddNewPages(
+                generateEmptyRecipeToPassToAddNewPage(),
+                model
+        );
 
         return "edit";
     }
@@ -116,29 +140,11 @@ public class RecipeController {
     public String editRecipePage(
             @PathVariable Long id,
             Model model) {
-
-        Recipe recipe = recipeService.findOne(id);
-
-        // if to this page we get from error post request, we
-        // will not add recipe to model, because it will
-        // be added with redirect attributes
-        // Otherwise, recipe will be added from database
-        if (!model.containsAttribute("recipe")) {
-            model.addAttribute("recipe", recipe);
-        }
-
-        model.addAttribute("categories", RecipeCategory.values());
-
-        // add items for ingredient.item field ... for now
-        // items are in @OneToOne relationship. Later this can be changed
-        // or improved. For now it is what it is
-        model.addAttribute("items", itemsService.findAll());
-
-        // check recipe
-        // add "action" attribute, will be "/recipes/id/save"
-        // in case of new will be "/recipes/add-new"
-        model.addAttribute("action", "/recipes"
-                + "/save");
+        // here recipe found in database will be added
+        model = addAttributesToModelForBothEditAndAddNewPages(
+                recipeService.findOne(id),
+                model
+        );
 
         return "edit";
     }
