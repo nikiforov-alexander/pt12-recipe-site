@@ -161,6 +161,7 @@ public class Recipe extends BaseEntity{
 
     public static class RecipeBuilder {
         private Long id;
+        private Long version;
         private String name;
         private String description;
         private RecipeCategory recipeCategory;
@@ -178,6 +179,10 @@ public class Recipe extends BaseEntity{
 
         }
 
+        public RecipeBuilder withVersion(Long version) {
+            this.version = version;
+            return this;
+        }
         public RecipeBuilder withName(String name) {
             this.name = name;
             return this;
@@ -206,6 +211,7 @@ public class Recipe extends BaseEntity{
         public Recipe build() {
             Recipe recipe = new Recipe();
             recipe.setId(id);
+            recipe.setVersion(version);
             recipe.setName(name);
             recipe.setDescription(description);
             recipe.setRecipeCategory(recipeCategory);
