@@ -142,11 +142,11 @@
                     <p>
                         <!--/* I decide to exclude unselected option
                                I left other as default one. Let it be
-                               for now
+                               for now 'category other' is default option
                          */-->
                         <select th:field="*{recipeCategory}"
                                 th:autofocus="${#fields.hasErrors('recipeCategory')}"
-                                th:class="*{recipeCategory.styleClass}">
+                                th:class="${recipeCategory == null}? 'category other' : *{recipeCategory.styleClass}">
                             <option th:each="category : ${categories}"
                                     th:class="${category.styleClass}"
                                     th:value="${category}"
@@ -283,7 +283,7 @@
                                 <!--/* Default option will be considered as
                                        error: "Select Item" option
                                 */-->
-                                <option th:if="${recipe.id != null}"
+                                <option
                                         selected
                                         th:text="'Select Item'"
                                         value="0">
