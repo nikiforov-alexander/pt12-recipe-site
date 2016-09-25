@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+
 @Controller
 @RequestMapping("/recipes")
 public class RecipeController {
@@ -238,7 +240,7 @@ public class RecipeController {
                         FlashMessage.Status.SUCCESS
                 )
         );
-        return "redirect:/recipes/";
+        return "redirect:" + RECIPES_HOME_PAGE;
     }
 
     // delete recipe POST request
@@ -257,6 +259,6 @@ public class RecipeController {
                         FlashMessage.Status.SUCCESS
                 )
         );
-        return "redirect:/recipes/";
+        return "redirect:" + RECIPES_HOME_PAGE;
     }
 }
