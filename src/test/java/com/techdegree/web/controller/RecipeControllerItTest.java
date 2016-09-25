@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
+import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -218,7 +219,7 @@ public class RecipeControllerItTest {
         // with all correct parameters is made
         // Then:
         // - status should be 3xx : redirect
-        // - redirected page should be "/recipes/"
+        // - redirected page should be RECIPES_HOME_PAGE
         // - flash message should be sent with success status
         mockMvc.perform(
         post(BASE_URI + "/recipes/save")
@@ -250,7 +251,7 @@ public class RecipeControllerItTest {
                         status().is3xxRedirection()
                 )
                 .andExpect(
-                        redirectedUrl("/recipes/")
+                        redirectedUrl(RECIPES_HOME_PAGE)
                 )
                 .andExpect(
                         flash().attribute(
@@ -284,7 +285,7 @@ public class RecipeControllerItTest {
         // correct parameters is made
         // Then:
         // - status should be 3xx : redirect
-        // - redirected page should be "/recipes/"
+        // - redirected page should be RECIPES_HOME_PAGE
         // - flash message should be sent with success status
         mockMvc.perform(
             post(BASE_URI + "/recipes/save")
@@ -309,7 +310,7 @@ public class RecipeControllerItTest {
                 status().is3xxRedirection()
         )
         .andExpect(
-                redirectedUrl("/recipes/")
+                redirectedUrl(RECIPES_HOME_PAGE)
         )
         .andExpect(
                 flash().attribute(
@@ -381,7 +382,7 @@ public class RecipeControllerItTest {
         // is made
         // Then :
         // - status should be redirect 3xx
-        // - redirected page should be "/recipes/"
+        // - redirected page should be RECIPES_HOME_PAGE
         // - successful flash should be sent
         mockMvc.perform(
                 post("/recipes/delete/" + idOfNewlyAddedRecipe)
@@ -390,7 +391,7 @@ public class RecipeControllerItTest {
                 status().is3xxRedirection()
         )
         .andExpect(
-                redirectedUrl("/recipes/")
+                redirectedUrl(RECIPES_HOME_PAGE)
         )
         .andExpect(
                 flash().attribute(
