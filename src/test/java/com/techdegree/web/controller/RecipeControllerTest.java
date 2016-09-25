@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -104,7 +105,7 @@ public class RecipeControllerTest {
         when(recipeService.findAll()).thenReturn(recipes);
 
         // Act and Assert:
-        // When request to home page with "/recipes/"
+        // When request to home page with RECIPES_HOME_PAGE
         // made,
         // Then:
         // - status should be OK
@@ -114,7 +115,7 @@ public class RecipeControllerTest {
         // because I'll may be push this functionality
         // to JS ...
         mockMvc.perform(
-                get(BASE_URI + "/recipes/")
+                get(BASE_URI + RECIPES_HOME_PAGE)
         ).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("index"))
@@ -279,7 +280,7 @@ public class RecipeControllerTest {
         // Then:
         // - status should be redirect 3xx
         // - successful flash should be as attribute
-        // - redirect page should be "/recipes/" home page
+        // - redirect page should be RECIPES_HOME_PAGE home page
         mockMvc.perform(
                 post("/recipes/delete/1")
         ).andDo(print())
@@ -287,7 +288,7 @@ public class RecipeControllerTest {
                 status().is3xxRedirection()
         )
         .andExpect(
-                redirectedUrl("/recipes/")
+                redirectedUrl(RECIPES_HOME_PAGE)
         )
         .andExpect(
                 flash().attribute(
