@@ -221,3 +221,11 @@ option.category.dessert {
 button:focus {
     outline-color: black;
 }
+/* Additional changed on edit page */
+a.secondary.cancel {
+    padding: 10px;
+    background: coral;
+    border-radius: 9px;
+    color: aliceblue;
+    font-size: 14px;
+}
