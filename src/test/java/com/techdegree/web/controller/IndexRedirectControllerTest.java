@@ -8,6 +8,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -40,7 +41,7 @@ public class IndexRedirectControllerTest {
                 get("/")
         ).andDo(print())
                 .andExpect(
-                        redirectedUrl("/recipes/")
+                        redirectedUrl(RECIPES_HOME_PAGE)
                 );
     }
 
@@ -57,7 +58,7 @@ public class IndexRedirectControllerTest {
                 get("/recipes")
         ).andDo(print())
         .andExpect(
-                redirectedUrl("/recipes/")
+                redirectedUrl(RECIPES_HOME_PAGE)
         );
     }
 }
