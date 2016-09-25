@@ -207,3 +207,8 @@ option.category.dinner {
 option.category.dessert {
     color: brown;
 }
+
+/* Additional changes on index page */
+.grid-30.with-bottom-padding {
+    padding-bottom: 20px;
+}
