@@ -72,7 +72,8 @@ button {
     border-radius: 5px;
     color: white;
     background: #808080;
-    cursor: pointer; }
+    cursor: pointer;
+}
 button.secondary {
     background: #bfbab4; }
 button.secondary:hover {
@@ -211,4 +212,7 @@ option.category.dessert {
 /* Additional changes on index page */
 .grid-30.with-bottom-padding {
     padding-bottom: 20px;
+}
+button:focus {
+    outline-color: black;
 }
