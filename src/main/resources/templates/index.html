@@ -81,12 +81,15 @@
 
             <div class="clear"></div>
 
-            <!--/* Recipes rows with edit button and favorite star */-->
+            <!--/* Recipes rows with edit button and favorite star
+                    Also clicking on recipe name should lead to
+                    detail page
+            */-->
 
             <div th:each="recipe : ${recipes}"
                  class="grid-100 row addHover">
 
-                <a href="detail.html">
+                <a th:href="@{|/recipes/${recipe.id}|}">
                     <div class="grid-70">
                         <p th:text="${recipe.name}">
                             <!--/* Recipe favorite star image unclickable ?
