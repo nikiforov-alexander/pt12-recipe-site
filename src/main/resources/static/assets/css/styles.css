@@ -18,11 +18,14 @@ a:hover {
 
 h1 {
     font-size: 26px;
-    margin-top: 30px; }
+    margin-top: 30px;
+    color: aliceblue;
+}
 
 h2 {
     font-size: 20px;
-    margin-top: 25px; }
+    margin-top: 25px;
+}
 
 nav {
     text-align: right;
