@@ -108,7 +108,12 @@ button:hover {
     opacity: 1; }
 
 .flush-right {
-    float: right; }
+    float: right;
+}
+.flush-right.with-add-recipe-button{
+    position: relative;
+    top: 30px;
+}
 
 /*# sourceMappingURL=styles.css.map */
 
