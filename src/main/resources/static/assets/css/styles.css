@@ -3,7 +3,7 @@ body {
     /*background: #f6ebe5;*/
     /*background-color: paleturquoise;*/
     background-color: darkslategray;
-    color: #808080;
+    color: black;
     font-family: 'Varela Round', Helvetica, Arial, sans-serif;
     text-align: center;
     margin: 0 auto;
@@ -18,16 +18,24 @@ a:hover {
 
 h1 {
     font-size: 26px;
-    margin-top: 30px; }
+    margin-top: 30px;
+    color: aliceblue;
+}
 
 h2 {
     font-size: 20px;
-    margin-top: 25px; }
+    margin-top: 25px;
+}
 
 nav {
     text-align: right;
     margin-top: 10px;
-    margin-right: 30px; }
+    margin-right: 30px;
+}
+
+nav a {
+    color: aliceblue;
+}
 
 .controls button {
     margin: 20px 0; }
@@ -47,8 +55,7 @@ select:focus, input:focus, textarea:focus {
 input, textarea {
     width: 89%;
     background-color: white;
-    color: #808080;
-    text-align: center;
+    color: black;
     border-radius: 4px;
     border: 2px solid #bfbab4;
     outline: 0;
@@ -57,7 +64,7 @@ input, textarea {
 
 select {
     background-color: white;
-    color: #808080;
+    color: black;
     border-radius: 3px;
     border: 2px solid #bfbab4;
     outline: 0;
@@ -69,10 +76,11 @@ select {
 button {
     border: 0;
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 9px;
     color: white;
     background: #808080;
-    cursor: pointer; }
+    cursor: pointer;
+}
 button.secondary {
     background: #bfbab4; }
 button.secondary:hover {
@@ -107,7 +115,12 @@ button:hover {
     opacity: 1; }
 
 .flush-right {
-    float: right; }
+    float: right;
+}
+.flush-right.with-add-recipe-button{
+    position: relative;
+    top: 30px;
+}
 
 /*# sourceMappingURL=styles.css.map */
 
@@ -206,4 +219,20 @@ option.category.dinner {
 }
 option.category.dessert {
     color: brown;
+}
+
+/* Additional changes on index page */
+.grid-30.with-bottom-padding {
+    padding-bottom: 20px;
+}
+button:focus {
+    outline-color: black;
+}
+/* Additional changed on edit page */
+a.secondary.cancel {
+    padding: 10px;
+    background: coral;
+    border-radius: 9px;
+    color: aliceblue;
+    font-size: 14px;
 }

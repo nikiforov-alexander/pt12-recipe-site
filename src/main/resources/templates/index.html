@@ -22,7 +22,7 @@
         <div class="recipes">
 
             <div class="grid-100 row controls">
-                <div class="grid-30">
+                <div class="grid-30 with-bottom-padding">
                     <!--/*TODO: add Js here so that when
                           category is selected, only
                           recipes of that category are
@@ -70,7 +70,7 @@
                     that styling is conserved
                 */-->
                 <div class="grid-30">
-                    <div class="flush-right">
+                    <div class="flush-right with-add-recipe-button">
                         <a th:href="@{/recipes/add-new}">
                             + Add Recipe
                         </a>
@@ -114,11 +114,15 @@
                                          height="12px">
                                     Edit
                                 </a>
-                                <a th:href="@{/recipes/${recipe.id}/delete}">
+                                <form th:action="@{|/recipes/delete/${recipe.id}|}"
+                                      method="post"
+                                      class="inline">
                                     <img th:src="@{/assets/images/delete.svg}"
                                          height="12px">
-                                    Delete
-                                </a>
+                                    <button type="submit">
+                                        Delete
+                                    </button>
+                                </form>
                             </p>
                         </div>
                     </div>

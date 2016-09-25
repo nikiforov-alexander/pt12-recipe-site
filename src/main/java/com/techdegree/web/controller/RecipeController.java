@@ -240,4 +240,23 @@ public class RecipeController {
         );
         return "redirect:/recipes/";
     }
+
+    // delete recipe POST request
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.POST)
+    public String deleteRecipe(
+            @PathVariable Long id,
+            RedirectAttributes redirectAttributes
+    ) {
+        Recipe recipe = recipeService.findOne(id);
+        recipeService.delete(recipe);
+        redirectAttributes.addFlashAttribute(
+                "flash",
+                new FlashMessage(
+                        "Recipe '" + recipe.getName() +
+                                "' was successfully deleted!",
+                        FlashMessage.Status.SUCCESS
+                )
+        );
+        return "redirect:/recipes/";
+    }
 }

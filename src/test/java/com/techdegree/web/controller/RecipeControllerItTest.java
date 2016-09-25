@@ -1,7 +1,9 @@
 package com.techdegree.web.controller;
 
+import com.techdegree.model.Ingredient;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
+import com.techdegree.model.Step;
 import com.techdegree.service.IngredientService;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
@@ -66,11 +68,19 @@ public class RecipeControllerItTest {
                 .withPreparationTime("prepTime 1")
                 .withCookTime("cookTime 1")
                 .build();
+        Ingredient testIngredient = new Ingredient(
+                itemService.findOne(1L),
+                "condition",
+                "quantity"
+        );
         testRecipeWithAllValidFields1.addIngredient(
-                ingredientService.findOne(1L)
+                testIngredient
+        );
+        Step testStep = new Step(
+                "test step"
         );
         testRecipeWithAllValidFields1.addStep(
-                stepService.findOne(1L)
+                testStep
         );
     }
 
@@ -314,6 +324,98 @@ public class RecipeControllerItTest {
         assertThat(
                 recipeService.findAll().size(),
                 is(numberOfRecipesBeforePostRequest + 1)
+        );
+    }
+
+    /**
+     * private method used in test below to add test recipe
+     * to database, the recipe that will be deleted afterwards
+     * @return id of recipe to be deleted
+     * @throws Exception because we use mockMvc and it throws
+     * exception
+     */
+    private int addRecipeToBeDeletedAfterwards() throws Exception {
+        mockMvc.perform(
+        post(BASE_URI + "/recipes/save")
+                .param("name",
+                        testRecipeWithAllValidFields1.getName())
+                .param("description",
+                        testRecipeWithAllValidFields1.getDescription())
+                .param("recipeCategory",
+                        testRecipeWithAllValidFields1.getRecipeCategory().toString())
+                .param("photoUrl",
+                        testRecipeWithAllValidFields1.getPhotoUrl())
+                .param("cookTime",
+                        testRecipeWithAllValidFields1.getCookTime())
+                .param("preparationTime",
+                        testRecipeWithAllValidFields1.getPreparationTime())
+                .param("recipe.ingredients[0]",
+                        testRecipeWithAllValidFields1.getIngredients().get(0).toString())
+                .param("recipe.steps[0]",
+                        testRecipeWithAllValidFields1.getSteps().get(0).toString())
+        );
+        return recipeService.findAll().size();
+    }
+
+    @Test
+    public void deletingRecipeShouldBePossible() throws Exception {
+        // Arrange:
+        // mockMvc is set up as real and DatabaseLoader is used
+        // to populate data
+
+        // Calculate number of recipes, ingredients
+        // and steps before request. To check consistency
+        // afterwards
+        int numberOfIngredientsBeforeAddingRecipeToDelete =
+                ingredientService.findAll().size();
+        int numberOfStepsBeforeAddingRecipeToDelete =
+                stepService.findAll().size();
+        int numberOfRecipesBeforeAddingRecipesToDelete =
+                recipeService.findAll().size();
+
+        // Add recipe to be deleted and get its id to
+        // pass to request
+        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards();
+
+        // When POST request to "/recipes/delete/idOfNewlyAddedRecipe"
+        // is made
+        // Then :
+        // - status should be redirect 3xx
+        // - redirected page should be "/recipes/"
+        // - successful flash should be sent
+        mockMvc.perform(
+                post("/recipes/delete/" + idOfNewlyAddedRecipe)
+        ).andDo(print())
+        .andExpect(
+                status().is3xxRedirection()
+        )
+        .andExpect(
+                redirectedUrl("/recipes/")
+        )
+        .andExpect(
+                flash().attribute(
+                        "flash",
+                        hasProperty(
+                                "status",
+                                equalTo(FlashMessage.Status.SUCCESS)
+                        )
+                )
+        );
+        // Assert that system after add and delete
+        // should be as it was, i.e. number of recipes
+        // ingredients and steps added with this request
+        // should stay the same
+        assertThat(
+                recipeService.findAll().size(),
+                is(numberOfRecipesBeforeAddingRecipesToDelete)
+        );
+        assertThat(
+                ingredientService.findAll().size(),
+                is(numberOfIngredientsBeforeAddingRecipeToDelete)
+        );
+        assertThat(
+                stepService.findAll().size(),
+                is(numberOfStepsBeforeAddingRecipeToDelete)
         );
     }
 }
