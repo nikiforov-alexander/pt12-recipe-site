@@ -1,12 +1,12 @@
 package com.techdegree.web.controller;
 
 import com.techdegree.model.*;
-import com.techdegree.service.IngredientService;
-import com.techdegree.service.ItemService;
-import com.techdegree.service.RecipeService;
-import com.techdegree.service.StepService;
+import com.techdegree.service.*;
 import com.techdegree.web.FlashMessage;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 
@@ -30,6 +32,8 @@ public class RecipeController {
     private StepService stepService;
     @Autowired
     private IngredientService ingredientService;
+    @Autowired
+    private CustomUserDetailsService userService;
 
     // validator is used this way because
     // recipe.ingredients.recipe is null upon saving
@@ -41,7 +45,26 @@ public class RecipeController {
     // home page with all recipes
     @RequestMapping("/")
     public String homePageWithAllRecipes(Model model) {
-        model.addAttribute("recipes", recipeService.findAll());
+        List<Recipe> recipes = recipeService.findAll();
+        model.addAttribute("recipes", recipes);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean[] recipesIsFavorites = new boolean[recipes.size()];
+
+        User user = (User) authentication.getPrincipal();
+
+        List<Recipe> favoriteRecipes = user.getFavoriteRecipes();
+
+        for (int i = 0; i < recipes.size(); i++) {
+            if (favoriteRecipes.contains(
+                    recipes.get(i))
+            ) {
+                recipesIsFavorites[i] = true;
+            } else {
+                recipesIsFavorites[i] = false;
+            }
+        }
+
         model.addAttribute("categoriesWithoutDefaultOne",
                 RecipeCategory.valuesWithoutOne());
         model.addAttribute("defaultCategory", RecipeCategory.NONE);
