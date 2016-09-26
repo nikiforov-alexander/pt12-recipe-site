@@ -52,6 +52,10 @@ public class Owner {
 
     }
 
+    public Owner(User user) {
+        this.user = user;
+    }
+
     // other methods
 
     public void addOwnedRecipe(Recipe recipe) {
