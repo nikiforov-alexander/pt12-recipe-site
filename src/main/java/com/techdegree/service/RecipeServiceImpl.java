@@ -2,6 +2,7 @@ package com.techdegree.service;
 
 import com.techdegree.dao.RecipeDao;
 import com.techdegree.model.Recipe;
+import com.techdegree.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,11 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public void delete(Recipe recipe) {
         recipeDao.delete(recipe);
+    }
+
+    @Override
+    public List<Recipe> findFavoriteRecipesForUser(User user) {
+        return recipeDao.findAllFavoriteRecipesFor(user);
     }
 
     // one more candidate to include delete(Long id) ...
