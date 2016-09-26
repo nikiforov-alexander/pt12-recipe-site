@@ -77,6 +77,7 @@ public class DataLoader implements ApplicationRunner {
         // set step1-2.recipes to recipe
         step1.setRecipe(recipe);
         step2.setRecipe(recipe);
+
         // set recipe owner
         Owner owner = new Owner();
         owner.setUser(userDao.findByUsername("jd"));
@@ -86,6 +87,9 @@ public class DataLoader implements ApplicationRunner {
         // owner to exist before being added to
         // recipe
         recipe.setOwner(ownerDao.findOne(1L));
+
+        // add recipe to user's favorite
+        recipe.getFavoriteUsers().add(userDao.findByUsername("jd"));
 
         // save recipe
         recipeDao.save(recipe);
