@@ -42,28 +42,52 @@ public class RecipeController {
     @Autowired
     private Validator validator;
 
+    // helpful method retrieving currently logged on user
+    private User getLoggedUser() {
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
+    }
+
+    private boolean[] generateBooleanArrayWithRecipesBasedOnFavoriteRecipes(
+            List<Recipe> allRecipes,
+            List<Recipe> favoriteRecipes
+    ) {
+        boolean[] recipesIsFavorites =
+                new boolean[allRecipes.size()];
+        for (int i = 0; i < allRecipes.size(); i++) {
+            if (favoriteRecipes.contains(
+                    allRecipes.get(i))
+                    ) {
+                recipesIsFavorites[i] = true;
+            } else {
+                recipesIsFavorites[i] = false;
+            }
+        }
+
+        for (int i = 0; i < recipesIsFavorites.length; i++) {
+            System.out.println("i is " + recipesIsFavorites[i]);
+        }
+        return recipesIsFavorites;
+    }
+
     // home page with all recipes
     @RequestMapping("/")
     public String homePageWithAllRecipes(Model model) {
         List<Recipe> recipes = recipeService.findAll();
         model.addAttribute("recipes", recipes);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean[] recipesIsFavorites = new boolean[recipes.size()];
+        List<Recipe> favoriteRecipes =
+                recipeService.findFavoriteRecipesForUser(
+                        getLoggedUser()
+                );
 
-        User user = (User) authentication.getPrincipal();
-
-        List<Recipe> favoriteRecipes = user.getFavoriteRecipes();
-
-        for (int i = 0; i < recipes.size(); i++) {
-            if (favoriteRecipes.contains(
-                    recipes.get(i))
-            ) {
-                recipesIsFavorites[i] = true;
-            } else {
-                recipesIsFavorites[i] = false;
-            }
-        }
+        model.addAttribute(
+                "recipeIsFavorite",
+                generateBooleanArrayWithRecipesBasedOnFavoriteRecipes(
+                        recipes, favoriteRecipes
+                )
+        );
 
         model.addAttribute("categoriesWithoutDefaultOne",
                 RecipeCategory.valuesWithoutOne());
