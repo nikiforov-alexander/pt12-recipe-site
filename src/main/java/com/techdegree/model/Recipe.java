@@ -59,6 +59,16 @@ public class Recipe extends BaseEntity{
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     private List<Step> steps = new ArrayList<>();
 
+    // users with favorite recipes
+    @ManyToMany
+    @JoinTable(name="USERS_FAVORITE_RECIPES",
+        joinColumns=
+            @JoinColumn(name="USER_ID", referencedColumnName="ID"),
+        inverseJoinColumns=
+            @JoinColumn(name="RECIPE_ID", referencedColumnName="ID")
+        )
+    private List<User> favoriteUsers = new ArrayList<>();
+
     // getters and setters
 
 
@@ -132,6 +142,14 @@ public class Recipe extends BaseEntity{
 
     public void setOwner(Owner owner) {
         this.owner = owner;
+    }
+
+    public List<User> getFavoriteUsers() {
+        return favoriteUsers;
+    }
+
+    public void setFavoriteUsers(List<User> favoriteUsers) {
+        this.favoriteUsers = favoriteUsers;
     }
 
     // constructors
