@@ -126,6 +126,14 @@ button:hover {
 
 /* flash messages */
 
+/* custom flash message surrounding div for login page */
+.div-surrounding-flash-at-login-page {
+    position: relative;
+    float: left;
+    left: 21%;
+    width: 55%;
+}
+
 .flash {
     color: white;
     padding-bottom: 20px;
