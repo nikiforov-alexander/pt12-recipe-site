@@ -1,13 +1,8 @@
 package com.techdegree.web.controller;
 
-import com.techdegree.model.Ingredient;
-import com.techdegree.model.Recipe;
-import com.techdegree.model.RecipeCategory;
-import com.techdegree.model.Step;
-import com.techdegree.service.IngredientService;
-import com.techdegree.service.ItemService;
-import com.techdegree.service.RecipeService;
-import com.techdegree.service.StepService;
+import com.techdegree.dao.OwnerDao;
+import com.techdegree.model.*;
+import com.techdegree.service.*;
 import com.techdegree.web.FlashMessage;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,6 +48,10 @@ public class RecipeControllerItTest {
     private IngredientService ingredientService;
     @Autowired
     private StepService stepService;
+    @Autowired
+    private OwnerService ownerService;
+    @Autowired
+    private CustomUserDetailsService userService;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -160,6 +161,15 @@ public class RecipeControllerItTest {
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
 
+        // We also load user "jd" by username to set it as owner
+        // recipe. It is not needed here, but later may be ...
+        // when we add admins ...
+        User user = (User) userService.loadUserByUsername("jd");
+        // and we calculate number of recipes and owners before
+        // request to compare later on
+        int numberOfOwnersBeforeReq = ownerService.findAll().size();
+        int numberOfRecipeBeforeReq = recipeService.findAll().size();
+
         // When POST request adding new Recipe with all
         // invalid fields is made
         // Then:
@@ -170,6 +180,11 @@ public class RecipeControllerItTest {
         // input fields:
         mockMvc.perform(
                 post(BASE_URI + "/recipes/save")
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        user
+                                )
+                        )
                         .param("name", "") // @NotEmpty
                         .param("description", "") // @NotEmpty
                         .param("recipeCategory", "") // @NotEmpty
@@ -203,6 +218,15 @@ public class RecipeControllerItTest {
                         equalTo(10)
                 )
             )
+        );
+        // Assert that number of owners and recipes stayed same:
+        assertThat(
+                ownerService.findAll().size(),
+                is(numberOfOwnersBeforeReq)
+        );
+        assertThat(
+                recipeService.findAll().size(),
+                is(numberOfRecipeBeforeReq)
         );
     }
 
