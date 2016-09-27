@@ -236,11 +236,26 @@ public class RecipeControllerItTest {
         // Arrange:
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
-        int numberOfRecipesBeforePostRequest =
-                recipeService.findAll().size();
+
+        // We also load non-admin user "jd" by username to set it as owner
+        // recipe. It is not needed here, but later may be ...
+        // when we add admins ...
+        User user = (User) userService.loadUserByUsername("jd");
+
+        // and we calculate number of
+        // recipes, steps, ingredients and owners before
+        // request to compare later on
+        int numberOfOwnersBeforeReq = ownerService.findAll().size();
+        int numberOfIngredientsBeforeReq = ingredientService.findAll().size();
+        int numberOfRecipesBeforeReq = recipeService.findAll().size();
+        int numberOfStepsBeforeRequest = stepService.findAll().size();
+
+        // Add recipe to be deleted and get its id to
+        // pass to request
+        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
 
         // When POST request for updating firstRecipeFromDatabase
-        // with all correct parameters is made
+        // with all correct and changed parameters is made
         // Then:
         // - status should be 3xx : redirect
         // - redirected page should be RECIPES_HOME_PAGE
@@ -248,9 +263,9 @@ public class RecipeControllerItTest {
         mockMvc.perform(
         post(BASE_URI + "/recipes/save")
                 .param("id",
-                        firstRecipeFromDatabase.getId().toString())
+                        idOfNewlyAddedRecipe + "")
                 .param("version",
-                        firstRecipeFromDatabase.getVersion().toString())
+                        "0")
                 .param("name",
                         testRecipeWithAllValidFields1.getName())
                 .param("description",
@@ -264,12 +279,22 @@ public class RecipeControllerItTest {
                         testRecipeWithAllValidFields1.getCookTime())
                 .param("preparationTime",
                         testRecipeWithAllValidFields1.getPreparationTime())
-                .param("recipe.ingredients[0]",
-                        testRecipeWithAllValidFields1.getIngredients().get(0)
-                                .toString())
-                .param("recipe.steps[0]",
-                        testRecipeWithAllValidFields1.getSteps().get(0)
-                                .toString())
+                // in contrast to add-new test, here we change
+                // recipe.ingredients, that is why we also include
+                // "id" and "version" for both recipe.steps and
+                // recipe.ingredients
+                // we know "id" of those, because we added recipe
+                // in test before
+                .param("ingredients[0].id",
+                        ingredientService.findAll().size() + "")
+                .param("ingredients[0].version", "0")
+                .param("ingredients[0].item.id", "1")
+                .param("ingredients[0].condition", "condition")
+                .param("ingredients[0].quantity", "quantity")
+                .param("steps[0].id",
+                        stepService.findAll().size() + "")
+                .param("steps[0].version", "0")
+                .param("steps[0].description", "description")
         ).andDo(print())
                 .andExpect(
                         status().is3xxRedirection()
@@ -286,10 +311,30 @@ public class RecipeControllerItTest {
                                 )
                         )
                 );
-        // Assert that number of recipes didn't change
+        // Assert that number of
+        // recipes, ingredients and steps and owners
+        // increased by one: well they are actually did not change
+        // after edit. But we calculated them before adding
+        // recipe that we edit, so +1 is right number
         assertThat(
+                "number of recipes increased by 1",
                 recipeService.findAll().size(),
-                is(numberOfRecipesBeforePostRequest)
+                is(numberOfRecipesBeforeReq + 1)
+        );
+        assertThat(
+                "number of ingredients increased by 1",
+                ingredientService.findAll().size(),
+                is(numberOfIngredientsBeforeReq + 1)
+        );
+        assertThat(
+                "number of steps increased by 1",
+                stepService.findAll().size(),
+                is(numberOfStepsBeforeRequest + 1)
+        );
+        assertThat(
+                "number of owners increased by 1",
+                ownerService.findAll().size(),
+                is(numberOfOwnersBeforeReq + 1)
         );
     }
 
