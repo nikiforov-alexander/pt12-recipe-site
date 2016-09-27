@@ -1,5 +1,6 @@
 package com.techdegree.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
@@ -41,9 +42,12 @@ public class Recipe extends BaseEntity{
 
     // added owner as a reference in recipe tables
     // as a foreign_key "owner_id"
+    // although we always should create owner
+    // when recipe is created, we don't put
+    // @NotNull here...
     @ManyToOne
-    @NotNull
     @JoinColumn(name = "owner_id")
+    @JsonIgnore
     private Owner owner;
 
     /*
@@ -67,6 +71,7 @@ public class Recipe extends BaseEntity{
         inverseJoinColumns=
             @JoinColumn(name="RECIPE_ID", referencedColumnName="ID")
         )
+    @JsonIgnore
     private List<User> favoriteUsers = new ArrayList<>();
 
     // getters and setters
