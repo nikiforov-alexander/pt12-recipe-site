@@ -387,13 +387,19 @@ public class RecipeControllerItTest {
     /**
      * private method used in test below to add test recipe
      * to database, the recipe that will be deleted afterwards
+     * @param user : logged user that will be set as owner
      * @return id of recipe to be deleted
      * @throws Exception because we use mockMvc and it throws
      * exception
      */
-    private int addRecipeToBeDeletedAfterwards() throws Exception {
+    private int addRecipeToBeDeletedAfterwards(User user) throws Exception {
         mockMvc.perform(
         post(BASE_URI + "/recipes/save")
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                user
+                        )
+                )
                 .param("name",
                         testRecipeWithAllValidFields1.getName())
                 .param("description",
@@ -406,10 +412,10 @@ public class RecipeControllerItTest {
                         testRecipeWithAllValidFields1.getCookTime())
                 .param("preparationTime",
                         testRecipeWithAllValidFields1.getPreparationTime())
-                .param("recipe.ingredients[0]",
-                        testRecipeWithAllValidFields1.getIngredients().get(0).toString())
-                .param("recipe.steps[0]",
-                        testRecipeWithAllValidFields1.getSteps().get(0).toString())
+                .param("ingredients[0].item.id", "1")
+                .param("ingredients[0].condition", "condition")
+                .param("ingredients[0].quantity", "quantity")
+                .param("steps[0].description", "description")
         );
         return recipeService.findAll().size();
     }
@@ -420,8 +426,15 @@ public class RecipeControllerItTest {
         // mockMvc is set up as real and DatabaseLoader is used
         // to populate data
 
-        // Calculate number of recipes, ingredients
-        // and steps before request. To check consistency
+        // Arrange user:
+        // We also load non-admin user "jd" by username to set it as owner
+        // recipe. It is not needed here, but later may be ...
+        // when we add admins ...
+        User user = (User) userService.loadUserByUsername("jd");
+
+        // Calculate number of
+        // recipes, ingredients, steps and owners
+        // before request. To check consistency
         // afterwards
         int numberOfIngredientsBeforeAddingRecipeToDelete =
                 ingredientService.findAll().size();
@@ -429,10 +442,12 @@ public class RecipeControllerItTest {
                 stepService.findAll().size();
         int numberOfRecipesBeforeAddingRecipesToDelete =
                 recipeService.findAll().size();
+        int numberOfOwnersBeforeAddingRecipeToDelete =
+                ownerService.findAll().size();
 
         // Add recipe to be deleted and get its id to
         // pass to request
-        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards();
+        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
 
         // When POST request to "/recipes/delete/idOfNewlyAddedRecipe"
         // is made
@@ -442,6 +457,11 @@ public class RecipeControllerItTest {
         // - successful flash should be sent
         mockMvc.perform(
                 post("/recipes/delete/" + idOfNewlyAddedRecipe)
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                user
+                        )
+                )
         ).andDo(print())
         .andExpect(
                 status().is3xxRedirection()
@@ -459,20 +479,30 @@ public class RecipeControllerItTest {
                 )
         );
         // Assert that system after add and delete
-        // should be as it was, i.e. number of recipes
+        // should be as it was, i.e. number of recipes,
         // ingredients and steps added with this request
         // should stay the same
+        // Number of owners however should stay the same,
+        // because owner can be attached to many recipes
         assertThat(
+                "number of recipes should be the same",
                 recipeService.findAll().size(),
                 is(numberOfRecipesBeforeAddingRecipesToDelete)
         );
         assertThat(
+                "number of ingredients should be the same",
                 ingredientService.findAll().size(),
                 is(numberOfIngredientsBeforeAddingRecipeToDelete)
         );
         assertThat(
+                "number of steps should be the same",
                 stepService.findAll().size(),
                 is(numberOfStepsBeforeAddingRecipeToDelete)
+        );
+        assertThat(
+                "number of owners should increase",
+                ownerService.findAll().size(),
+                is(numberOfOwnersBeforeAddingRecipeToDelete + 1)
         );
     }
 }
