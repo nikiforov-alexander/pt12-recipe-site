@@ -92,15 +92,21 @@
                 <a th:href="@{|/recipes/${recipe.id}|}">
                     <div class="grid-70">
                         <p th:text="${recipe.name}">
-                            <!--/* Recipe favorite star image unclickable ?
-                                   TODO: make recipe favorite from index page
-                            */-->
-                            <span>
-                                <img th:src="@{/images/favorite.svg}"
-                                     height="12px">
-                            </span>
                             Recipe Name
                         </p>
+                        <!--/* Recipe favorite star image unclickable ?
+                               TODO: make recipe favorite from index page
+                               recipeIsFavorite[] is boolean array
+                               with the same number of indices as
+                               recipes: indicates for each recipe whether it
+                               iis favorite or not
+                        */-->
+                        <img th:if="${recipeIsFavorite[__${recipeStat.index}__] == true}"
+                             th:src="@{/assets/images/favorited.svg}"
+                             height="12px">
+                        <img th:if="${recipeIsFavorite[__${recipeStat.index}__] == false}"
+                             th:src="@{/assets/images/favorite.svg}"
+                             height="12px">
                     </div>
                 </a>
 
