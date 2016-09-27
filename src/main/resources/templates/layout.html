@@ -44,11 +44,14 @@
            and on failure as well on pages with really wrong data
            for now : "grid-100" class
      */-->
-    <div th:fragment="flash"
+    <div th:fragment="flash(outsideDivStyleClass)"
          th:if="${flash != null}"
-         class="grid-100">
+         th:class="${outsideDivStyleClass}">
         <div th:classappend="${#strings.toLowerCase(flash.status)}"
-             th:text="${flash.message}" class="flash">
+             class="flash">
+            <span th:text="${flash.message}">
+                Flash Message
+            </span>
         </div>
     </div>
 
