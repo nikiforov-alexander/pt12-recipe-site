@@ -299,20 +299,35 @@ public class RecipeControllerItTest {
         // Arrange:
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
-        // Calculate number of recipes before request
-        int numberOfRecipesBeforePostRequest =
-                recipeService.findAll().size();
+
+        // We also load non-admin user "jd" by username to set it as owner
+        // recipe. It is not needed here, but later may be ...
+        // when we add admins ...
+        User user = (User) userService.loadUserByUsername("jd");
+
+        // and we calculate number of
+        // recipes, steps, ingredients and owners before
+        // request to compare later on
+        int numberOfOwnersBeforeReq = ownerService.findAll().size();
+        int numberOfRecipesBeforeReq = recipeService.findAll().size();
+        int numberOfIngredientsBeforeReq = ingredientService.findAll().size();
+        int numberOfStepsBeforeRequest = stepService.findAll().size();
 
         // When POST request
         // or adding new one (because they are same)
-        // with all
-        // correct parameters is made
+        // with all correct parameters
+        // and logged user is made
         // Then:
         // - status should be 3xx : redirect
         // - redirected page should be RECIPES_HOME_PAGE
         // - flash message should be sent with success status
         mockMvc.perform(
             post(BASE_URI + "/recipes/save")
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                user
+                        )
+                )
                 .param("name",
                         testRecipeWithAllValidFields1.getName())
                 .param("description",
@@ -325,10 +340,10 @@ public class RecipeControllerItTest {
                         testRecipeWithAllValidFields1.getCookTime())
                 .param("preparationTime",
                         testRecipeWithAllValidFields1.getPreparationTime())
-                .param("recipe.ingredients[0]",
-                        testRecipeWithAllValidFields1.getIngredients().get(0).toString())
-                .param("recipe.steps[0]",
-                        testRecipeWithAllValidFields1.getSteps().get(0).toString())
+                .param("ingredients[0].item.id", "1")
+                .param("ingredients[0].condition", "condition")
+                .param("ingredients[0].quantity", "quantity")
+                .param("steps[0].description", "description")
         ).andDo(print())
         .andExpect(
                 status().is3xxRedirection()
@@ -345,10 +360,27 @@ public class RecipeControllerItTest {
                         )
                 )
         );
-        // Assert that number of recipes increased
+        // Assert that number of recipes, ingredients,
+        // steps and owners increased by one
         assertThat(
+                "number of recipes increased by 1",
                 recipeService.findAll().size(),
-                is(numberOfRecipesBeforePostRequest + 1)
+                is(numberOfRecipesBeforeReq + 1)
+        );
+        assertThat(
+                "number of ingredients increased by 1",
+                ingredientService.findAll().size(),
+                is(numberOfIngredientsBeforeReq + 1)
+        );
+        assertThat(
+                "number of steps increased by 1",
+                stepService.findAll().size(),
+                is(numberOfStepsBeforeRequest + 1)
+        );
+        assertThat(
+                "number of owners increased by 1",
+                ownerService.findAll().size(),
+                is(numberOfOwnersBeforeReq + 1)
         );
     }
 
