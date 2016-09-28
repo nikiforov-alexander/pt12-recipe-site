@@ -3,7 +3,6 @@ package com.techdegree.web.controller;
 import com.techdegree.model.*;
 import com.techdegree.service.*;
 import com.techdegree.web.FlashMessage;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +33,8 @@ public class RecipeController {
     private IngredientService ingredientService;
     @Autowired
     private CustomUserDetailsService userService;
+    @Autowired
+    private OwnerService ownerService;
 
     // validator is used this way because
     // recipe.ingredients.recipe is null upon saving
@@ -263,16 +264,40 @@ public class RecipeController {
                         )
                 )
         );
+
+        // if recipe.id = null, and we create new recipe,
+        // we set new Owner. First we save owner based
+        // on logged user, then we add it to recipe
+        // if recipe.id != null, i.e. we edit recipe
+        // then we set owner from database
+
+        // this code should go
+        // in EventHandler class, but I've no much
+        // experience with that
+        // TODO: put this in @HandleBeforeCreate EventHandler
+        if (recipe.getId() == null) {
+            recipe.setOwner(
+                    ownerService.save(
+                            new Owner(getLoggedUser())
+                    )
+            );
+        } else {
+            recipe.setOwner(
+                    recipeService.findOne(recipe.getId()).getOwner()
+            );
+        }
         // if everything is OK, we save recipes, steps
         // and ingredients
         // because steps and ingredients
         // have foreign key in their table
         // so we have to do that
-        recipeService.save(recipe);
-        recipe.getIngredients().forEach(
+        // but we have to save them using saved recipe
+        // from db, otherwise we'll get OptimisticLockError
+        Recipe savedRecipe = recipeService.save(recipe);
+        savedRecipe.getIngredients().forEach(
                 i -> ingredientService.save(i)
         );
-        recipe.getSteps().forEach(
+        savedRecipe.getSteps().forEach(
             step -> stepService.save(step)
         );
 
