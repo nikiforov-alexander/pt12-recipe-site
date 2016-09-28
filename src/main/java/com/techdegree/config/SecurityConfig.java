@@ -83,7 +83,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             request.getSession().setAttribute("flash",
                     new FlashMessage(
                             "Incorrect username and/or password. " +
-                            "Please try again.",
+                            "Try again.",
                             FlashMessage.Status.FAILURE
                     )
             );

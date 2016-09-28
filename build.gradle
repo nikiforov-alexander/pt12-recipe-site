@@ -68,6 +68,12 @@ dependencies {
     // spring boot starter test: includes Mockito and other helpful
     // classes
     testCompile 'org.springframework.boot:spring-boot-starter-test'
+    // security dependency to ne able to write tests with Mock user
+    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-test
+    // this is needed to use
+    // SecurityMockMvcRequestPostProcessors in tests
+    testCompile group: 'org.springframework.security',
+            name: 'spring-security-test', version: '4.0.0.RELEASE'
 }
 
 bootRun {

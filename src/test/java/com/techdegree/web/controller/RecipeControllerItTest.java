@@ -1,13 +1,7 @@
 package com.techdegree.web.controller;
 
-import com.techdegree.model.Ingredient;
-import com.techdegree.model.Recipe;
-import com.techdegree.model.RecipeCategory;
-import com.techdegree.model.Step;
-import com.techdegree.service.IngredientService;
-import com.techdegree.service.ItemService;
-import com.techdegree.service.RecipeService;
-import com.techdegree.service.StepService;
+import com.techdegree.model.*;
+import com.techdegree.service.*;
 import com.techdegree.web.FlashMessage;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,6 +46,10 @@ public class RecipeControllerItTest {
     private IngredientService ingredientService;
     @Autowired
     private StepService stepService;
+    @Autowired
+    private OwnerService ownerService;
+    @Autowired
+    private CustomUserDetailsService userService;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -160,6 +159,15 @@ public class RecipeControllerItTest {
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
 
+        // We also load user "jd" by username to set it as owner
+        // recipe. It is not needed here, but later may be ...
+        // when we add admins ...
+        User user = (User) userService.loadUserByUsername("jd");
+        // and we calculate number of recipes and owners before
+        // request to compare later on
+        int numberOfOwnersBeforeReq = ownerService.findAll().size();
+        int numberOfRecipeBeforeReq = recipeService.findAll().size();
+
         // When POST request adding new Recipe with all
         // invalid fields is made
         // Then:
@@ -170,6 +178,11 @@ public class RecipeControllerItTest {
         // input fields:
         mockMvc.perform(
                 post(BASE_URI + "/recipes/save")
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        user
+                                )
+                        )
                         .param("name", "") // @NotEmpty
                         .param("description", "") // @NotEmpty
                         .param("recipeCategory", "") // @NotEmpty
@@ -204,6 +217,15 @@ public class RecipeControllerItTest {
                 )
             )
         );
+        // Assert that number of owners and recipes stayed same:
+        assertThat(
+                ownerService.findAll().size(),
+                is(numberOfOwnersBeforeReq)
+        );
+        assertThat(
+                recipeService.findAll().size(),
+                is(numberOfRecipeBeforeReq)
+        );
     }
 
     @Test
@@ -212,11 +234,26 @@ public class RecipeControllerItTest {
         // Arrange:
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
-        int numberOfRecipesBeforePostRequest =
-                recipeService.findAll().size();
+
+        // We also load non-admin user "jd" by username to set it as owner
+        // recipe. It is not needed here, but later may be ...
+        // when we add admins ...
+        User user = (User) userService.loadUserByUsername("jd");
+
+        // and we calculate number of
+        // recipes, steps, ingredients and owners before
+        // request to compare later on
+        int numberOfOwnersBeforeReq = ownerService.findAll().size();
+        int numberOfIngredientsBeforeReq = ingredientService.findAll().size();
+        int numberOfRecipesBeforeReq = recipeService.findAll().size();
+        int numberOfStepsBeforeRequest = stepService.findAll().size();
+
+        // Add recipe to be deleted and get its id to
+        // pass to request
+        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
 
         // When POST request for updating firstRecipeFromDatabase
-        // with all correct parameters is made
+        // with all correct and changed parameters is made
         // Then:
         // - status should be 3xx : redirect
         // - redirected page should be RECIPES_HOME_PAGE
@@ -224,9 +261,9 @@ public class RecipeControllerItTest {
         mockMvc.perform(
         post(BASE_URI + "/recipes/save")
                 .param("id",
-                        firstRecipeFromDatabase.getId().toString())
+                        idOfNewlyAddedRecipe + "")
                 .param("version",
-                        firstRecipeFromDatabase.getVersion().toString())
+                        "0")
                 .param("name",
                         testRecipeWithAllValidFields1.getName())
                 .param("description",
@@ -240,12 +277,22 @@ public class RecipeControllerItTest {
                         testRecipeWithAllValidFields1.getCookTime())
                 .param("preparationTime",
                         testRecipeWithAllValidFields1.getPreparationTime())
-                .param("recipe.ingredients[0]",
-                        testRecipeWithAllValidFields1.getIngredients().get(0)
-                                .toString())
-                .param("recipe.steps[0]",
-                        testRecipeWithAllValidFields1.getSteps().get(0)
-                                .toString())
+                // in contrast to add-new test, here we change
+                // recipe.ingredients, that is why we also include
+                // "id" and "version" for both recipe.steps and
+                // recipe.ingredients
+                // we know "id" of those, because we added recipe
+                // in test before
+                .param("ingredients[0].id",
+                        ingredientService.findAll().size() + "")
+                .param("ingredients[0].version", "0")
+                .param("ingredients[0].item.id", "1")
+                .param("ingredients[0].condition", "condition")
+                .param("ingredients[0].quantity", "quantity")
+                .param("steps[0].id",
+                        stepService.findAll().size() + "")
+                .param("steps[0].version", "0")
+                .param("steps[0].description", "description")
         ).andDo(print())
                 .andExpect(
                         status().is3xxRedirection()
@@ -262,10 +309,30 @@ public class RecipeControllerItTest {
                                 )
                         )
                 );
-        // Assert that number of recipes didn't change
+        // Assert that number of
+        // recipes, ingredients and steps and owners
+        // increased by one: well they are actually did not change
+        // after edit. But we calculated them before adding
+        // recipe that we edit, so +1 is right number
         assertThat(
+                "number of recipes increased by 1",
                 recipeService.findAll().size(),
-                is(numberOfRecipesBeforePostRequest)
+                is(numberOfRecipesBeforeReq + 1)
+        );
+        assertThat(
+                "number of ingredients increased by 1",
+                ingredientService.findAll().size(),
+                is(numberOfIngredientsBeforeReq + 1)
+        );
+        assertThat(
+                "number of steps increased by 1",
+                stepService.findAll().size(),
+                is(numberOfStepsBeforeRequest + 1)
+        );
+        assertThat(
+                "number of owners increased by 1",
+                ownerService.findAll().size(),
+                is(numberOfOwnersBeforeReq + 1)
         );
     }
 
@@ -275,20 +342,35 @@ public class RecipeControllerItTest {
         // Arrange:
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
-        // Calculate number of recipes before request
-        int numberOfRecipesBeforePostRequest =
-                recipeService.findAll().size();
+
+        // We also load non-admin user "jd" by username to set it as owner
+        // recipe. It is not needed here, but later may be ...
+        // when we add admins ...
+        User user = (User) userService.loadUserByUsername("jd");
+
+        // and we calculate number of
+        // recipes, steps, ingredients and owners before
+        // request to compare later on
+        int numberOfOwnersBeforeReq = ownerService.findAll().size();
+        int numberOfRecipesBeforeReq = recipeService.findAll().size();
+        int numberOfIngredientsBeforeReq = ingredientService.findAll().size();
+        int numberOfStepsBeforeRequest = stepService.findAll().size();
 
         // When POST request
         // or adding new one (because they are same)
-        // with all
-        // correct parameters is made
+        // with all correct parameters
+        // and logged user is made
         // Then:
         // - status should be 3xx : redirect
         // - redirected page should be RECIPES_HOME_PAGE
         // - flash message should be sent with success status
         mockMvc.perform(
             post(BASE_URI + "/recipes/save")
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                user
+                        )
+                )
                 .param("name",
                         testRecipeWithAllValidFields1.getName())
                 .param("description",
@@ -301,10 +383,10 @@ public class RecipeControllerItTest {
                         testRecipeWithAllValidFields1.getCookTime())
                 .param("preparationTime",
                         testRecipeWithAllValidFields1.getPreparationTime())
-                .param("recipe.ingredients[0]",
-                        testRecipeWithAllValidFields1.getIngredients().get(0).toString())
-                .param("recipe.steps[0]",
-                        testRecipeWithAllValidFields1.getSteps().get(0).toString())
+                .param("ingredients[0].item.id", "1")
+                .param("ingredients[0].condition", "condition")
+                .param("ingredients[0].quantity", "quantity")
+                .param("steps[0].description", "description")
         ).andDo(print())
         .andExpect(
                 status().is3xxRedirection()
@@ -321,23 +403,46 @@ public class RecipeControllerItTest {
                         )
                 )
         );
-        // Assert that number of recipes increased
+        // Assert that number of recipes, ingredients,
+        // steps and owners increased by one
         assertThat(
+                "number of recipes increased by 1",
                 recipeService.findAll().size(),
-                is(numberOfRecipesBeforePostRequest + 1)
+                is(numberOfRecipesBeforeReq + 1)
+        );
+        assertThat(
+                "number of ingredients increased by 1",
+                ingredientService.findAll().size(),
+                is(numberOfIngredientsBeforeReq + 1)
+        );
+        assertThat(
+                "number of steps increased by 1",
+                stepService.findAll().size(),
+                is(numberOfStepsBeforeRequest + 1)
+        );
+        assertThat(
+                "number of owners increased by 1",
+                ownerService.findAll().size(),
+                is(numberOfOwnersBeforeReq + 1)
         );
     }
 
     /**
      * private method used in test below to add test recipe
      * to database, the recipe that will be deleted afterwards
+     * @param user : logged user that will be set as owner
      * @return id of recipe to be deleted
      * @throws Exception because we use mockMvc and it throws
      * exception
      */
-    private int addRecipeToBeDeletedAfterwards() throws Exception {
+    private int addRecipeToBeDeletedAfterwards(User user) throws Exception {
         mockMvc.perform(
         post(BASE_URI + "/recipes/save")
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                user
+                        )
+                )
                 .param("name",
                         testRecipeWithAllValidFields1.getName())
                 .param("description",
@@ -350,10 +455,10 @@ public class RecipeControllerItTest {
                         testRecipeWithAllValidFields1.getCookTime())
                 .param("preparationTime",
                         testRecipeWithAllValidFields1.getPreparationTime())
-                .param("recipe.ingredients[0]",
-                        testRecipeWithAllValidFields1.getIngredients().get(0).toString())
-                .param("recipe.steps[0]",
-                        testRecipeWithAllValidFields1.getSteps().get(0).toString())
+                .param("ingredients[0].item.id", "1")
+                .param("ingredients[0].condition", "condition")
+                .param("ingredients[0].quantity", "quantity")
+                .param("steps[0].description", "description")
         );
         return recipeService.findAll().size();
     }
@@ -364,8 +469,15 @@ public class RecipeControllerItTest {
         // mockMvc is set up as real and DatabaseLoader is used
         // to populate data
 
-        // Calculate number of recipes, ingredients
-        // and steps before request. To check consistency
+        // Arrange user:
+        // We also load non-admin user "jd" by username to set it as owner
+        // recipe. It is not needed here, but later may be ...
+        // when we add admins ...
+        User user = (User) userService.loadUserByUsername("jd");
+
+        // Calculate number of
+        // recipes, ingredients, steps and owners
+        // before request. To check consistency
         // afterwards
         int numberOfIngredientsBeforeAddingRecipeToDelete =
                 ingredientService.findAll().size();
@@ -373,10 +485,12 @@ public class RecipeControllerItTest {
                 stepService.findAll().size();
         int numberOfRecipesBeforeAddingRecipesToDelete =
                 recipeService.findAll().size();
+        int numberOfOwnersBeforeAddingRecipeToDelete =
+                ownerService.findAll().size();
 
         // Add recipe to be deleted and get its id to
         // pass to request
-        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards();
+        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
 
         // When POST request to "/recipes/delete/idOfNewlyAddedRecipe"
         // is made
@@ -386,6 +500,11 @@ public class RecipeControllerItTest {
         // - successful flash should be sent
         mockMvc.perform(
                 post("/recipes/delete/" + idOfNewlyAddedRecipe)
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                user
+                        )
+                )
         ).andDo(print())
         .andExpect(
                 status().is3xxRedirection()
@@ -403,20 +522,30 @@ public class RecipeControllerItTest {
                 )
         );
         // Assert that system after add and delete
-        // should be as it was, i.e. number of recipes
+        // should be as it was, i.e. number of recipes,
         // ingredients and steps added with this request
         // should stay the same
+        // Number of owners however should stay the same,
+        // because owner can be attached to many recipes
         assertThat(
+                "number of recipes should be the same",
                 recipeService.findAll().size(),
                 is(numberOfRecipesBeforeAddingRecipesToDelete)
         );
         assertThat(
+                "number of ingredients should be the same",
                 ingredientService.findAll().size(),
                 is(numberOfIngredientsBeforeAddingRecipeToDelete)
         );
         assertThat(
+                "number of steps should be the same",
                 stepService.findAll().size(),
                 is(numberOfStepsBeforeAddingRecipeToDelete)
+        );
+        assertThat(
+                "number of owners should increase",
+                ownerService.findAll().size(),
+                is(numberOfOwnersBeforeAddingRecipeToDelete + 1)
         );
     }
 }

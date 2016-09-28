@@ -1,12 +1,10 @@
 package com.techdegree.web.controller;
 
 import com.techdegree.model.*;
-import com.techdegree.service.IngredientService;
-import com.techdegree.service.ItemService;
-import com.techdegree.service.RecipeService;
-import com.techdegree.service.StepService;
+import com.techdegree.service.*;
 import com.techdegree.web.FlashMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,6 +13,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 
@@ -30,6 +31,10 @@ public class RecipeController {
     private StepService stepService;
     @Autowired
     private IngredientService ingredientService;
+    @Autowired
+    private CustomUserDetailsService userService;
+    @Autowired
+    private OwnerService ownerService;
 
     // validator is used this way because
     // recipe.ingredients.recipe is null upon saving
@@ -38,13 +43,63 @@ public class RecipeController {
     @Autowired
     private Validator validator;
 
+    /**
+     * Generates List<Recipe> with the same size as "allRecipes"
+     * but with nulls for non-favorite recipes
+     * based on favoriteRecipes array
+     * @param allRecipes - List<Recipe> with all recipes
+     * @param favoriteRecipes - List<Recipe> with all favorite recipes
+     * @return List<Recipe> with nulls on indices where, recipes are
+     * not favorite. Check
+     * RecipeControllerTest.favoritesWithNonNullsListIsGeneratedCorrectly()
+     * for more
+     */
+    List<Recipe> generateFavoritesWithNullsForNonFavoritesList(
+            List<Recipe> allRecipes,
+            List<Recipe> favoriteRecipes
+    ) {
+        List<Recipe> favoriteRecipesWithNullsForNonFavorites =
+                new ArrayList<>();
+        allRecipes.forEach(
+                r -> {
+                    if (favoriteRecipes.contains(r)) {
+                        favoriteRecipesWithNullsForNonFavorites.add(r);
+                    } else {
+                        favoriteRecipesWithNullsForNonFavorites.add(null);
+                    }
+                }
+        );
+        return favoriteRecipesWithNullsForNonFavorites;
+    }
+
     // home page with all recipes
     @RequestMapping("/")
-    public String homePageWithAllRecipes(Model model) {
-        model.addAttribute("recipes", recipeService.findAll());
+    public String homePageWithAllRecipes(
+            @AuthenticationPrincipal User user,
+            Model model) {
+
+        List<Recipe> recipes = recipeService.findAll();
+        model.addAttribute("recipes", recipes);
+
+        // find all favorite recipes for currently logged in user
+        // and generate array to pass to model, to see
+        // which recipes are favorite and which are not
+        List<Recipe> favoriteRecipes =
+                recipeService.findFavoriteRecipesForUser(
+                        user
+                );
+        model.addAttribute(
+                "favoritesWithNullsForNonFavorites",
+                generateFavoritesWithNullsForNonFavoritesList(
+                        recipes, favoriteRecipes
+                )
+        );
+
+        // add categories to model
         model.addAttribute("categoriesWithoutDefaultOne",
                 RecipeCategory.valuesWithoutOne());
         model.addAttribute("defaultCategory", RecipeCategory.NONE);
+
         return "index";
     }
 
@@ -156,7 +211,8 @@ public class RecipeController {
     public String saveRecipe(
             Recipe recipe, // no @Valid here, it comes later
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes
+            RedirectAttributes redirectAttributes,
+            @AuthenticationPrincipal User user
     ) {
         // This is courage try to re-use method adding new
         // or saving edited item ... It may be wrong to do so
@@ -203,29 +259,18 @@ public class RecipeController {
             return "redirect:" + pageFromWherePostReqWasMade;
         }
 
-        // for each recipe.ingredient.item we take id and
-        // get item from database, because I don't know how
-        // to pass in thymeleaf whole item object
-        // at this point we are sure that item id will be set
-        // because otherwise it will throw error in hasErrors()
-        // check above
-        recipe.getIngredients().forEach(
-                i -> i.setItem(
-                        itemsService.findOne(
-                                i.getItem().getId()
-                        )
-                )
-        );
         // if everything is OK, we save recipes, steps
         // and ingredients
         // because steps and ingredients
         // have foreign key in their table
         // so we have to do that
-        recipeService.save(recipe);
-        recipe.getIngredients().forEach(
+        // but we have to save them using saved recipe
+        // from db, otherwise we'll get OptimisticLockError
+        Recipe savedRecipe = recipeService.save(recipe, user);
+        savedRecipe.getIngredients().forEach(
                 i -> ingredientService.save(i)
         );
-        recipe.getSteps().forEach(
+        savedRecipe.getSteps().forEach(
             step -> stepService.save(step)
         );
 
