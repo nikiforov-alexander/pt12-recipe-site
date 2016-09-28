@@ -4,8 +4,7 @@ import com.techdegree.model.*;
 import com.techdegree.service.*;
 import com.techdegree.web.FlashMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,13 +42,6 @@ public class RecipeController {
     @Autowired
     private Validator validator;
 
-    // helpful method retrieving currently logged on user
-    private User getLoggedUser() {
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-        return (User) authentication.getPrincipal();
-    }
-
     private boolean[] generateBooleanArrayWithRecipesBasedOnFavoriteRecipes(
             List<Recipe> allRecipes,
             List<Recipe> favoriteRecipes
@@ -74,13 +66,15 @@ public class RecipeController {
 
     // home page with all recipes
     @RequestMapping("/")
-    public String homePageWithAllRecipes(Model model) {
+    public String homePageWithAllRecipes(
+            @AuthenticationPrincipal User user,
+            Model model) {
         List<Recipe> recipes = recipeService.findAll();
         model.addAttribute("recipes", recipes);
 
         List<Recipe> favoriteRecipes =
                 recipeService.findFavoriteRecipesForUser(
-                        getLoggedUser()
+                        user
                 );
 
         model.addAttribute(
@@ -204,7 +198,8 @@ public class RecipeController {
     public String saveRecipe(
             Recipe recipe, // no @Valid here, it comes later
             BindingResult bindingResult,
-            RedirectAttributes redirectAttributes
+            RedirectAttributes redirectAttributes,
+            @AuthenticationPrincipal User user
     ) {
         // This is courage try to re-use method adding new
         // or saving edited item ... It may be wrong to do so
@@ -278,7 +273,7 @@ public class RecipeController {
         if (recipe.getId() == null) {
             recipe.setOwner(
                     ownerService.save(
-                            new Owner(getLoggedUser())
+                            new Owner(user)
                     )
             );
         } else {
