@@ -96,15 +96,16 @@
                         </p>
                         <!--/* Recipe favorite star image unclickable ?
                                TODO: make recipe favorite from index page
-                               recipeIsFavorite[] is boolean array
+                               favoritesWithNullsForNonFavorites array is
+                               array
                                with the same number of indices as
                                recipes: indicates for each recipe whether it
-                               iis favorite or not
+                               is favorite or not
                         */-->
-                        <img th:if="${recipeIsFavorite[__${recipeStat.index}__] == true}"
+                        <img th:if="${favoritesWithNullsForNonFavorites[__${recipeStat.index}__] != null}"
                              th:src="@{/assets/images/favorited.svg}"
                              height="12px">
-                        <img th:if="${recipeIsFavorite[__${recipeStat.index}__] == false}"
+                        <img th:if="${favoritesWithNullsForNonFavorites[__${recipeStat.index}__] == null}"
                              th:src="@{/assets/images/favorite.svg}"
                              height="12px">
                     </div>

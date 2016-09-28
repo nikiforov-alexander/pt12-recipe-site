@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
@@ -42,26 +43,33 @@ public class RecipeController {
     @Autowired
     private Validator validator;
 
-    private boolean[] generateBooleanArrayWithRecipesBasedOnFavoriteRecipes(
+    /**
+     * Generates List<Recipe> with the same size as "allRecipes"
+     * but with nulls for non-favorite recipes
+     * based on favoriteRecipes array
+     * @param allRecipes - List<Recipe> with all recipes
+     * @param favoriteRecipes - List<Recipe> with all favorite recipes
+     * @return List<Recipe> with nulls on indices where, recipes are
+     * not favorite. Check
+     * RecipeControllerTest.favoritesWithNonNullsListIsGeneratedCorrectly()
+     * for more
+     */
+    List<Recipe> generateFavoritesWithNullsForNonFavoritesList(
             List<Recipe> allRecipes,
             List<Recipe> favoriteRecipes
     ) {
-        boolean[] recipesIsFavorites =
-                new boolean[allRecipes.size()];
-        for (int i = 0; i < allRecipes.size(); i++) {
-            if (favoriteRecipes.contains(
-                    allRecipes.get(i))
-                    ) {
-                recipesIsFavorites[i] = true;
-            } else {
-                recipesIsFavorites[i] = false;
-            }
-        }
-
-        for (int i = 0; i < recipesIsFavorites.length; i++) {
-            System.out.println("i is " + recipesIsFavorites[i]);
-        }
-        return recipesIsFavorites;
+        List<Recipe> favoriteRecipesWithNullsForNonFavorites =
+                new ArrayList<>();
+        allRecipes.forEach(
+                r -> {
+                    if (favoriteRecipes.contains(r)) {
+                        favoriteRecipesWithNullsForNonFavorites.add(r);
+                    } else {
+                        favoriteRecipesWithNullsForNonFavorites.add(null);
+                    }
+                }
+        );
+        return favoriteRecipesWithNullsForNonFavorites;
     }
 
     // home page with all recipes
@@ -69,24 +77,29 @@ public class RecipeController {
     public String homePageWithAllRecipes(
             @AuthenticationPrincipal User user,
             Model model) {
+
         List<Recipe> recipes = recipeService.findAll();
         model.addAttribute("recipes", recipes);
 
+        // find all favorite recipes for currently logged in user
+        // and generate array to pass to model, to see
+        // which recipes are favorite and which are not
         List<Recipe> favoriteRecipes =
                 recipeService.findFavoriteRecipesForUser(
                         user
                 );
-
         model.addAttribute(
-                "recipeIsFavorite",
-                generateBooleanArrayWithRecipesBasedOnFavoriteRecipes(
+                "favoritesWithNullsForNonFavorites",
+                generateFavoritesWithNullsForNonFavoritesList(
                         recipes, favoriteRecipes
                 )
         );
 
+        // add categories to model
         model.addAttribute("categoriesWithoutDefaultOne",
                 RecipeCategory.valuesWithoutOne());
         model.addAttribute("defaultCategory", RecipeCategory.NONE);
+
         return "index";
     }
 
