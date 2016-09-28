@@ -259,41 +259,6 @@ public class RecipeController {
             return "redirect:" + pageFromWherePostReqWasMade;
         }
 
-        // for each recipe.ingredient.item we take id and
-        // get item from database, because I don't know how
-        // to pass in thymeleaf whole item object
-        // at this point we are sure that item id will be set
-        // because otherwise it will throw error in hasErrors()
-        // check above
-        recipe.getIngredients().forEach(
-                i -> i.setItem(
-                        itemsService.findOne(
-                                i.getItem().getId()
-                        )
-                )
-        );
-
-        // if recipe.id = null, and we create new recipe,
-        // we set new Owner. First we save owner based
-        // on logged user, then we add it to recipe
-        // if recipe.id != null, i.e. we edit recipe
-        // then we set owner from database
-
-        // this code should go
-        // in EventHandler class, but I've no much
-        // experience with that
-        // TODO: put this in @HandleBeforeCreate EventHandler
-        if (recipe.getId() == null) {
-            recipe.setOwner(
-                    ownerService.save(
-                            new Owner(user)
-                    )
-            );
-        } else {
-            recipe.setOwner(
-                    recipeService.findOne(recipe.getId()).getOwner()
-            );
-        }
         // if everything is OK, we save recipes, steps
         // and ingredients
         // because steps and ingredients
@@ -301,7 +266,7 @@ public class RecipeController {
         // so we have to do that
         // but we have to save them using saved recipe
         // from db, otherwise we'll get OptimisticLockError
-        Recipe savedRecipe = recipeService.save(recipe);
+        Recipe savedRecipe = recipeService.save(recipe, user);
         savedRecipe.getIngredients().forEach(
                 i -> ingredientService.save(i)
         );
