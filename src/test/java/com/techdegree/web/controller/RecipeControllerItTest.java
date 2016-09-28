@@ -1,6 +1,5 @@
 package com.techdegree.web.controller;
 
-import com.techdegree.dao.OwnerDao;
 import com.techdegree.model.*;
 import com.techdegree.service.*;
 import com.techdegree.web.FlashMessage;
@@ -10,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
