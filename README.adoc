@@ -1,0 +1,82 @@
+= Techdegree project 10 : Recipes
+:ItemValidator: link:./src/main/java/com/techdegree/validator/ItemValidator.java[ItemValidator]
+:ValidItem: link:./src/main/java/com/techdegree/validator/ValidItem.java[ValidItem]
+:CustomUserDetailsService: link:./src/main/java/com/techdegree/service/CustomUserDetailsService.java[CustomUserDetailsService]
+:IngredientService: link:./src/main/java/com/techdegree/service/IngredientService.java[IngredientService]
+:StepService: link:./src/main/java/com/techdegree/service/StepService.java[StepService]
+:OwnerServiceImpl: link:./src/main/java/com/techdegree/service/OwnerServiceImpl.java[OwnerServiceImpl]
+:ItemService: link:./src/main/java/com/techdegree/service/ItemService.java[ItemService]
+:RecipeService: link:./src/main/java/com/techdegree/service/RecipeService.java[RecipeService]
+:RecipeServiceImpl: link:./src/main/java/com/techdegree/service/RecipeServiceImpl.java[RecipeServiceImpl]
+:IngredientServiceImpl: link:./src/main/java/com/techdegree/service/IngredientServiceImpl.java[IngredientServiceImpl]
+:ItemServiceImpl: link:./src/main/java/com/techdegree/service/ItemServiceImpl.java[ItemServiceImpl]
+:StepServiceImpl: link:./src/main/java/com/techdegree/service/StepServiceImpl.java[StepServiceImpl]
+:OwnerService: link:./src/main/java/com/techdegree/service/OwnerService.java[OwnerService]
+:DataLoader: link:./src/main/java/com/techdegree/DataLoader.java[DataLoader]
+:Application: link:./src/main/java/com/techdegree/Application.java[Application]
+:BaseEntity: link:./src/main/java/com/techdegree/model/BaseEntity.java[BaseEntity]
+:User: link:./src/main/java/com/techdegree/model/User.java[User]
+:Role: link:./src/main/java/com/techdegree/model/Role.java[Role]
+:RecipeCategory: link:./src/main/java/com/techdegree/model/RecipeCategory.java[RecipeCategory]
+:Ingredient: link:./src/main/java/com/techdegree/model/Ingredient.java[Ingredient]
+:Item: link:./src/main/java/com/techdegree/model/Item.java[Item]
+:Owner: link:./src/main/java/com/techdegree/model/Owner.java[Owner]
+:Step: link:./src/main/java/com/techdegree/model/Step.java[Step]
+:Recipe: link:./src/main/java/com/techdegree/model/Recipe.java[Recipe]
+:RecipeDaoImpl: link:./src/main/java/com/techdegree/dao/RecipeDaoImpl.java[RecipeDaoImpl]
+:OwnerDao: link:./src/main/java/com/techdegree/dao/OwnerDao.java[OwnerDao]
+:RoleDao: link:./src/main/java/com/techdegree/dao/RoleDao.java[RoleDao]
+:UserDao: link:./src/main/java/com/techdegree/dao/UserDao.java[UserDao]
+:StepDao: link:./src/main/java/com/techdegree/dao/StepDao.java[StepDao]
+:ItemDao: link:./src/main/java/com/techdegree/dao/ItemDao.java[ItemDao]
+:IngredientDao: link:./src/main/java/com/techdegree/dao/IngredientDao.java[IngredientDao]
+:RecipeDao: link:./src/main/java/com/techdegree/dao/RecipeDao.java[RecipeDao]
+:FavoriteRecipesDao: link:./src/main/java/com/techdegree/dao/FavoriteRecipesDao.java[FavoriteRecipesDao]
+:FlashMessage: link:./src/main/java/com/techdegree/web/FlashMessage.java[FlashMessage]
+:LoginController: link:./src/main/java/com/techdegree/web/controller/LoginController.java[LoginController]
+:RecipeController: link:./src/main/java/com/techdegree/web/controller/RecipeController.java[RecipeController]
+:IndexRedirectController: link:./src/main/java/com/techdegree/web/controller/IndexRedirectController.java[IndexRedirectController]
+:WebConstants: link:./src/main/java/com/techdegree/web/WebConstants.java[WebConstants]
+:RecipeEventHandler: link:./src/main/java/com/techdegree/handler/RecipeEventHandler.java[RecipeEventHandler]
+:RestConfig: link:./src/main/java/com/techdegree/config/RestConfig.java[RestConfig]
+:AppConfig: link:./src/main/java/com/techdegree/config/AppConfig.java[AppConfig]
+:SecurityConfig: link:./src/main/java/com/techdegree/config/SecurityConfig.java[SecurityConfig]
+:TemplateConfig: link:./src/main/java/com/techdegree/config/TemplateConfig.java[TemplateConfig]
+:RecipeServiceTest: link:./src/test/java/com/techdegree/service/RecipeServiceTest.java[RecipeServiceTest]
+:IndexRedirectControllerTest: link:./src/test/java/com/techdegree/web/controller/IndexRedirectControllerTest.java[IndexRedirectControllerTest]
+:RecipeControllerItTest: link:./src/test/java/com/techdegree/web/controller/RecipeControllerItTest.java[RecipeControllerItTest]
+:RecipeControllerTest: link:./src/test/java/com/techdegree/web/controller/RecipeControllerTest.java[RecipeControllerTest]
+:build.gradle: link:./build.gradle[build.gradle]
+:application.properties: link:./src/main/resources/application.properties[application.properties]
+:signup.html: link:./src/main/resources/templates/signup.html[signup.html]
+:edit.html: link:./src/main/resources/templates/edit.html[edit.html]
+:login.html: link:./src/main/resources/templates/login.html[login.html]
+:index.html: link:./src/main/resources/templates/index.html[index.html]
+:detail.html: link:./src/main/resources/templates/detail.html[detail.html]
+:layout.html: link:./src/main/resources/templates/layout.html[layout.html]
+:profile.html: link:./src/main/resources/templates/profile.html[profile.html]
+:toc:
+
+== Tasks
+
+. <<task-1, Task 1>>
+
+[[eclipse]]
+== Eclipse Installation Instructions
+
+Under Construction.
+
+// Links
+
+* [[task-1]] Task 1
++
+Create model classes, DAO interfaces, services,
+and add unit tests to components.
+Determine test coverage using a code coverage tool
+and ensure your tests cover of at least 60% of your code.
++
+Model classes created are:
+
+    ** {Recipe}
+
+* [[task-2]] Task 2
