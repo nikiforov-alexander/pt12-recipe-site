@@ -56,7 +56,6 @@
 :detail.html: link:./src/main/resources/templates/detail.html[detail.html]
 :layout.html: link:./src/main/resources/templates/layout.html[layout.html]
 :profile.html: link:./src/main/resources/templates/profile.html[profile.html]
-:spring_data_custom_jpa_docs: http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.custom-implementations[Spring]
 :toc:
 :sectnums:
 
@@ -76,6 +75,8 @@ Create model classes, DAO interfaces, services,
 and add unit tests to components.
 Determine test coverage using a code coverage tool
 and ensure your tests cover of at least 60% of your code.
+
+---
 
 Model classes created are:
 
@@ -114,4 +115,26 @@ methods to Spring-Data DAOs. And {RecipeDaoImpl} is the class that
 implements {FavoriteRecipesDao} and defines manually defined
 methods (For now only method listing favorite recipes for user).
 
+Coverage report is in gzipped file called
+link:./misc/coverage-report.tar.gz[coverage-report.tar.gz].
+
 === Task 2
+Using the supplied files, create the template for the recipe list page.
+Use the following requirements list to ensure all functionality
+is included in the recipe list page.
+
+Recipes:
+
+* <<recipe-favorites, Task 1>> Displays a list of recipes by name and indicates
+    with a heart icon whether a user has favorited the recipe
+* Allows the user to filter the list by the selected category
+* Allows the user to add a new recipe
+* A user must have an account
+* Allows the user to edit or delete a recipe
+* A user must own the recipe
+
+---
+
+* [[favorites]] Displays a list of recipes by name and indicates
+with a heart icon whether a user has favorited the recipe
+
