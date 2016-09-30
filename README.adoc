@@ -115,6 +115,11 @@ methods to Spring-Data DAOs. And {RecipeDaoImpl} is the class that
 implements {FavoriteRecipesDao} and defines manually defined
 methods (For now only method listing favorite recipes for user).
 
+Service layer implementations do not have anything in particular,
+except repeating commands at DAO layer:
+
+Most of them repeat commands at DAO layer with few exceptions:
+
 Coverage report is in gzipped file called
 link:./misc/coverage-report.tar.gz[coverage-report.tar.gz].
 
@@ -125,16 +130,54 @@ is included in the recipe list page.
 
 Recipes:
 
-* <<recipe-favorites, Task 1>> Displays a list of recipes by name and indicates
+. Displays a list of recipes by name and indicates
     with a heart icon whether a user has favorited the recipe
-* Allows the user to filter the list by the selected category
-* Allows the user to add a new recipe
-* A user must have an account
-* Allows the user to edit or delete a recipe
-* A user must own the recipe
+. Allows the user to filter the list by the selected category
+. Allows the user to add a new recipe
+. A user must have an account
+. Allows the user to edit or delete a recipe
+. A user must own the recipe
 
 ---
 
-* [[favorites]] Displays a list of recipes by name and indicates
+. Displays a list of recipes by name and indicates
 with a heart icon whether a user has favorited the recipe
++
+Recipes are displayed at the main page with the address
++
+```
+http://localhost:8080/
+http://localhost:8080/recipes
+http://localhost:8080/recipes/
+```
++
+{IndexRedirectController} takes care of redirecting from
+both "/" and "/recipes" pages to "/recipes/" that is mapped
+in {RecipeController}. There is probably a better way. But
+I'll leave it for now as is. The functionality is tested in
+{IndexRedirectControllerTest}
++
+In order to show whether recipe is favorite for user we
+generate [java]`List<Recipe> favoriteRecipesWithNullsForNonFavorites`
+that has exactly the same
+size as all recipes printed, but on the places where
+recipe is favorite for user, it contains recipe, and
+elsewhere is [java]`null`. This list is passed along with all recipes
+to [java]`Model`.
++
+The list to be passed is generate in a
+[java]`RecipeController.generateFavoritesWithNullsForNonFavoritesList`
+method. And because of that is tested separately in
+`@Test favoritesWithNonNullsListIsGeneratedCorrectly` in
+{RecipeControllerTest}
++
+Simple list with favorite recipes for users is generated at DAO
+level at customized {RecipeDaoImpl} using simple SQL query. It was
+rather problematic for me to write Spring Query in annotation to
+some method in {RecipeDao}, that is why I decided to make custom
+implementation for now.
++
+This can be done in many different ways, but I decided to leave it so.
++
+. Allows user
 
