@@ -1,5 +1,5 @@
 = Techdegree project 10 : Recipes
-:experimental
+:experimental:
 :source-highlighter: coderay
 :ItemValidator: link:./src/main/java/com/techdegree/validator/ItemValidator.java[ItemValidator]
 :ValidItem: link:./src/main/java/com/techdegree/validator/ValidItem.java[ValidItem]
@@ -59,6 +59,7 @@
 :profile_html: link:./src/main/resources/templates/profile.html[profile.html]
 :coverage_report_tar_gz: link:./misc/coverage-report.tar.gz[coverage-report.tar.gz]
 :toc:
+:toclevels: 5
 :sectnums:
 
 [[eclipse]]
@@ -70,7 +71,7 @@ Under Construction.
 
 == Tasks
 
-[[task-1]]
+
 === Task 1
 
 Create model classes, DAO interfaces, services,
@@ -132,33 +133,53 @@ is included in the recipe list page.
 
 Recipes:
 
-. Displays a list of recipes by name and indicates
-    with a heart icon whether a user has favorited the recipe
-. Allows the user to filter the list by the selected category
-. Allows the user to add a new recipe
-. A user must have an account
-. Allows the user to edit or delete a recipe
-. A user must own the recipe
+. <<favorites, Favorites>>
++
+Displays a list of recipes by name and indicates
+with a heart icon whether a user has favorited the recipe
+
+. <<filter_by_category, Filter By Category>>
++
+Allows the user to filter the list by the selected category
+
+. <<add-new-recipe, Add New Recipe>>
++
+Allows the user to add a new recipe
+
+. <<user_account_page, User Account Page>>
++
+A user must have an account
+
+. <<edit_and_delete_recipe, Edit and Delete Recipe>>
++
+Allows the user to edit or delete a recipe
+
+. <<recipe_owner, Recipe Owner>>
++
+A user must own the recipe
 
 ---
 
-. Displays a list of recipes by name and indicates
+[[favorites]]
+==== Favorites
+
+Displays a list of recipes by name and indicates
 with a heart icon whether a user has favorited the recipe
-+
+
 Recipes are displayed at the main page with the address
-+
+
 ```
 http://localhost:8080/
 http://localhost:8080/recipes
 http://localhost:8080/recipes/
 ```
-+
+
 {IndexRedirectController} takes care of redirecting from
 both "/" and "/recipes" pages to "/recipes/" that is mapped
 in {RecipeController}. There is probably a better way. But
 I'll leave it for now as is. The functionality is tested in
 {IndexRedirectControllerTest}
-+
+
 In order to show whether recipe is favorite for user we
 generate `List<Recipe> favoriteRecipesWithNullsForNonFavorites`
 that has exactly the same
@@ -166,53 +187,60 @@ size as all recipes printed, but on the places where
 recipe is favorite for user, it contains recipe, and
 elsewhere is `null`. This list is passed along with all recipes
 to `Model`.
-+
+
 The list to be passed is generate in a
 [java]`RecipeController.generateFavoritesWithNullsForNonFavoritesList`
 method. And because of that is tested separately in
 [java]`@Test favoritesWithNonNullsListIsGeneratedCorrectly` in
 {RecipeControllerTest}
-+
+
 Simple list with favorite recipes for users is generated at DAO
 level at customized {RecipeDaoImpl} using simple SQL query. It was
 rather problematic for me to write Spring Query in annotation to
 some method in {RecipeDao}, that is why I decided to make custom
 implementation for now.
-+
+
 In the REST API for now it is impossible to get favorite recipes
-+
+
 This can be done in many different ways, but I decided to leave it so.
-+
-. Allows the user to filter the list by the selected category
-+
+
+[[filter_by_category]]
+==== Filter By Category
+
+Allows the user to filter the list by the selected category
+
 Not implemented yet
-+
-. Allows the user to add a new recipe
-+
+
+
+[[add-new-recipe]]
+==== Add New Recipe
+
+Allows the user to add a new recipe
+
 New recipe can be added from the home page
 by pressing "Add Recipe" button.
-+
+
 After pressing that button page `/recipes/add-new` is generated.
 Template {edit_html} is used for both `/recipes/add-new` and
 `/recipes/edit/id`, with the difference that `new Recipe` object
 is passed to `Model` when `/recipes/add-new` is generated, and
 `Recipe` from database is passed to `Model` when `/recipes/edit/id`
 page is generated.
-+
+
 I made a try to re-use some code by creating
 `addAttributesToModelForBothEditAndAddNewPages`. Don't know
 whether that was a good idea or not, but I tried.
-+
+
 I also tried to use the same method `saveRecipe` for
 both adding new recipe POST request and updating
 already existing recipe.
-+
+
 When we save recipe we set recipe's owner. For now
 I decided by introducing {Owner} class, that has
 `@OneToOne` relationship with {User}. May be I will
 change that later. But for now when new Recipe is
 created, new Owner is created.
-+
+
 When Recipe is updated, we get the owner from database.
 Exactly this functionality was moved by me to
 service layer in `RecipeService.save` method, that
@@ -221,20 +249,29 @@ also sets favorite recipes from database, and
 set `Recipe.ingredients[i].items` because with the
 POST request we set only item id-s.
 
-. A user must have an account
-+
+[[user_account_page]]
+==== User Account Page
+
+A user must have an account
+
 I guess by that is meant that user has to be logged?
 Anyway, user is saved in database, for now
 user registration is under construction
 
-. Allows the user to edit or delete a recipe
-+
+[[edit_and_delete_recipe]]
+==== Edit and Delete Recipe
+
+Allows the user to edit or delete a recipe
+
 For now user can delete recipe, without any problems.
 No restrictions on that. About edit, the same policy
 applies, see section about saving recipe above.
 
-. A user must own the recipe
-+
+[[recipe_owner]]
+==== Recipe Owner
+
+A user must own the recipe
+
 Like it was stated in saving recipe section,
 when user saves the recipe, new owner is set,
 when user updates the recipe, owner stays the same
