@@ -1,4 +1,5 @@
 = Techdegree project 10 : Recipes
+:experimental
 :source-highlighter: coderay
 :ItemValidator: link:./src/main/java/com/techdegree/validator/ItemValidator.java[ItemValidator]
 :ValidItem: link:./src/main/java/com/techdegree/validator/ValidItem.java[ValidItem]
@@ -17,7 +18,7 @@
 :Application: link:./src/main/java/com/techdegree/Application.java[Application]
 :BaseEntity: link:./src/main/java/com/techdegree/model/BaseEntity.java[BaseEntity]
 :User: link:./src/main/java/com/techdegree/model/User.java[User]
-:Role: link:./src/main/java/com/techdegree/model/Role.java[Role]
+:RoleClass: link:./src/main/java/com/techdegree/model/Role.java[Role]
 :RecipeCategory: link:./src/main/java/com/techdegree/model/RecipeCategory.java[RecipeCategory]
 :Ingredient: link:./src/main/java/com/techdegree/model/Ingredient.java[Ingredient]
 :Item: link:./src/main/java/com/techdegree/model/Item.java[Item]
@@ -47,15 +48,16 @@
 :IndexRedirectControllerTest: link:./src/test/java/com/techdegree/web/controller/IndexRedirectControllerTest.java[IndexRedirectControllerTest]
 :RecipeControllerItTest: link:./src/test/java/com/techdegree/web/controller/RecipeControllerItTest.java[RecipeControllerItTest]
 :RecipeControllerTest: link:./src/test/java/com/techdegree/web/controller/RecipeControllerTest.java[RecipeControllerTest]
-:build.gradle: link:./build.gradle[build.gradle]
-:application.properties: link:./src/main/resources/application.properties[application.properties]
-:signup.html: link:./src/main/resources/templates/signup.html[signup.html]
-:edit.html: link:./src/main/resources/templates/edit.html[edit.html]
-:login.html: link:./src/main/resources/templates/login.html[login.html]
-:index.html: link:./src/main/resources/templates/index.html[index.html]
-:detail.html: link:./src/main/resources/templates/detail.html[detail.html]
-:layout.html: link:./src/main/resources/templates/layout.html[layout.html]
-:profile.html: link:./src/main/resources/templates/profile.html[profile.html]
+:build_gradle: link:./build.gradle[build.gradle]
+:application_properties: link:./src/main/resources/application.properties[application.properties]
+:signup_html: link:./src/main/resources/templates/signup.html[signup.html]
+:edit_html: link:./src/main/resources/templates/edit.html[edit.html]
+:login_html: link:./src/main/resources/templates/login.html[login.html]
+:index_html: link:./src/main/resources/templates/index.html[index.html]
+:detail_html: link:./src/main/resources/templates/detail.html[detail.html]
+:layout_html: link:./src/main/resources/templates/layout.html[layout.html]
+:profile_html: link:./src/main/resources/templates/profile.html[profile.html]
+:coverage_report_tar_gz: link:./misc/coverage-report.tar.gz[coverage-report.tar.gz]
 :toc:
 :sectnums:
 
@@ -84,17 +86,17 @@ Model classes created are:
 * {Item}
 * {Owner}
 * {Recipe}
-* {Role}
+* {RoleClass}
 * {Step}
 * {User}
 
-Some of them inherit {BaseEntity}, which is the [java]`@MappedSuperClass`
-that has [java]`@Id id` and [java]`@Version version` fields, that are
+Some of them inherit {BaseEntity}, which is the `@MappedSuperClass`
+that has `@Id id` and `@Version version` fields, that are
 repeated in child classes.
 
-{RecipeCategory} enum is used in {Recipe} class as [java]`@Enumerated` field.
+{RecipeCategory} enum is used in {Recipe} class as `@Enumerated` field.
 
-DAO interfaces are created as Spring-Data [java]`CrudRepository`-ies:
+DAO interfaces are created as Spring-Data `CrudRepository`-ies:
 
 * {IngredientDao}
 * {ItemDao}
@@ -121,7 +123,7 @@ except repeating commands at DAO layer:
 Most of them repeat commands at DAO layer with few exceptions:
 
 Coverage report is in gzipped file called
-link:./misc/coverage-report.tar.gz[coverage-report.tar.gz].
+{coverage_report_tar_gz}
 
 === Task 2
 Using the supplied files, create the template for the recipe list page.
@@ -158,17 +160,17 @@ I'll leave it for now as is. The functionality is tested in
 {IndexRedirectControllerTest}
 +
 In order to show whether recipe is favorite for user we
-generate [java]`List<Recipe> favoriteRecipesWithNullsForNonFavorites`
+generate `List<Recipe> favoriteRecipesWithNullsForNonFavorites`
 that has exactly the same
 size as all recipes printed, but on the places where
 recipe is favorite for user, it contains recipe, and
-elsewhere is [java]`null`. This list is passed along with all recipes
-to [java]`Model`.
+elsewhere is `null`. This list is passed along with all recipes
+to `Model`.
 +
 The list to be passed is generate in a
 [java]`RecipeController.generateFavoritesWithNullsForNonFavoritesList`
 method. And because of that is tested separately in
-`@Test favoritesWithNonNullsListIsGeneratedCorrectly` in
+[java]`@Test favoritesWithNonNullsListIsGeneratedCorrectly` in
 {RecipeControllerTest}
 +
 Simple list with favorite recipes for users is generated at DAO
@@ -177,7 +179,67 @@ rather problematic for me to write Spring Query in annotation to
 some method in {RecipeDao}, that is why I decided to make custom
 implementation for now.
 +
+In the REST API for now it is impossible to get favorite recipes
++
 This can be done in many different ways, but I decided to leave it so.
 +
-. Allows user
+. Allows the user to filter the list by the selected category
++
+Not implemented yet
++
+. Allows the user to add a new recipe
++
+New recipe can be added from the home page
+by pressing "Add Recipe" button.
++
+After pressing that button page `/recipes/add-new` is generated.
+Template {edit_html} is used for both `/recipes/add-new` and
+`/recipes/edit/id`, with the difference that `new Recipe` object
+is passed to `Model` when `/recipes/add-new` is generated, and
+`Recipe` from database is passed to `Model` when `/recipes/edit/id`
+page is generated.
++
+I made a try to re-use some code by creating
+`addAttributesToModelForBothEditAndAddNewPages`. Don't know
+whether that was a good idea or not, but I tried.
++
+I also tried to use the same method `saveRecipe` for
+both adding new recipe POST request and updating
+already existing recipe.
++
+When we save recipe we set recipe's owner. For now
+I decided by introducing {Owner} class, that has
+`@OneToOne` relationship with {User}. May be I will
+change that later. But for now when new Recipe is
+created, new Owner is created.
++
+When Recipe is updated, we get the owner from database.
+Exactly this functionality was moved by me to
+service layer in `RecipeService.save` method, that
+takes care not only about the owner of recipe, but
+also sets favorite recipes from database, and
+set `Recipe.ingredients[i].items` because with the
+POST request we set only item id-s.
+
+. A user must have an account
++
+I guess by that is meant that user has to be logged?
+Anyway, user is saved in database, for now
+user registration is under construction
+
+. Allows the user to edit or delete a recipe
++
+For now user can delete recipe, without any problems.
+No restrictions on that. About edit, the same policy
+applies, see section about saving recipe above.
+
+. A user must own the recipe
++
+Like it was stated in saving recipe section,
+when user saves the recipe, new owner is set,
+when user updates the recipe, owner stays the same
+
+
+
+
 
