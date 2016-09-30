@@ -1,4 +1,5 @@
 = Techdegree project 10 : Recipes
+:source-highlighter: coderay
 :ItemValidator: link:./src/main/java/com/techdegree/validator/ItemValidator.java[ItemValidator]
 :ValidItem: link:./src/main/java/com/techdegree/validator/ValidItem.java[ValidItem]
 :CustomUserDetailsService: link:./src/main/java/com/techdegree/service/CustomUserDetailsService.java[CustomUserDetailsService]
@@ -55,11 +56,9 @@
 :detail.html: link:./src/main/resources/templates/detail.html[detail.html]
 :layout.html: link:./src/main/resources/templates/layout.html[layout.html]
 :profile.html: link:./src/main/resources/templates/profile.html[profile.html]
+:spring_data_custom_jpa_docs: http://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.custom-implementations[Spring]
 :toc:
-
-== Tasks
-
-. <<task-1, Task 1>>
+:sectnums:
 
 [[eclipse]]
 == Eclipse Installation Instructions
@@ -68,15 +67,51 @@ Under Construction.
 
 // Links
 
-* [[task-1]] Task 1
-+
+== Tasks
+
+[[task-1]]
+=== Task 1
+
 Create model classes, DAO interfaces, services,
 and add unit tests to components.
 Determine test coverage using a code coverage tool
 and ensure your tests cover of at least 60% of your code.
-+
+
 Model classes created are:
 
-    ** {Recipe}
+* {Ingredient}
+* {Item}
+* {Owner}
+* {Recipe}
+* {Role}
+* {Step}
+* {User}
 
-* [[task-2]] Task 2
+Some of them inherit {BaseEntity}, which is the [java]`@MappedSuperClass`
+that has [java]`@Id id` and [java]`@Version version` fields, that are
+repeated in child classes.
+
+{RecipeCategory} enum is used in {Recipe} class as [java]`@Enumerated` field.
+
+DAO interfaces are created as Spring-Data [java]`CrudRepository`-ies:
+
+* {IngredientDao}
+* {ItemDao}
+* Recipe related DAOs:
+** {RecipeDao}
+** {FavoriteRecipesDao}
+** {RecipeDaoImpl}
+* User related DAOs:
+** {OwnerDao}
+** {RoleDao}
+** {StepDao}
+** {UserDao}
+
+All {User} related DAOs are not exposed to REST API.
+
+{FavoriteRecipesDao} is interface that allows us to add custom
+methods to Spring-Data DAOs. And {RecipeDaoImpl} is the class that
+implements {FavoriteRecipesDao} and defines manually defined
+methods (For now only method listing favorite recipes for user).
+
+=== Task 2
