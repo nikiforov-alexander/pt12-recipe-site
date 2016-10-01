@@ -47,8 +47,6 @@ public class RecipeControllerItTest {
     @Autowired
     private StepService stepService;
     @Autowired
-    private OwnerService ownerService;
-    @Autowired
     private CustomUserDetailsService userService;
 
     @Autowired
@@ -163,9 +161,8 @@ public class RecipeControllerItTest {
         // recipe. It is not needed here, but later may be ...
         // when we add admins ...
         User user = (User) userService.loadUserByUsername("jd");
-        // and we calculate number of recipes and owners before
+        // and we calculate number of recipes before
         // request to compare later on
-        int numberOfOwnersBeforeReq = ownerService.findAll().size();
         int numberOfRecipeBeforeReq = recipeService.findAll().size();
 
         // When POST request adding new Recipe with all
@@ -217,11 +214,7 @@ public class RecipeControllerItTest {
                 )
             )
         );
-        // Assert that number of owners and recipes stayed same:
-        assertThat(
-                ownerService.findAll().size(),
-                is(numberOfOwnersBeforeReq)
-        );
+        // Assert that number of recipes stayed same:
         assertThat(
                 recipeService.findAll().size(),
                 is(numberOfRecipeBeforeReq)
@@ -241,16 +234,16 @@ public class RecipeControllerItTest {
         User user = (User) userService.loadUserByUsername("jd");
 
         // and we calculate number of
-        // recipes, steps, ingredients and owners before
+        // recipes, steps, ingredients before
         // request to compare later on
-        int numberOfOwnersBeforeReq = ownerService.findAll().size();
         int numberOfIngredientsBeforeReq = ingredientService.findAll().size();
         int numberOfRecipesBeforeReq = recipeService.findAll().size();
         int numberOfStepsBeforeRequest = stepService.findAll().size();
 
         // Add recipe to be deleted and get its id to
         // pass to request
-        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+        Long idOfNewlyAddedRecipe =
+                (long) addRecipeToBeDeletedAfterwards(user);
 
         // When POST request for updating firstRecipeFromDatabase
         // with all correct and changed parameters is made
@@ -310,7 +303,7 @@ public class RecipeControllerItTest {
                         )
                 );
         // Assert that number of
-        // recipes, ingredients and steps and owners
+        // recipes, ingredients and steps
         // increased by one: well they are actually did not change
         // after edit. But we calculated them before adding
         // recipe that we edit, so +1 is right number
@@ -329,10 +322,12 @@ public class RecipeControllerItTest {
                 stepService.findAll().size(),
                 is(numberOfStepsBeforeRequest + 1)
         );
+        // Also assert that recipe has still user and
+        // is equal user with which we created recipe
         assertThat(
-                "number of owners increased by 1",
-                ownerService.findAll().size(),
-                is(numberOfOwnersBeforeReq + 1)
+                "recipe still has owner after edit with same id",
+                recipeService.findOne(idOfNewlyAddedRecipe).getOwner(),
+                is(user)
         );
     }
 
@@ -349,12 +344,13 @@ public class RecipeControllerItTest {
         User user = (User) userService.loadUserByUsername("jd");
 
         // and we calculate number of
-        // recipes, steps, ingredients and owners before
+        // recipes, steps, ingredients before
         // request to compare later on
-        int numberOfOwnersBeforeReq = ownerService.findAll().size();
         int numberOfRecipesBeforeReq = recipeService.findAll().size();
         int numberOfIngredientsBeforeReq = ingredientService.findAll().size();
         int numberOfStepsBeforeRequest = stepService.findAll().size();
+
+        Long idOfNewlyAddedRecipe = (long) numberOfRecipesBeforeReq + 1;
 
         // When POST request
         // or adding new one (because they are same)
@@ -421,9 +417,9 @@ public class RecipeControllerItTest {
                 is(numberOfStepsBeforeRequest + 1)
         );
         assertThat(
-                "number of owners increased by 1",
-                ownerService.findAll().size(),
-                is(numberOfOwnersBeforeReq + 1)
+                "recipe owner was set",
+                recipeService.findOne(idOfNewlyAddedRecipe).getOwner(),
+                is(user)
         );
     }
 
@@ -476,7 +472,7 @@ public class RecipeControllerItTest {
         User user = (User) userService.loadUserByUsername("jd");
 
         // Calculate number of
-        // recipes, ingredients, steps and owners
+        // recipes, ingredients, steps
         // before request. To check consistency
         // afterwards
         int numberOfIngredientsBeforeAddingRecipeToDelete =
@@ -485,8 +481,6 @@ public class RecipeControllerItTest {
                 stepService.findAll().size();
         int numberOfRecipesBeforeAddingRecipesToDelete =
                 recipeService.findAll().size();
-        int numberOfOwnersBeforeAddingRecipeToDelete =
-                ownerService.findAll().size();
 
         // Add recipe to be deleted and get its id to
         // pass to request
@@ -525,8 +519,6 @@ public class RecipeControllerItTest {
         // should be as it was, i.e. number of recipes,
         // ingredients and steps added with this request
         // should stay the same
-        // Number of owners however should stay the same,
-        // because owner can be attached to many recipes
         assertThat(
                 "number of recipes should be the same",
                 recipeService.findAll().size(),
@@ -541,11 +533,6 @@ public class RecipeControllerItTest {
                 "number of steps should be the same",
                 stepService.findAll().size(),
                 is(numberOfStepsBeforeAddingRecipeToDelete)
-        );
-        assertThat(
-                "number of owners should increase",
-                ownerService.findAll().size(),
-                is(numberOfOwnersBeforeAddingRecipeToDelete + 1)
         );
     }
 }
