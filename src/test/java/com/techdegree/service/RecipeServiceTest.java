@@ -86,7 +86,61 @@ public class RecipeServiceTest {
 
     @Test
     public void
-    updatingRecipeDoesNotInvokeOwnerServiceAndItemServicesAndSetsRecipeItems()
+    updatingRecipeDoesNotChangeOwner()
+            throws Exception {
+        // Arrange: create test Recipe to be saved
+        // with one ingredient
+        Recipe testRecipe =
+                new Recipe();
+        testRecipe.setId(1L);
+
+        User testUser = new User();
+        testUser.setId(1L);
+        testRecipe.setOwner(
+                testUser
+        );
+
+        // Arrange:
+        // make recipeService findOne return test
+        // recipe upon 2 calls
+        when(recipeDao.findOne(1L)).thenReturn(
+                testRecipe
+        );
+        when(recipeDao.findOne(1L)).thenReturn(
+                testRecipe
+        );
+        // Arrange:
+        // when recipeDao.save will be called
+        // we save recipe that was passed
+        doAnswer(
+                invocation -> {
+                    Recipe r = invocation.getArgumentAt(0, Recipe.class);
+                    return r;
+                }
+        ).when(recipeDao).save(any(Recipe.class));
+
+        // Act:
+        // when we call recipeService.save method
+        // with some user, not equal to testUser owner
+        Recipe savedRecipe = recipeService.save(
+                testRecipe,
+                new User()
+        );
+
+        assertThat(
+                "recipe.owner is still set to testOwner",
+                savedRecipe.getOwner(),
+                is(testUser)
+        );
+
+        // verify mock interactions
+        verify(recipeDao, times(2)).findOne(1L);
+        verify(recipeDao).save(any(Recipe.class));
+    }
+
+    @Test
+    public void
+    updatingRecipeDoesNotChangeOwnerAndSetsRecipeItems()
             throws Exception {
         // Arrange: create test Recipe to be saved
         // with one ingredient
@@ -135,23 +189,24 @@ public class RecipeServiceTest {
 
         // Act:
         // when we call recipeService.save method
+        // with some user, not equal to testUser owner
         Recipe savedRecipe = recipeService.save(
                 testRecipe,
                 new User()
         );
 
-        // Assert that: recipe.owner was set to testOwner
         assertThat(
+                "recipe.owner is still set to testOwner",
                 savedRecipe.getOwner(),
                 is(testUser)
         );
-        // Assert that: recipe.favorites has size 1,
-        // and contains testUser
         assertThat(
+                "recipe.favorites has size 1",
                 savedRecipe.getFavoriteUsers(),
                 iterableWithSize(1)
         );
         assertThat(
+                "recipe.favorites contains testUser",
                 savedRecipe.getFavoriteUsers(),
                 containsInAnyOrder(testUser)
         );
