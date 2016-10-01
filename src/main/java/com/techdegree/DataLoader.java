@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 // I use this DataLoader to load initial data into
 // app : namely one user for now, one recipe,
 // that is owned by that user and is his favorite
-// This class is used in all tests, and in produciton
+// This class is used in all tests, and in production
 // we can replace it with @TestComponent and
 // avoid re-creating users
 @Component
@@ -27,8 +27,6 @@ public class DataLoader implements ApplicationRunner {
     private StepDao stepDao;
     @Autowired
     private UserDao userDao;
-    @Autowired
-    private OwnerDao ownerDao;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -84,15 +82,8 @@ public class DataLoader implements ApplicationRunner {
         step1.setRecipe(recipe);
         step2.setRecipe(recipe);
 
-        // set recipe owner
-        Owner owner = new Owner();
-        owner.setUser(userDao.findByUsername("jd"));
-        // save owner first
-        ownerDao.save(owner);
-        // set owner to recipe, because we need for
-        // owner to exist before being added to
-        // recipe
-        recipe.setOwner(ownerDao.findOne(1L));
+        // set owner to recipe
+        recipe.setOwner(userDao.findByUsername("jd"));
 
         // add recipe to user's favorite
         recipe.getFavoriteUsers().add(userDao.findByUsername("jd"));
