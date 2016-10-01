@@ -1,7 +1,6 @@
 package com.techdegree.service;
 
 import com.techdegree.dao.RecipeDao;
-import com.techdegree.model.Owner;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,6 @@ import java.util.List;
 public class RecipeServiceImpl implements RecipeService {
     @Autowired
     private RecipeDao recipeDao;
-    @Autowired
-    private OwnerService ownerService;
     @Autowired
     private ItemService itemService;
 
@@ -54,15 +51,13 @@ public class RecipeServiceImpl implements RecipeService {
         );
 
         // if recipe.id = null, and we create new recipe,
-        // we set new Owner. First we save owner based
+        // we set new owner based
         // on logged user, then we add it to recipe
         // if recipe.id != null, i.e. we edit recipe
         // then we set owner from database
         if (recipe.getId() == null) {
             recipe.setOwner(
-                    ownerService.save(
-                            new Owner(user)
-                    )
+                    user
             );
         } else {
             recipe.setOwner(
