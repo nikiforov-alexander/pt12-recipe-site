@@ -29,7 +29,7 @@ public class RecipeServiceTest {
 
 
     @Test
-    public void savingNewRecipeInvokesOwnerAndItemServicesAndSetsRecipeItems()
+    public void savingNewRecipeSetsOwnerAndItemServicesAndSetsRecipeItems()
             throws Exception {
         // Arrange: create test Recipe to be saved
         // with one ingredient and one item with only id
@@ -59,20 +59,26 @@ public class RecipeServiceTest {
                 }
         ).when(recipeDao).save(any(Recipe.class));
 
+        // Arrange some user to be owner
+        User testUserOwner = new User();
+
         // Act:
         // when we call recipeService.save method
         Recipe savedRecipe = recipeService.save(
                 testRecipeWithOneIngredientAndOneItemId,
-                new User()
+                testUserOwner
         );
 
-        // Assert that: items were set for ingredient of
-        // recipe
         assertThat(
+                "items were set for ingredient of recipe",
                 savedRecipe.getIngredients().get(0).getItem(),
                 is(itemWithNameAndId)
         );
-
+        assertThat(
+                "owner was set to recipe",
+                savedRecipe.getOwner(),
+                is(testUserOwner)
+        );
         // verify mock interactions
         verify(itemService).findOne(1L);
         verify(recipeDao).save(any(Recipe.class));
