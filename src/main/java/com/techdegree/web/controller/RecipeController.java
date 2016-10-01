@@ -33,8 +33,6 @@ public class RecipeController {
     private IngredientService ingredientService;
     @Autowired
     private CustomUserDetailsService userService;
-    @Autowired
-    private OwnerService ownerService;
 
     // validator is used this way because
     // recipe.ingredients.recipe is null upon saving
