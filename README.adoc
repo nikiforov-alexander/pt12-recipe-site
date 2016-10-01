@@ -1,66 +1,71 @@
 = Techdegree project 10 : Recipes
 :experimental:
 :source-highlighter: coderay
-:ItemValidator: link:./src/main/java/com/techdegree/validator/ItemValidator.java[ItemValidator]
-:ValidItem: link:./src/main/java/com/techdegree/validator/ValidItem.java[ValidItem]
-:CustomUserDetailsService: link:./src/main/java/com/techdegree/service/CustomUserDetailsService.java[CustomUserDetailsService]
-:IngredientService: link:./src/main/java/com/techdegree/service/IngredientService.java[IngredientService]
-:StepService: link:./src/main/java/com/techdegree/service/StepService.java[StepService]
-:OwnerServiceImpl: link:./src/main/java/com/techdegree/service/OwnerServiceImpl.java[OwnerServiceImpl]
-:ItemService: link:./src/main/java/com/techdegree/service/ItemService.java[ItemService]
-:RecipeService: link:./src/main/java/com/techdegree/service/RecipeService.java[RecipeService]
-:RecipeServiceImpl: link:./src/main/java/com/techdegree/service/RecipeServiceImpl.java[RecipeServiceImpl]
-:IngredientServiceImpl: link:./src/main/java/com/techdegree/service/IngredientServiceImpl.java[IngredientServiceImpl]
-:ItemServiceImpl: link:./src/main/java/com/techdegree/service/ItemServiceImpl.java[ItemServiceImpl]
-:StepServiceImpl: link:./src/main/java/com/techdegree/service/StepServiceImpl.java[StepServiceImpl]
-:OwnerService: link:./src/main/java/com/techdegree/service/OwnerService.java[OwnerService]
-:DataLoader: link:./src/main/java/com/techdegree/DataLoader.java[DataLoader]
-:Application: link:./src/main/java/com/techdegree/Application.java[Application]
-:BaseEntity: link:./src/main/java/com/techdegree/model/BaseEntity.java[BaseEntity]
-:User: link:./src/main/java/com/techdegree/model/User.java[User]
-:RoleClass: link:./src/main/java/com/techdegree/model/Role.java[Role]
-:RecipeCategory: link:./src/main/java/com/techdegree/model/RecipeCategory.java[RecipeCategory]
-:Ingredient: link:./src/main/java/com/techdegree/model/Ingredient.java[Ingredient]
-:Item: link:./src/main/java/com/techdegree/model/Item.java[Item]
-:Owner: link:./src/main/java/com/techdegree/model/Owner.java[Owner]
-:Step: link:./src/main/java/com/techdegree/model/Step.java[Step]
-:Recipe: link:./src/main/java/com/techdegree/model/Recipe.java[Recipe]
-:RecipeDaoImpl: link:./src/main/java/com/techdegree/dao/RecipeDaoImpl.java[RecipeDaoImpl]
-:OwnerDao: link:./src/main/java/com/techdegree/dao/OwnerDao.java[OwnerDao]
-:RoleDao: link:./src/main/java/com/techdegree/dao/RoleDao.java[RoleDao]
-:UserDao: link:./src/main/java/com/techdegree/dao/UserDao.java[UserDao]
-:StepDao: link:./src/main/java/com/techdegree/dao/StepDao.java[StepDao]
-:ItemDao: link:./src/main/java/com/techdegree/dao/ItemDao.java[ItemDao]
-:IngredientDao: link:./src/main/java/com/techdegree/dao/IngredientDao.java[IngredientDao]
-:RecipeDao: link:./src/main/java/com/techdegree/dao/RecipeDao.java[RecipeDao]
-:FavoriteRecipesDao: link:./src/main/java/com/techdegree/dao/FavoriteRecipesDao.java[FavoriteRecipesDao]
-:FlashMessage: link:./src/main/java/com/techdegree/web/FlashMessage.java[FlashMessage]
-:LoginController: link:./src/main/java/com/techdegree/web/controller/LoginController.java[LoginController]
-:RecipeController: link:./src/main/java/com/techdegree/web/controller/RecipeController.java[RecipeController]
-:IndexRedirectController: link:./src/main/java/com/techdegree/web/controller/IndexRedirectController.java[IndexRedirectController]
-:WebConstants: link:./src/main/java/com/techdegree/web/WebConstants.java[WebConstants]
-:RecipeEventHandler: link:./src/main/java/com/techdegree/handler/RecipeEventHandler.java[RecipeEventHandler]
-:RestConfig: link:./src/main/java/com/techdegree/config/RestConfig.java[RestConfig]
-:AppConfig: link:./src/main/java/com/techdegree/config/AppConfig.java[AppConfig]
-:SecurityConfig: link:./src/main/java/com/techdegree/config/SecurityConfig.java[SecurityConfig]
-:TemplateConfig: link:./src/main/java/com/techdegree/config/TemplateConfig.java[TemplateConfig]
-:RecipeServiceTest: link:./src/test/java/com/techdegree/service/RecipeServiceTest.java[RecipeServiceTest]
-:IndexRedirectControllerTest: link:./src/test/java/com/techdegree/web/controller/IndexRedirectControllerTest.java[IndexRedirectControllerTest]
-:RecipeControllerItTest: link:./src/test/java/com/techdegree/web/controller/RecipeControllerItTest.java[RecipeControllerItTest]
-:RecipeControllerTest: link:./src/test/java/com/techdegree/web/controller/RecipeControllerTest.java[RecipeControllerTest]
-:build_gradle: link:./build.gradle[build.gradle]
-:application_properties: link:./src/main/resources/application.properties[application.properties]
-:signup_html: link:./src/main/resources/templates/signup.html[signup.html]
-:edit_html: link:./src/main/resources/templates/edit.html[edit.html]
-:login_html: link:./src/main/resources/templates/login.html[login.html]
-:index_html: link:./src/main/resources/templates/index.html[index.html]
-:detail_html: link:./src/main/resources/templates/detail.html[detail.html]
-:layout_html: link:./src/main/resources/templates/layout.html[layout.html]
-:profile_html: link:./src/main/resources/templates/profile.html[profile.html]
-:coverage_report_tar_gz: link:./misc/coverage-report.tar.gz[coverage-report.tar.gz]
 :toc:
 :toclevels: 5
 :sectnums:
+:main_package: link:./src/main/java/com/techdegree/
+:test_package: link:./src/test/java/com/techdegree
+:ItemValidator: {main_package}validator/ItemValidator.java[ItemValidator]
+:ValidItem: {main_package}validator/ValidItem.java[ValidItem]
+:CustomUserDetailsService: {main_package}service/CustomUserDetailsService.java[CustomUserDetailsService]
+:IngredientService: {main_package}service/IngredientService.java[IngredientService]
+:StepService: {main_package}service/StepService.java[StepService]
+:OwnerServiceImpl: {main_package}service/OwnerServiceImpl.java[OwnerServiceImpl]
+:ItemService: {main_package}service/ItemService.java[ItemService]
+:RecipeService: {main_package}service/RecipeService.java[RecipeService]
+:RecipeServiceImpl: {main_package}service/RecipeServiceImpl.java[RecipeServiceImpl]
+:IngredientServiceImpl: {main_package}service/IngredientServiceImpl.java[IngredientServiceImpl]
+:ItemServiceImpl: {main_package}service/ItemServiceImpl.java[ItemServiceImpl]
+:StepServiceImpl: {main_package}service/StepServiceImpl.java[StepServiceImpl]
+:OwnerService: {main_package}service/OwnerService.java[OwnerService]
+:DataLoader: {main_package}DataLoader.java[DataLoader]
+:Application: {main_package}Application.java[Application]
+:BaseEntity: {main_package}model/BaseEntity.java[BaseEntity]
+:User: {main_package}model/User.java[User]
+:RoleClass: {main_package}model/Role.java[Role]
+:RecipeCategory: {main_package}model/RecipeCategory.java[RecipeCategory]
+:Ingredient: {main_package}model/Ingredient.java[Ingredient]
+:Item: {main_package}model/Item.java[Item]
+:Owner: {main_package}model/Owner.java[Owner]
+:Step: {main_package}model/Step.java[Step]
+:Recipe: {main_package}model/Recipe.java[Recipe]
+:RecipeDaoImpl: {main_package}dao/RecipeDaoImpl.java[RecipeDaoImpl]
+:OwnerDao: {main_package}dao/OwnerDao.java[OwnerDao]
+:RoleDao: {main_package}dao/RoleDao.java[RoleDao]
+:UserDao: {main_package}dao/UserDao.java[UserDao]
+:StepDao: {main_package}dao/StepDao.java[StepDao]
+:ItemDao: {main_package}dao/ItemDao.java[ItemDao]
+:IngredientDao: {main_package}dao/IngredientDao.java[IngredientDao]
+:RecipeDao: {main_package}dao/RecipeDao.java[RecipeDao]
+:FavoriteRecipesDao: {main_package}dao/FavoriteRecipesDao.java[FavoriteRecipesDao]
+:FlashMessage: {main_package}web/FlashMessage.java[FlashMessage]
+:LoginController: {main_package}web/controller/LoginController.java[LoginController]
+:RecipeController: {main_package}web/controller/RecipeController.java[RecipeController]
+:IndexRedirectController: {main_package}web/controller/IndexRedirectController.java[IndexRedirectController]
+:WebConstants: {main_package}web/WebConstants.java[WebConstants]
+:RecipeEventHandler: {main_package}handler/RecipeEventHandler.java[RecipeEventHandler]
+:RestConfig: {main_package}config/RestConfig.java[RestConfig]
+:AppConfig: {main_package}config/AppConfig.java[AppConfig]
+:SecurityConfig: {main_package}config/SecurityConfig.java[SecurityConfig]
+:TemplateConfig: {main_package}config/TemplateConfig.java[TemplateConfig]
+:RecipeDaoTest: {test_package}/dao/RecipeDaoTest.java[RecipeDaoTest]
+:RecipeServiceTest: {test_package}/service/RecipeServiceTest.java[RecipeServiceTest]
+:IndexRedirectControllerTest: {test_package}/web/controller/IndexRedirectControllerTest.java[IndexRedirectControllerTest]
+:RecipeControllerItTest: {test_package}/web/controller/RecipeControllerItTest.java[RecipeControllerItTest]
+:RecipeControllerTest: {test_package}/web/controller/RecipeControllerTest.java[RecipeControllerTest]
+:build_gradle: link:./build.gradle[build.gradle]
+:main_resources: link:./src/main/resources/
+:templates: {main_resources}templates
+:application_properties: {main_resources}application.properties[application.properties]
+:signup_html: {templates}/signup.html[signup.html]
+:edit_html: {templates}/edit.html[edit.html]
+:login_html: {templates}/login.html[login.html]
+:index_html: {templates}/index.html[index.html]
+:detail_html: {templates}/detail.html[detail.html]
+:layout_html: {templates}/layout.html[layout.html]
+:profile_html: {templates}/profile.html[profile.html]
+:coverage_report_tar_gz: link:./misc/coverage-report.tar.gz[coverage-report.tar.gz]
 
 [[eclipse]]
 == Eclipse Installation Instructions
@@ -188,7 +193,7 @@ recipe is favorite for user, it contains recipe, and
 elsewhere is `null`. This list is passed along with all recipes
 to `Model`.
 
-The list to be passed is generate in a
+The list to be passed is generated in a
 [java]`RecipeController.generateFavoritesWithNullsForNonFavoritesList`
 method. And because of that is tested separately in
 [java]`@Test favoritesWithNonNullsListIsGeneratedCorrectly` in
@@ -199,6 +204,10 @@ level at customized {RecipeDaoImpl} using simple SQL query. It was
 rather problematic for me to write Spring Query in annotation to
 some method in {RecipeDao}, that is why I decided to make custom
 implementation for now.
+
+The function returning favorite recipes at DAO level is tested in
+{RecipeDaoTest} in `findAllFavoritesReturnsOneFavoriteRecipeWithDataLoader`
+test.
 
 In the REST API for now it is impossible to get favorite recipes
 
