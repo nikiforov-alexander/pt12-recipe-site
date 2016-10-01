@@ -140,6 +140,67 @@ public class RecipeServiceTest {
 
     @Test
     public void
+    updatingRecipeSetsRecipeItems()
+            throws Exception {
+        // Arrange: create test Recipe to be saved
+        // with one ingredient and one item
+        Recipe testRecipe =
+                new Recipe();
+        testRecipe.setId(1L);
+
+        Item itemWithOnlyId = new Item();
+        itemWithOnlyId.setId(1L);
+        Ingredient ingredient = new Ingredient(
+                itemWithOnlyId, "", ""
+        );
+        testRecipe.addIngredient(ingredient);
+
+        // Arrange item to be returned
+        // from database
+        Item itemFromDatabase = new Item();
+        itemFromDatabase.setId(1L);
+        itemFromDatabase.setName("name");
+
+        // Arrange:
+        // make itemService return item when called
+        when(itemService.findOne(1L)).thenReturn(
+                itemFromDatabase
+        );
+        when(recipeDao.findOne(any())).thenReturn(
+                testRecipe
+        );
+        when(recipeDao.findOne(any())).thenReturn(
+                testRecipe
+        );
+        // Arrange:
+        // when recipeDao.save will be called
+        // we save recipe that was passed
+        doAnswer(
+                invocation -> {
+                    Recipe r = invocation.getArgumentAt(0, Recipe.class);
+                    return r;
+                }
+        ).when(recipeDao).save(any(Recipe.class));
+
+
+        // Act: update recipe
+        Recipe savedRecipe =
+                recipeService.save(testRecipe, new User());
+
+        assertThat(
+                "item returned will item from database",
+                savedRecipe.getIngredients().get(0).getItem(),
+                is(itemFromDatabase)
+        );
+
+        // verify mock interactions
+        verify(itemService).findOne(any());
+        verify(recipeDao, times(2)).findOne(1L);
+        verify(recipeDao).save(any(Recipe.class));
+    }
+
+    @Test
+    public void
     updatingRecipeDoesNotChangeOwnerAndSetsRecipeItems()
             throws Exception {
         // Arrange: create test Recipe to be saved
