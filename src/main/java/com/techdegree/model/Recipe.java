@@ -48,7 +48,7 @@ public class Recipe extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "owner_id")
     @JsonIgnore
-    private Owner owner;
+    private User owner;
 
     /*
         This @Valid annotation is used to recursively check
@@ -141,11 +141,11 @@ public class Recipe extends BaseEntity{
         this.steps = steps;
     }
 
-    public Owner getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(Owner owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
 
