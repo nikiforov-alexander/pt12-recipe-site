@@ -11,14 +11,12 @@
 :CustomUserDetailsService: {main_package}service/CustomUserDetailsService.java[CustomUserDetailsService]
 :IngredientService: {main_package}service/IngredientService.java[IngredientService]
 :StepService: {main_package}service/StepService.java[StepService]
-:OwnerServiceImpl: {main_package}service/OwnerServiceImpl.java[OwnerServiceImpl]
 :ItemService: {main_package}service/ItemService.java[ItemService]
 :RecipeService: {main_package}service/RecipeService.java[RecipeService]
 :RecipeServiceImpl: {main_package}service/RecipeServiceImpl.java[RecipeServiceImpl]
 :IngredientServiceImpl: {main_package}service/IngredientServiceImpl.java[IngredientServiceImpl]
 :ItemServiceImpl: {main_package}service/ItemServiceImpl.java[ItemServiceImpl]
 :StepServiceImpl: {main_package}service/StepServiceImpl.java[StepServiceImpl]
-:OwnerService: {main_package}service/OwnerService.java[OwnerService]
 :DataLoader: {main_package}DataLoader.java[DataLoader]
 :Application: {main_package}Application.java[Application]
 :BaseEntity: {main_package}model/BaseEntity.java[BaseEntity]
@@ -27,11 +25,9 @@
 :RecipeCategory: {main_package}model/RecipeCategory.java[RecipeCategory]
 :Ingredient: {main_package}model/Ingredient.java[Ingredient]
 :Item: {main_package}model/Item.java[Item]
-:Owner: {main_package}model/Owner.java[Owner]
 :Step: {main_package}model/Step.java[Step]
 :Recipe: {main_package}model/Recipe.java[Recipe]
 :RecipeDaoImpl: {main_package}dao/RecipeDaoImpl.java[RecipeDaoImpl]
-:OwnerDao: {main_package}dao/OwnerDao.java[OwnerDao]
 :RoleDao: {main_package}dao/RoleDao.java[RoleDao]
 :UserDao: {main_package}dao/UserDao.java[UserDao]
 :StepDao: {main_package}dao/StepDao.java[StepDao]
@@ -90,7 +86,6 @@ Model classes created are:
 
 * {Ingredient}
 * {Item}
-* {Owner}
 * {Recipe}
 * {RoleClass}
 * {Step}
@@ -104,17 +99,19 @@ repeated in child classes.
 
 DAO interfaces are created as Spring-Data `CrudRepository`-ies:
 
-* {IngredientDao}
-* {ItemDao}
-* Recipe related DAOs:
+.Recipe related DAOs:
 ** {RecipeDao}
 ** {FavoriteRecipesDao}
 ** {RecipeDaoImpl}
-* User related DAOs:
-** {OwnerDao}
+
+.User related DAOs:
 ** {RoleDao}
-** {StepDao}
 ** {UserDao}
+
+.Other DAOs
+* {IngredientDao}
+* {ItemDao}
+* {StepDao}
 
 All {User} related DAOs are not exposed to REST API.
 
@@ -171,6 +168,8 @@ A user must own the recipe
 Displays a list of recipes by name and indicates
 with a heart icon whether a user has favorited the recipe
 
+---
+
 Recipes are displayed at the main page with the address
 
 ```
@@ -218,6 +217,8 @@ This can be done in many different ways, but I decided to leave it so.
 
 Allows the user to filter the list by the selected category
 
+---
+
 Not implemented yet
 
 
@@ -225,6 +226,8 @@ Not implemented yet
 ==== Add New Recipe
 
 Allows the user to add a new recipe
+
+---
 
 New recipe can be added from the home page
 by pressing "Add Recipe" button.
@@ -244,24 +247,13 @@ I also tried to use the same method `saveRecipe` for
 both adding new recipe POST request and updating
 already existing recipe.
 
-When we save recipe we set recipe's owner. For now
-I decided by introducing {Owner} class, that has
-`@OneToOne` relationship with {User}. May be I will
-change that later. But for now when new Recipe is
-created, new Owner is created.
-
-When Recipe is updated, we get the owner from database.
-Exactly this functionality was moved by me to
-service layer in `RecipeService.save` method, that
-takes care not only about the owner of recipe, but
-also sets favorite recipes from database, and
-set `Recipe.ingredients[i].items` because with the
-POST request we set only item id-s.
 
 [[user_account_page]]
 ==== User Account Page
 
 A user must have an account
+
+---
 
 I guess by that is meant that user has to be logged?
 Anyway, user is saved in database, for now
@@ -272,6 +264,8 @@ user registration is under construction
 
 Allows the user to edit or delete a recipe
 
+---
+
 For now user can delete recipe, without any problems.
 No restrictions on that. About edit, the same policy
 applies, see section about saving recipe above.
@@ -281,10 +275,36 @@ applies, see section about saving recipe above.
 
 A user must own the recipe
 
-Like it was stated in saving recipe section,
-when user saves the recipe, new owner is set,
-when user updates the recipe, owner stays the same
+---
 
+When we save recipe we set recipe's owner.
+The responsible field for this relationship is
+`@ManyToOne Recipe.owner` on the {Recipe} side,
+and `@OneToMany User.ownedRecipes` on the {User} side.
+The relationship is determined by foreign_key
+`owner_id` in the recipes table.
+
+When Recipe is updated, we get the owner from database.
+
+All functionality was moved by me to
+service layer in `RecipeService.save` method, that
+takes care not only about the owner of recipe, but
+also sets favorite recipes from database, and
+set `Recipe.ingredients[i].items` because with the
+POST request we set only item id-s.
+
+Related tests can be found in Mock-test in
+{RecipeServiceTest} class:
+
+* `savingNewRecipeSetsOwner`
+* `updatingRecipeDoesNotChangeOwner`
+
+Integration tests in {RecipeControllerItTest} are checking
+recipe owner consistency as well. See tests:
+
+* `updatingRecipeWithAllValidFieldsWorks`
+* `savingNewRecipeWithAllValidFieldsWorks`
+* `deletingRecipeShouldBePossible`
 
 
 
