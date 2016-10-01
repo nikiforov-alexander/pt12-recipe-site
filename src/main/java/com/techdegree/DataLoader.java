@@ -7,6 +7,12 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+// I use this DataLoader to load initial data into
+// app : namely one user for now, one recipe,
+// that is owned by that user and is his favorite
+// This class is used in all tests, and in produciton
+// we can replace it with @TestComponent and
+// avoid re-creating users
 @Component
 public class DataLoader implements ApplicationRunner {
     @Autowired
