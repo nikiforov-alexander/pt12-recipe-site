@@ -62,6 +62,9 @@ public class User implements UserDetails {
     @ManyToMany(mappedBy = "favoriteUsers")
     private List<Recipe> favoriteRecipes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "owner")
+    private List<Recipe> ownedRecipes = new ArrayList<>();
+
     // Getters and Setters
 
     public Long getId() {
@@ -107,6 +110,15 @@ public class User implements UserDetails {
     public void setFavoriteRecipes(List<Recipe> favoriteRecipes) {
         this.favoriteRecipes = favoriteRecipes;
     }
+
+    public List<Recipe> getOwnedRecipes() {
+        return ownedRecipes;
+    }
+
+    public void setOwnedRecipes(List<Recipe> ownedRecipes) {
+        this.ownedRecipes = ownedRecipes;
+    }
+
 
     // Constructors
 
