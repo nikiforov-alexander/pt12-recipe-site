@@ -29,6 +29,41 @@ public class RecipeServiceTest {
 
 
     @Test
+    public void savingNewRecipeSetsOwner()
+            throws Exception {
+        // Arrange: create test Recipe to be saved
+        // with id = null
+        Recipe testRecipeWithOneIngredientAndOneItemId = new Recipe();
+        // Arrange some user to be owner
+        User testUserOwner = new User();
+
+        // Arrange:
+        // when recipeDao.save will be called
+        // we save some recipe
+        doAnswer(
+                invocation -> {
+                    Recipe r = invocation.getArgumentAt(0, Recipe.class);
+                    return r;
+                }
+        ).when(recipeDao).save(any(Recipe.class));
+
+        // Act:
+        // when we call recipeService.save method
+        Recipe savedRecipe = recipeService.save(
+                testRecipeWithOneIngredientAndOneItemId,
+                testUserOwner
+        );
+
+        assertThat(
+                "owner was set to recipe",
+                savedRecipe.getOwner(),
+                is(testUserOwner)
+        );
+        // verify mock interactions
+        verify(recipeDao).save(any(Recipe.class));
+    }
+
+    @Test
     public void savingNewRecipeSetsOwnerAndItemServicesAndSetsRecipeItems()
             throws Exception {
         // Arrange: create test Recipe to be saved
@@ -83,6 +118,8 @@ public class RecipeServiceTest {
         verify(itemService).findOne(1L);
         verify(recipeDao).save(any(Recipe.class));
     }
+
+    // updating tests
 
     @Test
     public void
