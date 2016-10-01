@@ -1,8 +1,6 @@
 package com.techdegree.handler;
 
-import com.techdegree.dao.OwnerDao;
 import com.techdegree.dao.RecipeDao;
-import com.techdegree.model.Owner;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +14,6 @@ import org.springframework.stereotype.Component;
 public class RecipeEventHandler {
     @Autowired
     private RecipeDao recipeDao;
-    @Autowired
-    private OwnerDao ownerDao;
 
     @HandleBeforeCreate
     public void addOwnerBasedOnLoggedInUser(Recipe recipe) {
@@ -26,9 +22,6 @@ public class RecipeEventHandler {
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
-        Owner owner = ownerDao.save(
-                new Owner(user)
-        );
-        recipe.setOwner(owner);
+        recipe.setOwner(user);
     }
 }
