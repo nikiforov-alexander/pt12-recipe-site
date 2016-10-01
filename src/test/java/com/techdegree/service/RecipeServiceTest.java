@@ -20,7 +20,7 @@ public class RecipeServiceTest {
     @Mock
     private RecipeDao recipeDao;
     @Mock
-    private OwnerService ownerService;
+    private CustomUserDetailsService userService;
     @Mock
     private ItemService itemService;
 
@@ -29,7 +29,8 @@ public class RecipeServiceTest {
 
 
     @Test
-    public void savingNewRecipeInvokesOwnerAndItemServicesAndSetsRecipeItems() throws Exception {
+    public void savingNewRecipeInvokesOwnerAndItemServicesAndSetsRecipeItems()
+            throws Exception {
         // Arrange: create test Recipe to be saved
         // with one ingredient and one item with only id
         Recipe testRecipeWithOneIngredientAndOneItemId = new Recipe();
@@ -48,15 +49,6 @@ public class RecipeServiceTest {
         when(itemService.findOne(1L)).thenReturn(
                 itemWithNameAndId
         );
-        // Arrange:
-        // when owner.save will be called, we
-        // save some owner
-        doAnswer(
-                invocation -> {
-                    Owner owner = invocation.getArgumentAt(0, Owner.class);
-                    return owner;
-                }
-        ).when(ownerService).save(any(Owner.class));
         // Arrange:
         // when recipeDao.save will be called
         // we save some recipe
@@ -83,7 +75,6 @@ public class RecipeServiceTest {
 
         // verify mock interactions
         verify(itemService).findOne(1L);
-        verify(ownerService).save(any(Owner.class));
         verify(recipeDao).save(any(Recipe.class));
     }
 
@@ -101,12 +92,10 @@ public class RecipeServiceTest {
         );
         testRecipe.addIngredient(ingredient);
 
-        // Arrange testOwner that we'll check
-        Owner testOwner = new Owner(new User());
         User testUser = new User();
         // Arrange set recipe owner and favorites
         testRecipe.setOwner(
-                testOwner
+                testUser
         );
         testRecipe.setFavoriteUsers(
                 Collections.singletonList(
@@ -148,7 +137,7 @@ public class RecipeServiceTest {
         // Assert that: recipe.owner was set to testOwner
         assertThat(
                 savedRecipe.getOwner(),
-                is(testOwner)
+                is(testUser)
         );
         // Assert that: recipe.favorites has size 1,
         // and contains testUser
@@ -163,7 +152,6 @@ public class RecipeServiceTest {
 
         // verify mock interactions
         verify(itemService).findOne(any());
-        verifyNoMoreInteractions(ownerService);
         verify(recipeDao, times(2)).findOne(1L);
         verify(recipeDao).save(any(Recipe.class));
     }
