@@ -201,35 +201,22 @@ public class RecipeServiceTest {
 
     @Test
     public void
-    updatingRecipeDoesNotChangeOwnerAndSetsRecipeItems()
+    updatingRecipeSavesFavorites()
             throws Exception {
-        // Arrange: create test Recipe to be saved
-        // with one ingredient
+        // Arrange: create test Recipe
         Recipe testRecipe =
                 new Recipe();
         testRecipe.setId(1L);
-        Ingredient ingredient = new Ingredient(
-                new Item(), "", ""
-        );
-        testRecipe.addIngredient(ingredient);
-
+        // Arrange test User that favored Recipe
         User testUser = new User();
-        // Arrange set recipe owner and favorites
-        testRecipe.setOwner(
-                testUser
-        );
+        // Arrange set recipe favorites
         testRecipe.setFavoriteUsers(
                 Collections.singletonList(
                         testUser
                 )
         );
 
-        // Arrange:
-        // make itemService return item when called
-        when(itemService.findOne(1L)).thenReturn(
-                new Item()
-        );
-        // Arrange:
+        // Arrange mocks:
         // make recipeService findOne return test
         // recipe upon 2 calls
         when(recipeDao.findOne(1L)).thenReturn(
@@ -238,8 +225,7 @@ public class RecipeServiceTest {
         when(recipeDao.findOne(1L)).thenReturn(
                 testRecipe
         );
-        // Arrange:
-        // when recipeDao.save will be called
+        // Arrange mocks: when recipeDao.save will be called
         // we save recipe that was passed
         doAnswer(
                 invocation -> {
@@ -250,17 +236,12 @@ public class RecipeServiceTest {
 
         // Act:
         // when we call recipeService.save method
-        // with some user, not equal to testUser owner
+        // with some user,
         Recipe savedRecipe = recipeService.save(
                 testRecipe,
-                new User()
+                any(User.class)
         );
 
-        assertThat(
-                "recipe.owner is still set to testOwner",
-                savedRecipe.getOwner(),
-                is(testUser)
-        );
         assertThat(
                 "recipe.favorites has size 1",
                 savedRecipe.getFavoriteUsers(),
@@ -273,7 +254,6 @@ public class RecipeServiceTest {
         );
 
         // verify mock interactions
-        verify(itemService).findOne(any());
         verify(recipeDao, times(2)).findOne(1L);
         verify(recipeDao).save(any(Recipe.class));
     }
