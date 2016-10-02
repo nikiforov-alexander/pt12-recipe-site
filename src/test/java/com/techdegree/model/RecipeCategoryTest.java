@@ -30,13 +30,17 @@ public class RecipeCategoryTest {
     }
 
     @Test
-    public void recipeCategoryCanBeFoundByHtmlName() throws Exception {
-        assertThat(
-                RecipeCategory.getRecipeCategoryWithHtmlName(
-                        RecipeCategory.BREAKFAST.getHtmlName()
-                ),
-                is(RecipeCategory.BREAKFAST)
-        );
+    public void allRecipeCategoriesCanBeFoundByHtmlName() throws Exception {
+        for (RecipeCategory category: RecipeCategory.values()) {
+            assertThat(
+                    "recipe category found by " + category.getHtmlName() +
+                            " is " + category,
+                    RecipeCategory.getRecipeCategoryWithHtmlName(
+                            category.getHtmlName()
+                    ),
+                    is(category)
+            );
+        }
     }
     @Test
     public void whenRecipeCategoryIsNotFoundByHtmlNameItShouldReturnNone()

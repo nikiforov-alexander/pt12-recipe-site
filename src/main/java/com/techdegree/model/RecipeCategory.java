@@ -11,7 +11,7 @@ public enum RecipeCategory {
     BREAKFAST("Breakfast", "category breakfast", "breakfast"),
     LUNCH("Lunch", "category lunch", "lunch"),
     DINNER("Dinner", "category dinner", "dinner"),
-    DESSERT("Dessert", "category dessert", "dinner");
+    DESSERT("Dessert", "category dessert", "dessert");
 
     // fields
 
