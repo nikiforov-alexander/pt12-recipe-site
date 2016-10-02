@@ -62,14 +62,17 @@ public class RecipeDaoTest {
     @Test
     public void listOfRecipesReturnedWhenFindByRecipeCategoryIsCalled()
             throws Exception {
-        // Arrange: DataLoader adds one recipe with BREAKFAST category
-
-        assertThat(
-                "find by recipeCategory.BREAKFAST returns 1 recipe, " +
-                        "added by DataLoader",
-                recipeDao.findByRecipeCategory(RecipeCategory.BREAKFAST),
-                iterableWithSize(1)
-        );
+        // Arrange: DataLoader adds one recipe for each
+        // category
+        for (RecipeCategory category: RecipeCategory.values()) {
+            assertThat(
+                    "find by " + category.getHtmlName() +
+                            "returns 1 recipe, " +
+                            "added by DataLoader",
+                    recipeDao.findByRecipeCategory(category),
+                    iterableWithSize(1)
+            );
+        }
         // This test fails for a reason unknown for me
         // TODO: figure out what to do with failed test
 //        assertThat(
@@ -78,11 +81,5 @@ public class RecipeDaoTest {
 //                recipeDao.findByRecipeCategory(RecipeCategory.BREAKFAST).get(0),
 //                is(recipeDao.findOne(1L))
 //        );
-        assertThat(
-                "find by recipeCategory.NONE returns 0 recipes, " +
-                        "added by DataLoader",
-                recipeDao.findByRecipeCategory(RecipeCategory.NONE),
-                iterableWithSize(0)
-        );
     }
 }
