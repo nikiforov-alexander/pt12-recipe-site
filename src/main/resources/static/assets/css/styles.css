@@ -244,3 +244,38 @@ a.secondary.cancel {
     color: aliceblue;
     font-size: 14px;
 }
+
+
+/* recipe category tag close to name linking to recipe
+    filter requests
+*/
+a.recipe-category-tag {
+    position: relative;
+    top: 50px;
+    right: 65%;
+    color: white;
+    background-color: black;
+    padding: 9px;
+    border-radius: 10px;
+}
+
+a.recipe-category-tag.other {
+    color: white;
+    background-color: black;
+}
+a.recipe-category-tag.breakfast {
+    color: black;
+    background-color: darkseagreen;
+}
+a.recipe-category-tag.lunch {
+    color: black;
+    background-color: yellowgreen;
+}
+a.recipe-category-tag.dinner {
+    color: black;
+    background-color: orange;
+}
+a.recipe-category-tag.dessert {
+    color: white;
+    background-color: brown;
+}
