@@ -3,6 +3,7 @@ package com.techdegree.web.controller;
 import com.techdegree.model.Item;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
+import com.techdegree.model.User;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
 import com.techdegree.web.FlashMessage;
@@ -158,25 +159,29 @@ public class RecipeControllerTest {
         // - view should be "index"
         // - model should have attributes "recipes"
         // - model should have attribute "favoritesWithNullsForNonFavorites"
-        // NOTE: I'm not going to test Categories yet
-        // because I'll may be push this functionality
-        // to JS ...
+        // - model should have attribute "categories" with
+        //   all categories
         mockMvc.perform(
                 get(BASE_URI + RECIPES_HOME_PAGE)
         ).andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(view().name("index"))
-                .andExpect(
-                        model().attribute(
-                                "recipes", recipes
-                        )
+        .andExpect(status().isOk())
+        .andExpect(view().name("index"))
+        .andExpect(
+                model().attribute(
+                        "recipes", recipes
                 )
-                .andExpect(
-                        model().attribute(
-                            "favoritesWithNullsForNonFavorites",
-                            recipes
-                        )
-                );
+        )
+        .andExpect(
+                model().attribute(
+                    "favoritesWithNullsForNonFavorites",
+                    recipes
+                )
+        )
+        .andExpect(
+            model().attribute(
+                    "categories", RecipeCategory.values()
+            )
+        );
         // Then recipe service.findAll() should be called
         verify(recipeService).findAll();
         verify(recipeService).findFavoriteRecipesForUser(any());
@@ -355,5 +360,72 @@ public class RecipeControllerTest {
         // Assert that delete and findByOne methods were called
         verify(recipeService).delete(any(Recipe.class));
         verify(recipeService).findOne(1L);
+    }
+
+    @Test
+    public void recipesCanBeListedByCategoryOnIndexPage()
+            throws Exception {
+        // Arrange: mockMvc is arranged
+
+        // Arrange testListWithTwoRecipes
+        // that will be added to model
+        List<Recipe> testListWithTwoRecipes =
+                Arrays.asList(
+                        new Recipe(),
+                        testRecipe1
+                );
+        // Arrange: when find by recipe category name
+        // will be called on service layer we return
+        // test list with two recipes
+        when(recipeService.findByRecipeCategoryName(
+                anyString())).thenReturn(
+                        testListWithTwoRecipes
+        );
+
+        // Arrange: set GET parameter
+        String categoryNameParameter = "other";
+
+        // Act:
+        // When request with parameter is made to home
+        // page with category=other parameter
+        // Then :
+        // - status should be OK
+        // - model should contain "recipes" with our
+        //   test list returned by service
+        // - model should contain "categories" with
+        //   all recipe categories
+        // - model should contain "selectedCategory"
+        //   with category found by parameter name
+        mockMvc.perform(
+                get("/recipes/?category=" + categoryNameParameter)
+        ).andDo(print())
+        .andExpect(
+                status().isOk()
+        )
+        .andExpect(
+                model().attribute(
+                        "recipes",
+                        testListWithTwoRecipes
+                )
+        )
+        .andExpect(
+                model().attribute(
+                        "categories",
+                        RecipeCategory.values()
+                )
+        )
+        .andExpect(
+                model().attribute("selectedCategory",
+                        RecipeCategory.getRecipeCategoryWithHtmlName(
+                                categoryNameParameter
+                        ))
+        );
+
+        // verify mock interactions
+        // Assert that findByRecipeCategoryName was
+        // called with parameter that we passed
+        verify(recipeService).findByRecipeCategoryName(
+                categoryNameParameter
+        );
     }
 }
