@@ -8,6 +8,22 @@ $("select").change(function(){
         .addClass($(":selected",this).attr('class'));
 });
 
+// try to show different recipes based on
+// selected category
+$('select#select-changing-list-of-recipes').change(function () {
+     // at first we check for unselected option
+     // for which we redirect home
+     var optionId = $(':selected', this).attr('id');
+     if (optionId == "unselected-category-option") {
+         window.location.href = '/recipes/'
+     } else {
+     // if option is not unselected we run query
+         var categoryName = $(':selected', this).text();
+         var queryParam = categoryName.toLowerCase();
+         window.location.href = '/recipes/?category=' + queryParam;
+     }
+});
+
 // function adding new step
 // for now this script does not take into consideration
 // adding step when there are none
