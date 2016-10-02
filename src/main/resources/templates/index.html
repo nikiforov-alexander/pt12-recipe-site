@@ -81,7 +81,16 @@
 
             <div th:each="recipe : ${recipes}"
                  class="grid-100 row addHover">
-
+                <!--/*
+                    prints label with recipe category near each recipe,
+                    that is clickable, upon click user is redirected to
+                    home page with that category
+                */-->
+                <a th:href="@{'/recipes/?category=' + ${recipe.recipeCategory.htmlName}}"
+                   th:text="${recipe.recipeCategory.htmlName}"
+                   class="recipe-category-tag"
+                   th:classappend="${recipe.recipeCategory.styleClass}">
+                </a>
                 <a th:href="@{|/recipes/${recipe.id}|}">
                     <div class="grid-70">
                         <p th:text="${recipe.name}">
