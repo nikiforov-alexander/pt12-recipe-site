@@ -11,4 +11,5 @@ public interface RecipeService {
     Recipe save(Recipe recipe, User user);
     void delete(Recipe recipe);
     List<Recipe> findFavoriteRecipesForUser(User user);
+    List<Recipe> findByRecipeCategoryName(String name);
 }
