@@ -29,7 +29,8 @@
     <div class="grid-100">
         <div class="recipes">
 
-            <form th:action="@{/sign-up}"
+            <form id="register"
+                  th:action="@{/sign-up}"
                   th:object="${user}">
 
                 <!--/* name */-->
@@ -54,9 +55,13 @@
 
                 <!--/* password */-->
 
+                <div class="div-surrounding-span-with-password-error">
+                    <span id="result"></span>
+                </div>
                 <div class="prefix-20 grid-60 suffix-20">
                     <p>
-                        <input th:field="*{password}"
+                        <input id="password"
+                               th:field="*{password}"
                                placeholder="Password"
                                type="password">
                     </p>
@@ -66,13 +71,13 @@
 
                 <!--/* password again */-->
 
-                <div class="prefix-20 grid-60 suffix-20">
-                    <p>
-                        <input th:field="*{password}"
-                               placeholder="Password Again"
-                               type="password">
-                    </p>
-                </div>
+                <!--<div class="prefix-20 grid-60 suffix-20">-->
+                    <!--<p>-->
+                        <!--<input th:field="*{password}"-->
+                               <!--placeholder="Password Again"-->
+                               <!--type="password">-->
+                    <!--</p>-->
+                <!--</div>-->
 
                 <div class="clear"></div>
 
