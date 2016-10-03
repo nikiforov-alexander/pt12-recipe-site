@@ -279,3 +279,40 @@ a.recipe-category-tag.dessert {
     color: white;
     background-color: brown;
 }
+
+#container {
+    width: 535px;
+    background: #ffffff;
+    padding: 20px;
+    margin: 90px auto;
+    border-radius: 5px;
+    height: 150px;
+    border: 2px solid gray;
+}
+#content {
+    margin-left: 57px;
+    margin-top: 40px;
+}
+#register label{
+    margin-right:5px;
+}
+#register .short{
+    color:black;
+}
+#register .weak{
+    color:orange;
+    left: 31%;
+}
+#register .good{
+    color:yellowgreen;
+    left: 41%;
+}
+#register .strong{
+    color: white;
+    left: 51%;
+}
+.div-surrounding-span-with-password-error span{
+    font-weight:bold;
+    position: relative;
+    left: 21%;
+}
