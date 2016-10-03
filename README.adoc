@@ -45,6 +45,7 @@
 :AppConfig: {main_package}config/AppConfig.java[AppConfig]
 :SecurityConfig: {main_package}config/SecurityConfig.java[SecurityConfig]
 :TemplateConfig: {main_package}config/TemplateConfig.java[TemplateConfig]
+:RecipeCategoryTest: {test_package}/model/RecipeCategoryTest.java[RecipeCategoryTest]
 :RecipeDaoTest: {test_package}/dao/RecipeDaoTest.java[RecipeDaoTest]
 :RecipeServiceTest: {test_package}/service/RecipeServiceTest.java[RecipeServiceTest]
 :IndexRedirectControllerTest: {test_package}/web/controller/IndexRedirectControllerTest.java[IndexRedirectControllerTest]
@@ -61,6 +62,7 @@
 :detail_html: {templates}/detail.html[detail.html]
 :layout_html: {templates}/layout.html[layout.html]
 :profile_html: {templates}/profile.html[profile.html]
+:app_js: {main_resources}/static/assets/js/app.js[app.js]
 :coverage_report_tar_gz: link:./misc/coverage-report.tar.gz[coverage-report.tar.gz]
 
 [[eclipse]]
@@ -82,6 +84,9 @@ and ensure your tests cover of at least 60% of your code.
 
 ---
 
+[[task-1-model]]
+==== Model
+
 Model classes created are:
 
 * {Ingredient}
@@ -96,6 +101,9 @@ that has `@Id id` and `@Version version` fields, that are
 repeated in child classes.
 
 {RecipeCategory} enum is used in {Recipe} class as `@Enumerated` field.
+
+[[task-1-dao]]
+==== DAO
 
 DAO interfaces are created as Spring-Data `CrudRepository`-ies:
 
@@ -120,13 +128,44 @@ methods to Spring-Data DAOs. And {RecipeDaoImpl} is the class that
 implements {FavoriteRecipesDao} and defines manually defined
 methods (For now only method listing favorite recipes for user).
 
+[[task-1-service]]
+==== Service
+
 Service layer implementations do not have anything in particular,
 except repeating commands at DAO layer:
 
+* {CustomUserDetailsService}
+* {IngredientService}
+* {IngredientServiceImpl}
+* {ItemService}
+* {ItemServiceImpl}
+* {RecipeService}
+* {RecipeServiceImpl}
+* {StepService}
+* {StepServiceImpl}
+
 Most of them repeat commands at DAO layer with few exceptions:
+
+{RecipeDao} has significantly different `save` method that takes
+into consideration that recipe has favorites and owner, see
+related <<favorites, Favorites>> and <<recipe_owner, Recipe Owner>>
+sections for more:
+
+{CustomUserDetailsService} `implements UserDetailsService` and is very
+common service that has `loadUserByUsername` method
+
+[[task-1-coverage]]
+==== Coverage
 
 Coverage report is in gzipped file called
 {coverage_report_tar_gz}
+
+It was generated after I created configuration in
+Intellijidea with
+all tests and after running it I saved coverage and
+gzipped it, because it has too many files. Later
+I will try to create task in Gradle, but for now
+that is best I can do.
 
 === Task 2
 Using the supplied files, create the template for the recipe list page.
@@ -219,7 +258,62 @@ Allows the user to filter the list by the selected category
 
 ---
 
-Not implemented yet
+[[filter_by_category_usage]]
+===== Usage
+
+In the {DataLoader} for now 5 recipes are added, one for each category.
+They are all have "tags" that can be clicked and user will be redirected
+to the index page sorted by selected category tag:
+
+```
+/recipes/?category=name
+```
+
+There is also JavaScript function in {app_js} file
+that is executed when `<select>`
+element is changed. It redirects to index page filtered
+by category.
+
+[[filter_by_category_impl_details]]
+===== Implementation Details
+
+Implementation starts on model layer in {RecipeCategory}
+`enum`. I introduced new methods `getRecipeCategoryWithHtmlName`
+that returns `RecipeCategory.NONE` or `RecipeCategory`
+found by member `htmlName`.
+
+This method is tested in {RecipeCategoryTest}
+`allRecipeCategoriesCanBeFoundByName`.
+
+At *DAO* level I introduced Spring Query method called
+`findByRecipeCategory` that comes from Spring and returns
+`List<Recipe>` with `RecipeCategory` passed in argument.
+
+This is tested in {RecipeDaoTest}
+`listOfRecipesReturnedWhenFindByRecipeCategoryIsCalled`.
+
+At *Service* layer I introduced in {RecipeService} and
+implemented in {RecipeServiceImpl} `findByRecipeCategoryName`
+
+I didn't test that because it directly returns result of
+`RecipeDao.findByRecipeCategory` with argument as a result
+of `RecipeCategory.getRecipeCategoryWithHtmlName`. It may be
+not a good idea to put this functionality on *Service* layer, but
+I decided to leave it here.
+
+At *Controller* layer in {RecipeController}
+`filterByCategory` method was introduced, that is passing
+to `Model.attribute` "recipes" not all recipes, but the
+ones `recipeService.findByCategoryName` returns. Argument
+is query parameter. It comes from JavaScript or from tag anchor,
+see <<filter_by_category_usage, Usage>>.
+
+Also here is "selectedCategory" attribute is added to `Model`
+because we want to display selected option on the redirected
+page.
+
+This functionality is tested in {RecipeControllerTest}
+`recipesCanBeListedByCategoryOnIndexPage` test.
 
 
 [[add-new-recipe]]

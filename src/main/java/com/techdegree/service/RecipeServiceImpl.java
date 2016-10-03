@@ -2,13 +2,17 @@ package com.techdegree.service;
 
 import com.techdegree.dao.RecipeDao;
 import com.techdegree.model.Recipe;
+import com.techdegree.model.RecipeCategory;
 import com.techdegree.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@ComponentScan
 public class RecipeServiceImpl implements RecipeService {
     @Autowired
     private RecipeDao recipeDao;
@@ -79,6 +83,14 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public List<Recipe> findFavoriteRecipesForUser(User user) {
         return recipeDao.findAllFavoriteRecipesFor(user);
+    }
+
+    @Override
+    public List<Recipe> findByRecipeCategoryName(String name) {
+        return recipeDao
+                .findByRecipeCategory(
+                        RecipeCategory.getRecipeCategoryWithHtmlName(name)
+                );
     }
 
     // one more candidate to include delete(Long id) ...

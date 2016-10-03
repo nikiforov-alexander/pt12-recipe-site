@@ -28,31 +28,27 @@ public class DataLoader implements ApplicationRunner {
     @Autowired
     private UserDao userDao;
 
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        // create roles and save
-        Role role = new Role("ROLE_USER");
-        roleDao.save(role);
-
-        // create users, add roles and save
-        User user = new User("John Doe", "jd", "jd");
-        user.setRole(role);
-        userDao.save(user);
-
-        // create items and save items, because they
-        // are for now unbound to Ingredient and
-        // can exist without it
-        Item item1 = new Item("item 1");
-        Item item2 = new Item("item 2");
-        itemDao.save(item1);
-        itemDao.save(item2);
-
-
+    /**
+     * saves Recipe with two ingredients and steps with
+     * recipeName and recipeCategory
+     * @param recipeName
+     * @param recipeCategory
+     */
+    private void saveRecipeWithTwoIngredientsAndSteps(
+            String recipeName,
+            RecipeCategory recipeCategory
+    ) {
         // create ingredients with items
         Ingredient ingredient1 =
-                new Ingredient(item1, "condition 1", "quantity 1");
+                new Ingredient(
+                        itemDao.findOne(1L),
+                        "condition 1",
+                        "quantity 1");
         Ingredient ingredient2 =
-                new Ingredient(item2, "condition 2", "quantity 2");
+                new Ingredient(
+                        itemDao.findOne(1L),
+                        "condition 2",
+                        "quantity 2");
 
         // create steps
         Step step1 = new Step("step 1");
@@ -60,9 +56,9 @@ public class DataLoader implements ApplicationRunner {
 
         // create recipe
         Recipe recipe = new Recipe(
-                "recipe 1",
+                recipeName,
                 "Description 1",
-                RecipeCategory.BREAKFAST,
+                recipeCategory,
                 "photoUrl 1",
                 "preparationTime 1",
                 "cookTime 1"
@@ -97,5 +93,36 @@ public class DataLoader implements ApplicationRunner {
         ingredientDao.save(ingredient2);
         stepDao.save(step1);
         stepDao.save(step2);
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        // create roles and save
+        Role role = new Role("ROLE_USER");
+        roleDao.save(role);
+
+        // create users, add roles and save
+        User user = new User("John Doe", "jd", "jd");
+        user.setRole(role);
+        userDao.save(user);
+
+        // create items and save items, because they
+        // are for now unbound to Ingredient and
+        // can exist without it
+        Item item1 = new Item("item 1");
+        Item item2 = new Item("item 2");
+        itemDao.save(item1);
+        itemDao.save(item2);
+
+        // create recipes : one for each category
+        int recipeNumber = 1;
+        for (RecipeCategory category : RecipeCategory.values()) {
+            saveRecipeWithTwoIngredientsAndSteps(
+                    "Recipe " + recipeNumber,
+                    category
+            );
+            recipeNumber ++;
+        }
+
     }
 }

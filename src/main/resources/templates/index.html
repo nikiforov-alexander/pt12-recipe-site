@@ -23,33 +23,26 @@
 
             <div class="grid-100 row controls">
                 <div class="grid-30 with-bottom-padding">
-                    <!--/*TODO: add Js here so that when
+                    <!--/* When
                           category is selected, only
                           recipes of that category are
-                          shown : should work like this:
-                          we give JS list, and JQuery does
-                          all the rest, by sorting this or that.
-                          Probably I'll make those available
-                          ../?sort-by-selected=category
-                          and Js will execute this. This is
-                          the way Treehouse works ... For
-                          now I don't know other solutions
+                          shown. When "Select Category"
+                          is chosen then home page with
+                          all recipes is shown
+                          all logic in app.js file
                      */-->
-                    <select th:class="${defaultCategory.styleClass}">
-                        <!--/* This option is for default category
-                               only
-                        */-->
-                        <option th:class="${defaultCategory.styleClass}"
-                                th:text="${defaultCategory.name}">
-                            Default Category Name
+                    <select class="category"
+                            id="select-changing-list-of-recipes">
+                        <option selected
+                                id="unselected-category-option"
+                                class="category">
+                            Select Category
                         </option>
-                        <!--/* The rest options will be without
-                               the default one
-                         */-->
-                        <option th:each="otherCategory : ${categoriesWithoutDefaultOne}"
-                                th:class="${otherCategory.styleClass}"
-                                th:text="${otherCategory.name}">
-                            Other Categories Names
+                        <option th:each="category : ${categories}"
+                                th:selected="${selectedCategory == category}"
+                                th:class="${category.styleClass}"
+                                th:text="${category.name}">
+                            Category Name
                         </option>
                     </select>
                 </div>
@@ -88,7 +81,16 @@
 
             <div th:each="recipe : ${recipes}"
                  class="grid-100 row addHover">
-
+                <!--/*
+                    prints label with recipe category near each recipe,
+                    that is clickable, upon click user is redirected to
+                    home page with that category
+                */-->
+                <a th:href="@{'/recipes/?category=' + ${recipe.recipeCategory.htmlName}}"
+                   th:text="${recipe.recipeCategory.htmlName}"
+                   class="recipe-category-tag"
+                   th:classappend="${recipe.recipeCategory.styleClass}">
+                </a>
                 <a th:href="@{|/recipes/${recipe.id}|}">
                     <div class="grid-70">
                         <p th:text="${recipe.name}">

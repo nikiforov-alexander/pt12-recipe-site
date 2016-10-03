@@ -67,9 +67,9 @@ public class Recipe extends BaseEntity{
     @ManyToMany
     @JoinTable(name="USERS_FAVORITE_RECIPES",
         joinColumns=
-            @JoinColumn(name="USER_ID", referencedColumnName="ID"),
+            @JoinColumn(name="RECIPE_ID", referencedColumnName="ID"),
         inverseJoinColumns=
-            @JoinColumn(name="RECIPE_ID", referencedColumnName="ID")
+            @JoinColumn(name="USER_ID", referencedColumnName="ID")
         )
     @JsonIgnore
     private List<User> favoriteUsers = new ArrayList<>();

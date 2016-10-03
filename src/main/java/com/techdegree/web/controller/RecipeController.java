@@ -4,6 +4,7 @@ import com.techdegree.model.*;
 import com.techdegree.service.*;
 import com.techdegree.web.FlashMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +13,7 @@ import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 
 @Controller
 @RequestMapping("/recipes")
+@ComponentScan
 public class RecipeController {
 
     @Autowired
@@ -70,13 +73,26 @@ public class RecipeController {
         return favoriteRecipesWithNullsForNonFavorites;
     }
 
-    // home page with all recipes
-    @RequestMapping("/")
-    public String homePageWithAllRecipes(
-            @AuthenticationPrincipal User user,
-            Model model) {
-
-        List<Recipe> recipes = recipeService.findAll();
+    /**
+     * this method is extracted to re-use same addition of
+     * model attributes for both "/" and "/?category"
+     * request mappings. It takes a model, and returns the
+     * same model but with attributes. Whether this
+     * strategy is good, or not, I don't know, but
+     * it definitely makes code DRY
+     * @param model Spring UI Model
+     * @param recipes <code>List<Recipe></code> that can be all recipes
+     *                can be only recipes with specified category
+     * @param user com.techdegree.model.User,
+     *             and @AuthenticationPrincipal, he is needed to
+     *             generate list with favorite recipes
+     * @return model Spring UI Model with added attributes
+     */
+    private Model fillModelWithRecipesFavoritesAndCategories(
+            Model model,
+            List<Recipe> recipes,
+            User user
+    ) {
         model.addAttribute("recipes", recipes);
 
         // find all favorite recipes for currently logged in user
@@ -94,14 +110,46 @@ public class RecipeController {
         );
 
         // add categories to model
-        model.addAttribute("categoriesWithoutDefaultOne",
-                RecipeCategory.valuesWithoutOne());
-        model.addAttribute("defaultCategory", RecipeCategory.NONE);
+        model.addAttribute("categories", RecipeCategory.values());
 
+        return model;
+    }
+
+    // home page with all recipes
+    @RequestMapping("/")
+    public String homePageWithAllRecipes(
+            @AuthenticationPrincipal User user,
+            Model model
+    ) {
+        model = fillModelWithRecipesFavoritesAndCategories(
+                model,
+                recipeService.findAll(),
+                user
+        );
         return "index";
     }
 
-    // sorting recipes by .. pages
+    // filter recipes by categories
+    @RequestMapping(value = "/", params = "category")
+    public String filterByCategory(
+            @RequestParam ("category") String categoryName,
+            @AuthenticationPrincipal User user,
+            Model model
+    ) {
+        model = fillModelWithRecipesFavoritesAndCategories(
+                model,
+                recipeService.findByRecipeCategoryName(categoryName),
+                user
+        );
+        // add selected category to remember what user
+        // pressed and show that on page
+        model.addAttribute("selectedCategory",
+                RecipeCategory.getRecipeCategoryWithHtmlName(
+                        categoryName
+                )
+        );
+        return "index";
+    }
 
     // detail recipe page
     @RequestMapping("/{id}")
