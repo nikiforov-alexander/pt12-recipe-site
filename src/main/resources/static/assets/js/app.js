@@ -10,6 +10,9 @@ $("select").change(function(){
 
 // try to show different recipes based on
 // selected category
+// TODO : improve this functionality by adding hidden anchor
+// close to select element so that there is no manually
+// defined '/recipes/?category='
 $('select#select-changing-list-of-recipes').change(function () {
      // at first we check for unselected option
      // for which we redirect home
