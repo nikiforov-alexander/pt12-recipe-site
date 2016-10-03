@@ -45,6 +45,7 @@
 :AppConfig: {main_package}config/AppConfig.java[AppConfig]
 :SecurityConfig: {main_package}config/SecurityConfig.java[SecurityConfig]
 :TemplateConfig: {main_package}config/TemplateConfig.java[TemplateConfig]
+:RecipeCategoryTest: {test_package}/model/RecipeCategoryTest.java[RecipeCategoryTest]
 :RecipeDaoTest: {test_package}/dao/RecipeDaoTest.java[RecipeDaoTest]
 :RecipeServiceTest: {test_package}/service/RecipeServiceTest.java[RecipeServiceTest]
 :IndexRedirectControllerTest: {test_package}/web/controller/IndexRedirectControllerTest.java[IndexRedirectControllerTest]
@@ -61,6 +62,7 @@
 :detail_html: {templates}/detail.html[detail.html]
 :layout_html: {templates}/layout.html[layout.html]
 :profile_html: {templates}/profile.html[profile.html]
+:app_js: {main_resources}/static/assets/js/app.js[app.js]
 :coverage_report_tar_gz: link:./misc/coverage-report.tar.gz[coverage-report.tar.gz]
 
 [[eclipse]]
@@ -219,7 +221,62 @@ Allows the user to filter the list by the selected category
 
 ---
 
-Not implemented yet
+[[filter_by_category_usage]]
+===== Usage
+
+In the {DataLoader} for now 5 recipes are added, one for each category.
+They are all have "tags" that can be clicked and user will be redirected
+to the index page sorted by selected category tag:
+
+```
+/recipes/?category=name
+```
+
+There is also JavaScript function in {app_js} file
+that is executed when `<select>`
+element is changed. It redirects to index page filtered
+by category.
+
+[[filter_by_category_impl_details]]
+===== Implementation Details
+
+Implementation starts on model layer in {RecipeCategory}
+`enum`. I introduced new methods `getRecipeCategoryWithHtmlName`
+that returns `RecipeCategory.NONE` or `RecipeCategory`
+found by member `htmlName`.
+
+This method is tested in {RecipeCategoryTest}
+`allRecipeCategoriesCanBeFoundByName`.
+
+At *DAO* level I introduced Spring Query method called
+`findByRecipeCategory` that comes from Spring and returns
+`List<Recipe>` with `RecipeCategory` passed in argument.
+
+This is tested in {RecipeDaoTest}
+`listOfRecipesReturnedWhenFindByRecipeCategoryIsCalled`.
+
+At *Service* layer I introduced in {RecipeService} and
+implemented in {RecipeServiceImpl} `findByRecipeCategoryName`
+
+I didn't test that because it directly returns result of
+`RecipeDao.findByRecipeCategory` with argument as a result
+of `RecipeCategory.getRecipeCategoryWithHtmlName`. It may be
+not a good idea to put this functionality on *Service* layer, but
+I decided to leave it here.
+
+At *Controller* layer in {RecipeController}
+`filterByCategory` method was introduced, that is passing
+to `Model.attribute` "recipes" not all recipes, but the
+ones `recipeService.findByCategoryName` returns. Argument
+is query parameter. It comes from JavaScript or from tag anchor,
+see <<filter_by_category_usage, Usage>>.
+
+Also here is "selectedCategory" attribute is added to `Model`
+because we want to display selected option on the redirected
+page.
+
+This functionality is tested in {RecipeControllerTest}
+`recipesCanBeListedByCategoryOnIndexPage` test.
 
 
 [[add-new-recipe]]
