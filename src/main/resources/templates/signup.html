@@ -85,7 +85,9 @@
 
                 <div class="prefix-20 grid-60 suffix-20">
                     <p>
-                        <button th:action="@{/sign-up}">
+                        <button disabled
+                                id="sign-up-button"
+                                th:action="@{/sign-up}">
                             Sign-up
                         </button>
                     </p>
