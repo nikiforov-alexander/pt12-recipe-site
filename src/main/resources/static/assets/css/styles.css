@@ -301,18 +301,20 @@ a.recipe-category-tag.dessert {
 }
 #register .weak{
     color:orange;
-    left: 31%;
 }
 #register .good{
     color:yellowgreen;
-    left: 41%;
 }
 #register .strong{
     color: white;
-    left: 51%;
 }
 .div-surrounding-span-with-password-error span{
     font-weight:bold;
     position: relative;
     left: 21%;
+}
+
+button[disabled=disabled], button:disabled {
+    background-color: transparent;
+    color: transparent;
 }
