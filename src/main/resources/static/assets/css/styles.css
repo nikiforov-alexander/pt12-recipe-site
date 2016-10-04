@@ -251,8 +251,7 @@ a.secondary.cancel {
 */
 a.recipe-category-tag {
     position: relative;
-    top: 50px;
-    right: 65%;
+    top: 5px;
     color: white;
     background-color: black;
     padding: 9px;
