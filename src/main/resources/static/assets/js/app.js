@@ -233,11 +233,31 @@ $("#add-another-ingredient-button").click(function () {
 
 // password
 
-$('#password').keyup(function() {
+/**
+ * This functions checks two fields:
+ * password and matching password.
+ * Upon change in them, this function is
+ * executed. And the return value of "checkStrength"
+ * function below is added to whatever element with
+ * id="result"
+ */
+$('#password, #match-password').keyup(function() {
     $('#result').html(checkStrength($('#password').val()))
 });
 
-
+/**
+ * This functions checks whether password is
+ * weak, short, good or strong. The main part of the code
+ * was taken from here:
+ * https://www.formget.com/password-strength-checker-in-jquery/
+ * I changed by adding change of "Sign-up" button "disabled"/"enabled"
+ * attribute. Unless user typed "Strong" password and Password match
+ * the password in "#match-password" element, button will not
+ * appear
+ * @param password : value of "input" with id="password"
+ * @returns {*} String with message to be passed to
+ * HTML element with id="result"
+ */
 function checkStrength(password) {
     var strength = 0;
     var result = $('#result');
@@ -272,8 +292,18 @@ function checkStrength(password) {
     } else {
         result.removeClass();
         result.addClass('strong');
-        signUpButton.removeAttr('disabled');
-        signUpButton.attr('enabled', 'enabled');
-        return 'Strong'
+
+        // check for password in repeat password field
+        // they should match. If not, error message appear
+        var password = $("#password").val();
+        var matchPassword = $("#match-password").val();
+        if (matchPassword != password) {
+            signUpButton.attr('disabled', 'disabled');
+            return "Passwords do not Match"
+        } else {
+            signUpButton.removeAttr('disabled');
+            signUpButton.attr('enabled', 'enabled');
+            return 'Strong'
+        }
     }
 }
