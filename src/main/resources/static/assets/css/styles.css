@@ -179,6 +179,11 @@ span.error {
     position: relative;
     top: 25px;
 }
+/* span error in "sing-up" page*/
+span.error-sign-up-page {
+    color: brown;
+    position: relative;
+}
 /* span with error message on input fields but if underlying
    div has class="grid-20" */
 span.error.with-grid-20 {
