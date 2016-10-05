@@ -36,7 +36,14 @@
 
                 <!--/* name */-->
 
+                <!--/* span with error message */-->
                 <div class="prefix-20 grid-60 suffix-20">
+                    <span th:errors="*{name}" class="error-sign-up-page">
+                    </span>
+                </div>
+
+                <div th:classappend="${#fields.hasErrors('name')}? 'error' : ''"
+                        class="prefix-20 grid-60 suffix-20">
                     <p>
                         <input th:field="*{name}"
                                placeholder="Name">
@@ -46,7 +53,14 @@
 
                 <!--/* username */-->
 
+                <!--/* span with error message */-->
                 <div class="prefix-20 grid-60 suffix-20">
+                    <span th:errors="*{username}" class="error-sign-up-page">
+                    </span>
+                </div>
+
+                <div th:classappend="${#fields.hasErrors('username')}? 'error' : ''"
+                     class="prefix-20 grid-60 suffix-20">
                     <p>
                         <input th:field="*{username}"
                                placeholder="Username">
@@ -56,10 +70,17 @@
 
                 <!--/* password */-->
 
+                <!--/* span with error message */-->
+                <div class="prefix-20 grid-60 suffix-20">
+                    <span th:errors="*{password}" class="error-sign-up-page">
+                    </span>
+                </div>
+
                 <div class="div-surrounding-span-with-password-error">
                     <span id="result"></span>
                 </div>
-                <div class="prefix-20 grid-60 suffix-20">
+                <div th:classappend="${#fields.hasErrors('password')}? 'error' : ''"
+                     class="prefix-20 grid-60 suffix-20">
                     <p>
                         <input id="password"
                                th:field="*{password}"
@@ -72,7 +93,14 @@
 
                 <!--/* password again */-->
 
+                <!--/* span with error message */-->
                 <div class="prefix-20 grid-60 suffix-20">
+                    <span th:errors="*{matchingPassword}" class="error-sign-up-page">
+                    </span>
+                </div>
+
+                <div th:classappend="${#fields.hasErrors('matchingPassword')}? 'error' : ''"
+                     class="prefix-20 grid-60 suffix-20">
                     <p>
                         <input id="match-password"
                                th:field="*{matchingPassword}"
