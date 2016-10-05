@@ -181,7 +181,7 @@ span.error {
 }
 /* span error in "sing-up" page*/
 span.error-sign-up-page {
-    color: brown;
+    color: white;
     position: relative;
 }
 /* span with error message on input fields but if underlying
