@@ -70,12 +70,28 @@
 
                 <!--/* password */-->
 
-                <!--/* span with error message */-->
+                <!--/* This div with span will be activated when
+                       passwords do not match. It is done with JS,
+                       but if JS fails, on the backend we'll have defence
+                       as well
+                */-->
+                <div class="prefix-20 grid-60 suffix-20">
+                    <span th:text="${#fields.hasGlobalErrors()} ? ${#fields.globalErrors()} : ''"
+                          class="error-sign-up-page">
+                    </span>
+                </div>
+
+                <!--/* span with error message for password field:
+                       for now empty and null
+                */-->
                 <div class="prefix-20 grid-60 suffix-20">
                     <span th:errors="*{password}" class="error-sign-up-page">
                     </span>
                 </div>
 
+                <!--/* span which will be filled when JS is turned on
+                       and user types password
+                 */-->
                 <div class="div-surrounding-span-with-password-error">
                     <span id="result"></span>
                 </div>
