@@ -30,6 +30,7 @@
         <div class="recipes">
 
             <form id="register"
+                  method="post"
                   th:action="@{/sign-up}"
                   th:object="${user}">
 
@@ -71,13 +72,14 @@
 
                 <!--/* password again */-->
 
-                <!--<div class="prefix-20 grid-60 suffix-20">-->
-                    <!--<p>-->
-                        <!--<input th:field="*{password}"-->
-                               <!--placeholder="Password Again"-->
-                               <!--type="password">-->
-                    <!--</p>-->
-                <!--</div>-->
+                <div class="prefix-20 grid-60 suffix-20">
+                    <p>
+                        <input id="match-password"
+                               th:field="*{matchingPassword}"
+                               placeholder="Password Again"
+                               type="password">
+                    </p>
+                </div>
 
                 <div class="clear"></div>
 
