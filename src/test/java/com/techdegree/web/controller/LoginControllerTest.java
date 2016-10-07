@@ -5,14 +5,12 @@ import com.techdegree.exception.UserAlreadyExistsException;
 import com.techdegree.model.User;
 import com.techdegree.service.CustomUserDetailsService;
 import com.techdegree.web.FlashMessage;
-import com.techdegree.web.WebConstants;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -48,7 +46,11 @@ public class LoginControllerTest {
         // LoginController
 
         // Act and Assert:
-        // When request to "/login" is made
+        // When request to "/login/" is made
+        // Hell knows why but if I made request to
+        // "/login", Circular error appear
+        // TODO: chunk circular "/login" "/login/" problem
+        // and push on Stack/Git/Slack
         // Then:
         // - status should be OK
         // - view name "login"
@@ -56,7 +58,7 @@ public class LoginControllerTest {
         //   of session
         // - model has to have attribute, new User
         mockMvc.perform(
-                get("/login/")
+                get(LOGIN_PAGE + "/")
         ).andDo(print())
         .andExpect(
                 status().isOk()
@@ -127,7 +129,7 @@ public class LoginControllerTest {
     public void signUpShouldBePageRenderedWithUserAttribute()
             throws Exception {
         mockMvc.perform(
-                get("/sign-up")
+                get(SIGN_UP_PAGE)
         ).andDo(print())
         .andExpect(
                 status().isOk()
@@ -160,7 +162,7 @@ public class LoginControllerTest {
         // - model attribute "user" should be
         //   arranged user
         mockMvc.perform(
-                get("/sign-up")
+                get(SIGN_UP_PAGE)
                 .flashAttr("user", user)
         ).andDo(print())
                 .andExpect(
