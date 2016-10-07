@@ -1,6 +1,7 @@
 package com.techdegree.web.controller;
 
 import com.techdegree.dto.UserDto;
+import com.techdegree.exception.UserAlreadyExistsException;
 import com.techdegree.model.User;
 import com.techdegree.service.CustomUserDetailsService;
 import com.techdegree.web.FlashMessage;
@@ -176,7 +177,8 @@ public class LoginControllerTest {
     }
 
     @Test
-    public void postWithInvalidNullUserFieldsIsRedirectedBackToSignUp() throws Exception {
+    public void postWithInvalidNullUserFieldsIsRedirectedBackToSignUp()
+            throws Exception {
         // Arrange: mockMvc is arranged with LoginController
 
         // When post request is made with all null fields
@@ -185,7 +187,9 @@ public class LoginControllerTest {
         // - redirected URL should be sign-up page
         // - flash should be sent with error status
         // - binding result sent should have 8 errors
-        //   : 4 for @NotNull and 4 for @NotEmpty
+        //   : 4 for @NotNull and 3 for @NotEmpty
+        //   unfortunately @Pattern does not throw error
+        //   here, however I tested it separately in UserDtoTest
         //   and also one global error, because
         //   PasswordMatchesValidator should not work
         //   when user.password is null.
@@ -194,6 +198,91 @@ public class LoginControllerTest {
         //   user.matchingPassword empty
         mockMvc.perform(
                 post(SIGN_UP_PAGE)
+        ).andDo(print())
+                .andExpect(
+                        status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl(SIGN_UP_PAGE)
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "status",
+                                        equalTo(
+                                                FlashMessage.Status.FAILURE
+                                        )
+                                )
+                        )
+                )
+                .andExpect(
+                        flash().attribute(
+                                BINDING_RESULT_PACKAGE_NAME + ".user",
+                                hasProperty(
+                                        "fieldErrorCount",
+                                        equalTo(7)
+                                )
+                        )
+                )
+                .andExpect(
+                        flash().attribute(
+                                BINDING_RESULT_PACKAGE_NAME + ".user",
+                                hasProperty(
+                                        "globalErrorCount",
+                                        equalTo(1)
+                                )
+                        )
+                )
+                .andExpect(
+                        flash().attributeExists("user")
+                )
+                .andExpect(
+                        flash().attribute(
+                                "user",
+                                hasProperty(
+                                        "password",
+                                        isEmptyString()
+                                )
+                        )
+                )
+                .andExpect(
+                        flash().attribute(
+                                "user",
+                                hasProperty(
+                                        "matchingPassword",
+                                        isEmptyString()
+                                )
+                        )
+                );
+    }
+
+    @Test
+    public void postWithUsernameThatAlreadyExistsRedirectsBack() throws Exception {
+        // Arrange: mockMvc is arranged with LoginController
+
+        // Arrange: throw UserAlreadyExistsException
+        // when registerNewUser is called
+        when(userService.registerNewUser(any()))
+                .thenThrow(
+                        UserAlreadyExistsException.class
+                );
+
+        // When post request is made with all valid fields
+        // but username already exists, we get redirected
+        // back with just "flash"
+
+        // Then :
+        // - status should be 3xx
+        // - redirected URL should be sign-up page
+        // - flash should be sent with error status
+        // - should be no "user" attribute
+        mockMvc.perform(
+                post(SIGN_UP_PAGE)
+                .param("name", "name")
+                .param("username", "username")
+                .param("password", "qwertyZ1")
+                .param("matchingPassword", "qwertyZ1")
         ).andDo(print())
         .andExpect(
                 status().is3xxRedirection()
@@ -213,43 +302,7 @@ public class LoginControllerTest {
                 )
         )
         .andExpect(
-                flash().attribute(
-                        BINDING_RESULT_PACKAGE_NAME + ".user",
-                        hasProperty(
-                                "fieldErrorCount",
-                                equalTo(8)
-                        )
-                )
-        )
-        .andExpect(
-                flash().attribute(
-                        BINDING_RESULT_PACKAGE_NAME + ".user",
-                        hasProperty(
-                                "globalErrorCount",
-                                equalTo(1)
-                        )
-                )
-        )
-        .andExpect(
-                flash().attributeExists("user")
-        )
-        .andExpect(
-                flash().attribute(
-                        "user",
-                        hasProperty(
-                                "password",
-                                isEmptyString()
-                        )
-                )
-        )
-        .andExpect(
-                flash().attribute(
-                        "user",
-                        hasProperty(
-                                "matchingPassword",
-                                isEmptyString()
-                        )
-                )
+                flash().attributeCount(1)
         );
     }
 }
