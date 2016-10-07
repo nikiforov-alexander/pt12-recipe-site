@@ -1,5 +1,6 @@
 package com.techdegree.web.controller;
 
+import com.techdegree.dto.UserDto;
 import com.techdegree.model.User;
 import com.techdegree.service.CustomUserDetailsService;
 import com.techdegree.web.FlashMessage;
@@ -47,12 +48,21 @@ public class LoginControllerTest {
         // When request to "/login" is made
         // Then:
         // - status should be OK
+        // - view name "login"
+        // - model has no attribute "flash" in the absence
+        //   of session
         // - model has to have attribute, new User
         mockMvc.perform(
                 get("/login/")
         ).andDo(print())
         .andExpect(
                 status().isOk()
+        )
+        .andExpect(
+                view().name("login")
+        )
+        .andExpect(
+                model().attributeDoesNotExist("flash")
         )
         .andExpect(
                 // when I leave any(User.class),
@@ -80,6 +90,7 @@ public class LoginControllerTest {
         // with session attribute "flash"
         // Then:
         // - status should be OK
+        // - view name "login"
         // - model has to have attribute, new User
         // - model should have flash message from
         //   session attribute
@@ -89,6 +100,9 @@ public class LoginControllerTest {
         ).andDo(print())
                 .andExpect(
                         status().isOk()
+                )
+                .andExpect(
+                        view().name("login")
                 )
                 .andExpect(
                         model().attribute(
@@ -102,6 +116,59 @@ public class LoginControllerTest {
                         model().attribute(
                                 "user",
                                 new User()
+                        )
+                );
+    }
+
+    @Test
+    public void signUpShouldBePageRenderedWithUserAttribute()
+            throws Exception {
+        mockMvc.perform(
+                get("/sign-up")
+        ).andDo(print())
+        .andExpect(
+                status().isOk()
+        )
+        .andExpect(
+                view().name("signup")
+        )
+        .andExpect(
+                model().attribute(
+                        "user",
+                        new UserDto()
+                )
+        );
+    }
+
+    @Test
+    public void signUpPageCanBeRenderedWithUserFromRedirectAttributes()
+            throws Exception {
+        // Arrange: mockMvc with LoginController is arranged
+
+        // Arrange some UserDto passed with flash
+        // attributes
+        UserDto user = new UserDto();
+        user.setUsername("jd");
+
+        // When request to "/sign-up" is made
+        // Then :
+        // - status should be OK
+        // - view name "signup"
+        // - model attribute "user" should be
+        //   arranged user
+        mockMvc.perform(
+                get("/sign-up")
+                .flashAttr("user", user)
+        ).andDo(print())
+                .andExpect(
+                        status().isOk()
+                )
+                .andExpect(
+                        view().name("signup")
+                )
+                .andExpect(
+                        model().attribute(
+                                "user", user
                         )
                 );
     }
