@@ -20,6 +20,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import static com.techdegree.web.WebConstants.LOGIN_PAGE;
+import static com.techdegree.web.WebConstants.SIGN_UP_PAGE;
+
 @Configuration
 @EnableWebSecurity
 // what does this prePostEnabled means - no idea ...
@@ -54,17 +57,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .anyRequest()
+                // it infers "ROLE_USER"
                 .hasRole("USER")
                 .and()
                 .formLogin()
-                    .loginPage("/login")
+                    .loginPage(LOGIN_PAGE)
                     .permitAll()
                     .successHandler(loginSuccessHandler())
                     .failureHandler(loginFailureHandler())
                 .and()
                 .logout()
                     .permitAll()
-                    .logoutSuccessUrl("/login")
+                    .logoutSuccessUrl(LOGIN_PAGE)
                 .and()
                 .csrf().disable();
     }
@@ -73,7 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // later will change that back to referrer maybe ...
     public AuthenticationSuccessHandler loginSuccessHandler() {
         return (request, response, authentication) ->
-                response.sendRedirect("/recipes/");
+                response.sendRedirect(SIGN_UP_PAGE);
     }
 
     // in case of failure we redirect back to "/login" with error
@@ -87,7 +91,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                             FlashMessage.Status.FAILURE
                     )
             );
-            response.sendRedirect("/login");
+            response.sendRedirect(LOGIN_PAGE);
         };
     }
 
