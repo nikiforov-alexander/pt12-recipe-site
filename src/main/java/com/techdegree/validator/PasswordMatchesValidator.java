@@ -5,6 +5,8 @@ import com.techdegree.dto.UserDto;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+// checks whether two password matches, used on
+// UserDto object
 public class PasswordMatchesValidator
     implements ConstraintValidator<PasswordMatches, Object> {
 
@@ -16,8 +18,14 @@ public class PasswordMatchesValidator
     @Override
     public boolean isValid(Object value, ConstraintValidatorContext context) {
         UserDto userDto = (UserDto) value;
-        return userDto.getPassword().equals(
-                userDto.getMatchingPassword()
-        );
+        // null check because otherwise get
+        // NullPointerException Below
+        if (userDto.getPassword() == null) {
+            return false;
+        } else {
+            return userDto.getPassword().equals(
+                    userDto.getMatchingPassword()
+            );
+        }
     }
 }
