@@ -277,7 +277,8 @@ public class LoginControllerTest {
     }
 
     @Test
-    public void postWithUsernameThatAlreadyExistsRedirectsBack() throws Exception {
+    public void postWithUsernameThatAlreadyExistsRedirectsBack()
+            throws Exception {
         // Arrange: mockMvc is arranged with LoginController
 
         // Arrange: throw UserAlreadyExistsException
@@ -323,6 +324,9 @@ public class LoginControllerTest {
         .andExpect(
                 flash().attributeCount(1)
         );
+
+        // verify mock interactions
+        verify(userService).registerNewUser(any());
     }
 
     @Test
