@@ -128,6 +128,16 @@ public class LoginControllerTest {
     @Test
     public void signUpShouldBePageRenderedWithUserAttribute()
             throws Exception {
+        // Arrange : arrange mockMvc with LoginController
+
+        // Act: When make GET request to "sign-up" page is made
+        // Assert:
+        // Then :
+        // - status should be OK
+        // - view must be of name SIGN_UP_PAGE
+        // - model should have only one attribute user
+        //   in the absence of flash got with
+        //   session
         mockMvc.perform(
                 get(SIGN_UP_PAGE)
         ).andDo(print())
@@ -136,6 +146,11 @@ public class LoginControllerTest {
         )
         .andExpect(
                 view().name(SIGN_UP_TEMPLATE)
+        )
+        .andExpect(
+                model().attributeDoesNotExist(
+                        "flash"
+                )
         )
         .andExpect(
                 model().attribute(
