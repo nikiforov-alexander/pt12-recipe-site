@@ -4,6 +4,7 @@ import com.techdegree.validator.PasswordMatches;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 @PasswordMatches
 public class UserDto {
@@ -19,7 +20,10 @@ public class UserDto {
     private String username;
 
     @NotNull
-    @NotEmpty
+    // taken from here:
+    // http://regexlib.com/REDetails.aspx?regexp_id=31
+    // tested in UserDto class
+    @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$")
     private String password;
 
     @NotEmpty
