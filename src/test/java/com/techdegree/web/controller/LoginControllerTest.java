@@ -5,6 +5,7 @@ import com.techdegree.exception.UserAlreadyExistsException;
 import com.techdegree.model.User;
 import com.techdegree.service.CustomUserDetailsService;
 import com.techdegree.web.FlashMessage;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import static com.techdegree.web.WebConstants.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -321,5 +323,56 @@ public class LoginControllerTest {
         .andExpect(
                 flash().attributeCount(1)
         );
+    }
+
+    @Test
+    public void postSignUpRequestCreatesNewUserAndRedirectsBackToRecipes()
+            throws Exception {
+        // Arrange: mockMvc is arranged with LoginController
+
+        // Arrange: register new user
+        // when registerNewUser is called
+        when(userService.registerNewUser(any()))
+                .thenReturn(
+                       any(User.class)
+                );
+
+        // Act: When post request is made with all valid fields
+        // and username does not exists
+
+        // Assert: Then
+        // - status should be 3xx
+        // - redirected URL should be RECIPES_HOME_PAGE
+        // - flash should be sent with success status
+        mockMvc.perform(
+                post(SIGN_UP_PAGE)
+                        .param("name", "name")
+                        .param("username", "username")
+                        .param("password", "qwertyZ1")
+                        .param("matchingPassword", "qwertyZ1")
+        ).andDo(print())
+                .andExpect(
+                        status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl(RECIPES_HOME_PAGE)
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "status",
+                                        equalTo(
+                                                FlashMessage.Status.SUCCESS
+                                        )
+                                )
+                        )
+                )
+                .andExpect(
+                        flash().attributeCount(1)
+                );
+
+        // verify mock interactions
+        verify(userService).registerNewUser(any());
     }
 }
