@@ -50,12 +50,12 @@ public class RecipeDaoTest {
 
         // Act and Assert:
         // When find all favorite recipes method is called
-        // one favorite recipe for "jd" user is returned
+        // 5 favorite recipes for "jd" user is returned
         assertThat(
                 recipeDao.findAllFavoriteRecipesFor(
                         user
                 ),
-                hasSize(1)
+                hasSize(5)
         );
     }
 
