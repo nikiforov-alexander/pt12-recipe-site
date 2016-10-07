@@ -4,6 +4,7 @@ import com.techdegree.dto.UserDto;
 import com.techdegree.model.User;
 import com.techdegree.service.CustomUserDetailsService;
 import com.techdegree.web.FlashMessage;
+import com.techdegree.web.WebConstants;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +15,8 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.hamcrest.Matchers.is;
+import static com.techdegree.web.WebConstants.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -59,7 +61,7 @@ public class LoginControllerTest {
                 status().isOk()
         )
         .andExpect(
-                view().name("login")
+                view().name(LOGIN_TEMPLATE)
         )
         .andExpect(
                 model().attributeDoesNotExist("flash")
@@ -102,7 +104,7 @@ public class LoginControllerTest {
                         status().isOk()
                 )
                 .andExpect(
-                        view().name("login")
+                        view().name(LOGIN_TEMPLATE)
                 )
                 .andExpect(
                         model().attribute(
@@ -130,7 +132,7 @@ public class LoginControllerTest {
                 status().isOk()
         )
         .andExpect(
-                view().name("signup")
+                view().name(SIGN_UP_TEMPLATE)
         )
         .andExpect(
                 model().attribute(
@@ -164,12 +166,90 @@ public class LoginControllerTest {
                         status().isOk()
                 )
                 .andExpect(
-                        view().name("signup")
+                        view().name(SIGN_UP_TEMPLATE)
                 )
                 .andExpect(
                         model().attribute(
                                 "user", user
                         )
                 );
+    }
+
+    @Test
+    public void postWithInvalidNullUserFieldsIsRedirectedBackToSignUp() throws Exception {
+        // Arrange: mockMvc is arranged with LoginController
+
+        // When post request is made with all null fields
+        // Then :
+        // - status should be 3xx
+        // - redirected URL should be sign-up page
+        // - flash should be sent with error status
+        // - binding result sent should have 8 errors
+        //   : 4 for @NotNull and 4 for @NotEmpty
+        //   and also one global error, because
+        //   PasswordMatchesValidator should not work
+        //   when user.password is null.
+        // - flash attribute "user" should exists
+        //   and should have user.password and
+        //   user.matchingPassword empty
+        mockMvc.perform(
+                post(SIGN_UP_PAGE)
+        ).andDo(print())
+        .andExpect(
+                status().is3xxRedirection()
+        )
+        .andExpect(
+                redirectedUrl(SIGN_UP_PAGE)
+        )
+        .andExpect(
+                flash().attribute(
+                        "flash",
+                        hasProperty(
+                                "status",
+                                equalTo(
+                                        FlashMessage.Status.FAILURE
+                                )
+                        )
+                )
+        )
+        .andExpect(
+                flash().attribute(
+                        BINDING_RESULT_PACKAGE_NAME + ".user",
+                        hasProperty(
+                                "fieldErrorCount",
+                                equalTo(8)
+                        )
+                )
+        )
+        .andExpect(
+                flash().attribute(
+                        BINDING_RESULT_PACKAGE_NAME + ".user",
+                        hasProperty(
+                                "globalErrorCount",
+                                equalTo(1)
+                        )
+                )
+        )
+        .andExpect(
+                flash().attributeExists("user")
+        )
+        .andExpect(
+                flash().attribute(
+                        "user",
+                        hasProperty(
+                                "password",
+                                isEmptyString()
+                        )
+                )
+        )
+        .andExpect(
+                flash().attribute(
+                        "user",
+                        hasProperty(
+                                "matchingPassword",
+                                isEmptyString()
+                        )
+                )
+        );
     }
 }
