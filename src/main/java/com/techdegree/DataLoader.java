@@ -100,6 +100,8 @@ public class DataLoader implements ApplicationRunner {
         // create roles and save
         Role role = new Role("ROLE_USER");
         roleDao.save(role);
+        Role roleAdmin = new Role("ROLE_ADMIN");
+        roleDao.save(roleAdmin);
 
         // create users, add roles and save
         User user = new User("John Doe", "jd", "jd");
