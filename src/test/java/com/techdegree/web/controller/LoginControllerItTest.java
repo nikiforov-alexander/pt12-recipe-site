@@ -19,6 +19,7 @@ import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 import static com.techdegree.web.WebConstants.SIGN_UP_PAGE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -109,6 +110,73 @@ public class LoginControllerItTest {
         assertThat(
                 userService.findAll().size(),
                 is(numberOfUsersBeforeSignUpRequest + 1)
+        );
+    }
+
+    @Test
+    public void invalidPostRequestWillNotCreateUser() throws Exception {
+        // Arrange: mockMvc with webAppContext is set up
+        // for integration test
+
+        // Arrange: calculate number of users before request
+        int numberOfUsersBeforeSignUpRequest =
+                userService.findAll().size();
+
+        // Act and Assert:
+        // When POST request is made to "sign-up" page
+        // with valid UserDto data
+        // Then:
+        // - status should be 3xx redirection
+        // - redirectedUrl should be recipes home page
+        // - three flash attributes
+        //   should be sent
+        // - "user" flash attribute should have
+        //   empty "password" and "matchingPassword"
+        //   fields
+        mockMvc.perform(
+                post(SIGN_UP_PAGE)
+        ).andDo(print())
+                .andExpect(
+                        status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl(SIGN_UP_PAGE)
+                )
+                .andExpect(
+                        flash().attributeCount(3)
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "status",
+                                        is(FlashMessage.Status.FAILURE)
+                                )
+                        )
+                )
+                .andExpect(
+                        flash().attribute(
+                                "user",
+                                hasProperty(
+                                        "password",
+                                        isEmptyString()
+                                )
+                        )
+                )
+                .andExpect(
+                        flash().attribute(
+                                "user",
+                                hasProperty(
+                                        "matchingPassword",
+                                        isEmptyString()
+                                )
+                        )
+                );
+
+        // Assert that new user was NOT created
+        assertThat(
+                userService.findAll().size(),
+                is(numberOfUsersBeforeSignUpRequest)
         );
     }
 }
