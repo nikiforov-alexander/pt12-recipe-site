@@ -12,11 +12,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 // marked @ComponentScan so that Intellijidea
 // finds beans properly
 @ComponentScan
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsService
+        implements UserDetailsService, UserService {
 
     @Autowired
     private UserDao userDao;
@@ -67,6 +70,11 @@ public class CustomUserDetailsService implements UserDetailsService {
                         roleDao.findOne(1L)
                 )
         );
+    }
+
+    @Override
+    public List<User> findAll() {
+        return (List<User>) userDao.findAll();
     }
 
 }
