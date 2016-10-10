@@ -19,7 +19,7 @@ import java.util.List;
 // finds beans properly
 @ComponentScan
 public class CustomUserDetailsService
-        implements UserDetailsService, UserService {
+        implements UserService {
 
     @Autowired
     private UserDao userDao;
