@@ -3,6 +3,7 @@
 :source-highlighter: coderay
 :toc:
 :toclevels: 5
+:toc-placement: preamble
 :sectnums:
 :main_package: link:./src/main/java/com/techdegree/
 :test_package: link:./src/test/java/com/techdegree
@@ -64,6 +65,8 @@
 :profile_html: {templates}/profile.html[profile.html]
 :app_js: {main_resources}/static/assets/js/app.js[app.js]
 :coverage_report_tar_gz: link:./misc/coverage-report.tar.gz[coverage-report.tar.gz]
+
+toc::[]
 
 [[eclipse]]
 == Eclipse Installation Instructions
