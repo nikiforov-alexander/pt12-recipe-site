@@ -29,8 +29,9 @@
        We'll put user's name here, but later
 */-->
 <nav th:fragment="nav">
-    <a th:href="@{/profile}">
-        Chandra S.
+    <a  sec:authentication="principal.name"
+        th:href="@{/profile}">
+        User's Name
     </a>
     &bull;
     <a th:href="@{/logout}">
