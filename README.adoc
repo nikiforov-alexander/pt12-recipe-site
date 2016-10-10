@@ -3,10 +3,13 @@
 :source-highlighter: coderay
 :toc:
 :toclevels: 5
+:toc-placement: preamble
 :sectnums:
 :main_package: link:./src/main/java/com/techdegree/
 :test_package: link:./src/test/java/com/techdegree
 :ItemValidator: {main_package}validator/ItemValidator.java[ItemValidator]
+:PasswordMatchesValidator: {main_package}validator/PasswordMatchesValidator.java[PasswordMatchesValidator]
+:PasswordMatches: {main_package}validator/PasswordMatches.java[PasswordMatches]
 :ValidItem: {main_package}validator/ValidItem.java[ValidItem]
 :CustomUserDetailsService: {main_package}service/CustomUserDetailsService.java[CustomUserDetailsService]
 :IngredientService: {main_package}service/IngredientService.java[IngredientService]
@@ -21,6 +24,8 @@
 :Application: {main_package}Application.java[Application]
 :BaseEntity: {main_package}model/BaseEntity.java[BaseEntity]
 :User: {main_package}model/User.java[User]
+:UserDto: {main_package}dto/UserDto.java[UserDto]
+:UserAlreadyExistsException: {main_package}exception/UserAlreadyExistsException.java[UserAlreadyExistsException]
 :RoleClass: {main_package}model/Role.java[Role]
 :RecipeCategory: {main_package}model/RecipeCategory.java[RecipeCategory]
 :Ingredient: {main_package}model/Ingredient.java[Ingredient]
@@ -38,6 +43,7 @@
 :FlashMessage: {main_package}web/FlashMessage.java[FlashMessage]
 :LoginController: {main_package}web/controller/LoginController.java[LoginController]
 :RecipeController: {main_package}web/controller/RecipeController.java[RecipeController]
+:UserController: {main_package}web/controller/UserController.java[UserController]
 :IndexRedirectController: {main_package}web/controller/IndexRedirectController.java[IndexRedirectController]
 :WebConstants: {main_package}web/WebConstants.java[WebConstants]
 :RecipeEventHandler: {main_package}handler/RecipeEventHandler.java[RecipeEventHandler]
@@ -48,9 +54,14 @@
 :RecipeCategoryTest: {test_package}/model/RecipeCategoryTest.java[RecipeCategoryTest]
 :RecipeDaoTest: {test_package}/dao/RecipeDaoTest.java[RecipeDaoTest]
 :RecipeServiceTest: {test_package}/service/RecipeServiceTest.java[RecipeServiceTest]
+:UserServiceTest: {test_package}/service/UserServiceTest.java[UserServiceTest]
+:UserDtoTest: {test_package}/dto/UserDtoTest.java[UserDtoTest]
 :IndexRedirectControllerTest: {test_package}/web/controller/IndexRedirectControllerTest.java[IndexRedirectControllerTest]
 :RecipeControllerItTest: {test_package}/web/controller/RecipeControllerItTest.java[RecipeControllerItTest]
 :RecipeControllerTest: {test_package}/web/controller/RecipeControllerTest.java[RecipeControllerTest]
+:LoginControllerItTest: {test_package}/web/controller/LoginControllerItTest.java[LoginControllerItTest]
+:LoginControllerTest: {test_package}/web/controller/LoginControllerTest.java[LoginControllerTest]
+:UserControllerTest: {test_package}/web/controller/UserControllerTest.java[UserControllerTest]
 :build_gradle: link:./build.gradle[build.gradle]
 :main_resources: link:./src/main/resources/
 :templates: {main_resources}templates
@@ -64,6 +75,11 @@
 :profile_html: {templates}/profile.html[profile.html]
 :app_js: {main_resources}/static/assets/js/app.js[app.js]
 :coverage_report_tar_gz: link:./misc/coverage-report.tar.gz[coverage-report.tar.gz]
+:userDtoBaeldungLink: http://www.baeldung.com/registration-with-spring-mvc-and-spring-security
+:passwordRegexLink: http://regexlib.com/REDetails.aspx?regexp_id=31
+:jqueryPasswordCheckerLink: https://www.formget.com/password-strength-checker-in-jquery/
+
+toc::[]
 
 [[eclipse]]
 == Eclipse Installation Instructions
@@ -349,9 +365,24 @@ A user must have an account
 
 ---
 
-I guess by that is meant that user has to be logged?
-Anyway, user is saved in database, for now
-user registration is under construction
+User has an account page at the address
+
+```
+/profile
+```
+
+In order to get to this page, being logged on, user
+has to click on his name in the top left corner on
+`<nav>` element
+
+This is implemented in {UserController} class, and is
+tested in {UserControllerTest} class.
+
+The template rendering this page is called {profile_html}.
+
+On this page all user's favorite recipes are displayed.
+May be later I will include also owned recipes. For now
+I'll leave that as TODO.
 
 [[edit_and_delete_recipe]]
 ==== Edit and Delete Recipe
@@ -399,6 +430,146 @@ recipe owner consistency as well. See tests:
 * `updatingRecipeWithAllValidFieldsWorks`
 * `savingNewRecipeWithAllValidFieldsWorks`
 * `deletingRecipeShouldBePossible`
+
+=== Task 3
+
+Using the supplied files, create the template for the recipe detail page.
+Use the following requirements list to ensure all functionality
+is included in the recipe detail page.
+
+.Recipe Detail
+- Allows a user to add a recipe, or edit the recipe if they are the owner
+- Allows a user to provide a recipe name, description, category (from a list of values), prep time, and cook time
+- Allows a user to provide a list of ingredients
+- Each ingredient includes an item, condition, and quantity
+- Allows a user to provide a list of steps
+- Each step includes a description
+- Any user can add the recipe to their favorites
+
+---
+
+Under Construction ..
+
+=== Task 4
+
+The recipe list page should have a search feature.
+A user can enter a search term and the recipe
+list will display results that have the search
+phrase in the description.
+
+---
+
+Under construction.
+
+=== Task 5
+
+Enable user authentication with Spring Security.
+Use the supplied files to create templates
+for login page, registration page, and profile page.
+You must build the registration component,
+as it does not come with Spring Security.
+Create necessary controllers,
+services, and DAO to add a new user.
+Make sure to include validation
+so that a user may not use a username
+that already exists.
+Check out links in external resources if you get stuck.
+
+---
+
+[[task-5-security-config]]
+==== Security Configuration class
+
+User authentication is enabled in {SecurityConfig} class.
+
+It enables `@PreAuthorize` and other annotations, as well as
+password encoder.
+
+In `configure(WebSecurity web)` method we setup ignoring everything that is in
+`src/main/resources/static/assets`, i.e. all images, CSS and
+JavaScript.
+
+In `configure(HttpSecurity http)` we permit user
+before logging in, access only `SIGN_UP_PAGE` and
+`LOGIN_PAGE`.
+
+`loginSuccessHandler` redirects user to `RECIPES_HOME_PAGE`,
+whereas `loginFailureHandler` creates flash message that
+attaches {FlashMessage} with `FAILURE` status.
+
+==== LoginController
+
+{LoginController} class is created in order to set up
+
+* `LOGIN_PAGE` in `loginForm` method
+* `SIGN_UP_PAGE` in `signUpPage` method
+* `SIGN_UP_PAGE` POST request in `registerNewUser` method.
+
+I don't exactly know how `loginForm` works. But
+I know that it sets "flash" from session if user types
+wrong password. If however, user register valid user
+on `SIGN_UP_PAGE`, then he'll be redirected to this
+page with successful flash to log in.
+
+`SIGN_UP_PAGE` simply loads new {UserDto} object into
+`Model`, and if user made mistakes when creating new
+user, then he is redirected back with all user
+parameters except `password` and `matchingPassword`
+
+`registerNewUser` processes POST request of creating
+new user.
+
+==== UserDto And Password
+
+Idea of {UserDto} came from {userDtoBaeldungLink}[here].
+It is first of all needed because we set password
+indirectly and cannot use validation annotation
+on `User.password` field directly. Also nice thing about
+this approach that we created our own {PasswordMatches}
+annotation that uses {PasswordMatchesValidator}
+and checks if passwords match. Whereas we cannot simply
+introduce new `matchingPassword` field in {User} class.
+
+One has to note here on `userDto.password` field regex
+matcher is used taken from {passwordRegexLink}[here].
+
+The regex is tested separately in the {UserDtoTest} class.
+
+==== JavaScript In Registration
+
+One has also note here, that in order to ensure more
+security and not sending password back and forth, i.e.
+to increase user experience I've added in {app_js} file
+JavaScript Jquery function checking whether passwords in
+`SIGN_UP_PAGE` match, ans whether they are strong or not.
+The most of the code was taken from
+{jqueryPasswordCheckerLink}[here].
+
+The button "sign-up" sending POST request will appear only
+if both password match and are "strong".
+
+So we won't see backend check unless we actually disable
+JavaScript. But I decided to leave them both hanging.
+
+==== User Registration On Service Layer
+
+"Check whether the user exists with such username" is done
+on service layer in `userService.registerNewUser` method.
+
+It throws {UserAlreadyExistsException} that unfortunately
+does not work properly with `@ExceptionHandler` that is
+why it is explicitly caught in {LoginController}
+`registerNewUser` method
+
+[[task-5-tests]]
+==== Tests
+
+The tests checking most of the user registration can
+be found in following classes:
+
+* {LoginControllerTest}
+* {LoginControllerItTest}
+* {UserServiceTest}
 
 
 

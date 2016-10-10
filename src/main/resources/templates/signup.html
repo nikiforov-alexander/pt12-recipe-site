@@ -1,66 +1,153 @@
 <!doctype html>
-<html lang="en">
-<head>
 
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
+<html lang="en" xmlns:th="http://www.thymeleaf.org/">
 
-  <title>Sign-up | My Recipes</title>
-
-  <link href='https://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="../css/unsemantic-grid-responsive.css">
-  <link rel="stylesheet" href="../css/styles.css">
-
+<head th:replace="layout :: head('Sign-up | My Recipes')">
 </head>
 
 <body>
 
-  <nav>
-    <a href="signup.html">
-      sign-up
+<nav>
+    <a th:href="@{/sign-up}">
+        Register
     </a>
     &bull;
-    <a href="login.html">
-      login
+    <a th:href="@{/login}">
+        Login
     </a>
-  </nav>
+</nav>
 
-  <div class="grid-container">
+<div class="grid-container">
 
-    <div class="grid-100">
-      <a href="index.html">
-        <h1>
-          <img src="../images/chefbot.svg" height="60px">
-          <br>
-          My Recipes
-        </h1>
-      </a>
+    <div th:replace="layout :: my_recipes_logo"
+         class="grid-100">
+    </div>
+
+    <div th:replace="layout :: flash('div-surrounding-flash-at-login-page')">
     </div>
 
     <div class="grid-100">
-      <div class="recipes">
-        <div class="prefix-20 grid-60 suffix-20">
-          <p>
-            <input placeholder="Username"> </input>
-          </p>
-        </div> <div class="clear"></div>
-        <div class="prefix-20 grid-60 suffix-20">
-          <p>
-            <input placeholder="Password" type="password"> </input>
-          </p>
-        </div> <div class="clear"></div>
-        <div class="prefix-20 grid-60 suffix-20">
-          <p>
-            <input placeholder="Password Again" type="password"> </input>
-          </p>
-        </div> <div class="clear"></div>
-        <div class="prefix-20 grid-60 suffix-20">
-          <p>
-            <button>Sign-up</button>
-          </p>
-        </div> <div class="clear"></div>
-      </div> <!-- recipes -->
+        <div class="recipes">
+
+            <form id="register"
+                  method="post"
+                  th:action="@{/sign-up}"
+                  th:object="${user}">
+
+                <!--/* name */-->
+
+                <!--/* span with error message */-->
+                <div class="prefix-20 grid-60 suffix-20">
+                    <span th:errors="*{name}" class="error-sign-up-page">
+                    </span>
+                </div>
+
+                <div th:classappend="${#fields.hasErrors('name')}? 'error' : ''"
+                        class="prefix-20 grid-60 suffix-20">
+                    <p>
+                        <input th:field="*{name}"
+                               placeholder="Name">
+                    </p>
+                </div>
+                <div class="clear"></div>
+
+                <!--/* username */-->
+
+                <!--/* span with error message */-->
+                <div class="prefix-20 grid-60 suffix-20">
+                    <span th:errors="*{username}" class="error-sign-up-page">
+                    </span>
+                </div>
+
+                <div th:classappend="${#fields.hasErrors('username')}? 'error' : ''"
+                     class="prefix-20 grid-60 suffix-20">
+                    <p>
+                        <input th:field="*{username}"
+                               placeholder="Username">
+                    </p>
+                </div>
+                <div class="clear"></div>
+
+                <!--/* password */-->
+
+                <!--/* This div with span will be activated when
+                       passwords do not match. It is done with JS,
+                       but if JS fails, on the backend we'll have defence
+                       as well
+                */-->
+                <div class="prefix-20 grid-60 suffix-20">
+                    <span th:text="${#fields.hasGlobalErrors()} ? ${#fields.globalErrors()} : ''"
+                          class="error-sign-up-page">
+                    </span>
+                </div>
+
+                <!--/* span with error message for password field:
+                       for now empty and null
+                */-->
+                <div class="prefix-20 grid-60 suffix-20">
+                    <span th:errors="*{password}" class="error-sign-up-page">
+                    </span>
+                </div>
+
+                <!--/* span which will be filled when JS is turned on
+                       and user types password
+                 */-->
+                <div class="div-surrounding-span-with-password-error">
+                    <span id="result"></span>
+                </div>
+                <div th:classappend="${#fields.hasErrors('password')}? 'error' : ''"
+                     class="prefix-20 grid-60 suffix-20">
+                    <p>
+                        <input id="password"
+                               th:field="*{password}"
+                               placeholder="Password"
+                               type="password">
+                    </p>
+                </div>
+
+                <div class="clear"></div>
+
+                <!--/* password again */-->
+
+                <!--/* span with error message */-->
+                <div class="prefix-20 grid-60 suffix-20">
+                    <span th:errors="*{matchingPassword}" class="error-sign-up-page">
+                    </span>
+                </div>
+
+                <div th:classappend="${#fields.hasErrors('matchingPassword')}? 'error' : ''"
+                     class="prefix-20 grid-60 suffix-20">
+                    <p>
+                        <input id="match-password"
+                               th:field="*{matchingPassword}"
+                               placeholder="Password Again"
+                               type="password">
+                    </p>
+                </div>
+
+                <div class="clear"></div>
+
+                <!--/* button */-->
+
+                <div class="prefix-20 grid-60 suffix-20">
+                    <p>
+                        <button disabled
+                                id="sign-up-button"
+                                th:action="@{/sign-up}">
+                            Sign-up
+                        </button>
+                    </p>
+                </div>
+
+                <div class="clear"></div>
+
+            </form>
+
+        </div> <!-- recipes -->
     </div> <!-- grid-100 -->
-  </div> <!-- grid-container -->
+</div> <!-- grid-container -->
+
+<div th:replace="layout :: scripts"></div>
+
 </body>
 </html>

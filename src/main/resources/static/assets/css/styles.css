@@ -179,6 +179,11 @@ span.error {
     position: relative;
     top: 25px;
 }
+/* span error in "sing-up" page*/
+span.error-sign-up-page {
+    color: white;
+    position: relative;
+}
 /* span with error message on input fields but if underlying
    div has class="grid-20" */
 span.error.with-grid-20 {
@@ -251,8 +256,7 @@ a.secondary.cancel {
 */
 a.recipe-category-tag {
     position: relative;
-    top: 50px;
-    right: 65%;
+    top: 5px;
     color: white;
     background-color: black;
     padding: 9px;
@@ -278,4 +282,43 @@ a.recipe-category-tag.dinner {
 a.recipe-category-tag.dessert {
     color: white;
     background-color: brown;
+}
+
+#container {
+    width: 535px;
+    background: #ffffff;
+    padding: 20px;
+    margin: 90px auto;
+    border-radius: 5px;
+    height: 150px;
+    border: 2px solid gray;
+}
+#content {
+    margin-left: 57px;
+    margin-top: 40px;
+}
+#register label{
+    margin-right:5px;
+}
+#register .short{
+    color:black;
+}
+#register .weak{
+    color:orange;
+}
+#register .good{
+    color:yellowgreen;
+}
+#register .strong{
+    color: white;
+}
+.div-surrounding-span-with-password-error span{
+    font-weight:bold;
+    position: relative;
+    left: 21%;
+}
+
+button[disabled=disabled], button:disabled {
+    background-color: transparent;
+    color: transparent;
 }

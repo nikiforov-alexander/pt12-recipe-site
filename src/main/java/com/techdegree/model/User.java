@@ -1,6 +1,7 @@
 package com.techdegree.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.techdegree.dto.UserDto;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -44,6 +45,8 @@ public class User implements UserDetails {
     // no constraints here... that is a good question to
     // @christherama
     @JsonIgnore
+    @NotNull
+    @NotEmpty
     private String password;
 
     // adding this because of 'spring-weather-app'
@@ -137,6 +140,14 @@ public class User implements UserDetails {
         this.username = username;
         this.name = name;
         setPassword(password);
+    }
+
+    public User(UserDto userDto, Role role) {
+        this();
+        this.username = userDto.getUsername();
+        this.name = userDto.getName();
+        setPassword(userDto.getPassword());
+        this.role = role;
     }
 
     // Override methods

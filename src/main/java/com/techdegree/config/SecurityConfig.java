@@ -2,6 +2,7 @@ package com.techdegree.config;
 
 import com.techdegree.model.User;
 import com.techdegree.service.CustomUserDetailsService;
+import com.techdegree.service.UserService;
 import com.techdegree.web.FlashMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,13 +21,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import static com.techdegree.web.WebConstants.LOGIN_PAGE;
+import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+import static com.techdegree.web.WebConstants.SIGN_UP_PAGE;
+
 @Configuration
 @EnableWebSecurity
 // what does this prePostEnabled means - no idea ...
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
-    private CustomUserDetailsService userService;
+    private UserService userService;
 
     // figure out what does this mean
     @Autowired
@@ -53,18 +58,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
+                // here we permit sign up page to be open
+                // as well as login page
+                .antMatchers(SIGN_UP_PAGE).permitAll()
                 .anyRequest()
+                // it infers "ROLE_USER"
                 .hasRole("USER")
                 .and()
                 .formLogin()
-                    .loginPage("/login")
+                    .loginPage(LOGIN_PAGE)
                     .permitAll()
                     .successHandler(loginSuccessHandler())
                     .failureHandler(loginFailureHandler())
                 .and()
                 .logout()
                     .permitAll()
-                    .logoutSuccessUrl("/login")
+                    .logoutSuccessUrl(LOGIN_PAGE)
                 .and()
                 .csrf().disable();
     }
@@ -73,7 +82,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // later will change that back to referrer maybe ...
     public AuthenticationSuccessHandler loginSuccessHandler() {
         return (request, response, authentication) ->
-                response.sendRedirect("/recipes/");
+                response.sendRedirect(RECIPES_HOME_PAGE);
     }
 
     // in case of failure we redirect back to "/login" with error
@@ -87,7 +96,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                             FlashMessage.Status.FAILURE
                     )
             );
-            response.sendRedirect("/login");
+            response.sendRedirect(LOGIN_PAGE);
         };
     }
 
