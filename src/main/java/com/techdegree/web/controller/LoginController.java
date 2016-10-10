@@ -33,14 +33,19 @@ public class LoginController {
             HttpServletRequest request
     ) {
         model.addAttribute("user", new User());
-        try {
-            Object flash =
-                    request.getSession().getAttribute(
-                            "flash"
-            );
-            model.addAttribute("flash", flash);
-        } catch (Exception ex) {
-            // "flash" session attribute must not exist...do nothing and proceed normally
+        // if model contains attribute "flash"
+        // that means we are sending flash from sign-up
+        // page, otherwise it is "access denied" flash
+        if (!model.containsAttribute("flash")) {
+            try {
+                Object flash =
+                        request.getSession().getAttribute(
+                                "flash"
+                        );
+                model.addAttribute("flash", flash);
+            } catch (Exception ex) {
+                // "flash" session attribute must not exist...do nothing and proceed normally
+            }
         }
         return LOGIN_TEMPLATE;
     }
@@ -120,11 +125,11 @@ public class LoginController {
                 "flash",
                 new FlashMessage(
                         "User '" + user.getUsername() +
-                                "' was successfully registered",
+                                "' was successfully registered. Please login",
                         FlashMessage.Status.SUCCESS
                 )
         );
-        return "redirect:" + RECIPES_HOME_PAGE;
+        return "redirect:" + LOGIN_PAGE;
     }
 
 }
