@@ -7,6 +7,7 @@ public final class WebConstants {
     public static final String RECIPES_HOME_PAGE = "/recipes/";
     public static final String SIGN_UP_PAGE = "/sign-up";
     public static final String LOGIN_PAGE = "/login";
+    public static final String PROFILE_PAGE = "/profile";
 
 
     // Thymeleaf templates
