@@ -403,6 +403,52 @@ recipe owner consistency as well. See tests:
 * `savingNewRecipeWithAllValidFieldsWorks`
 * `deletingRecipeShouldBePossible`
 
+=== Task 3
+
+Using the supplied files, create the template for the recipe detail page.
+Use the following requirements list to ensure all functionality
+is included in the recipe detail page.
+
+.Recipe Detail
+- Allows a user to add a recipe, or edit the recipe if they are the owner
+- Allows a user to provide a recipe name, description, category (from a list of values), prep time, and cook time
+- Allows a user to provide a list of ingredients
+- Each ingredient includes an item, condition, and quantity
+- Allows a user to provide a list of steps
+- Each step includes a description
+- Any user can add the recipe to their favorites
+
+---
+
+Under Construction ..
+
+=== Task 4
+
+The recipe list page should have a search feature.
+A user can enter a search term and the recipe
+list will display results that have the search
+phrase in the description.
+
+---
+
+Under construction.
+
+=== Task 5
+
+Enable user authentication with Spring Security.
+Use the supplied files to create templates
+for login page, registration page, and profile page.
+You must build the registration component,
+as it does not come with Spring Security.
+Create necessary controllers,
+services, and DAO to add a new user.
+Make sure to include validation
+so that a user may not use a username
+that already exists.
+Check out links in external resources if you get stuck.
+
+---
+
 
 
 
