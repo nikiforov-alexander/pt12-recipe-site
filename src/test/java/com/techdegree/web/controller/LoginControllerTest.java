@@ -330,7 +330,7 @@ public class LoginControllerTest {
     }
 
     @Test
-    public void postSignUpRequestCreatesNewUserAndRedirectsBackToRecipes()
+    public void postSignUpRequestCreatesNewUserAndRedirectsToLoginPage()
             throws Exception {
         // Arrange: mockMvc is arranged with LoginController
 
@@ -346,7 +346,7 @@ public class LoginControllerTest {
 
         // Assert: Then
         // - status should be 3xx
-        // - redirected URL should be RECIPES_HOME_PAGE
+        // - redirected URL should be LOGIN_PAGE
         // - flash should be sent with success status
         mockMvc.perform(
                 post(SIGN_UP_PAGE)
@@ -359,7 +359,7 @@ public class LoginControllerTest {
                         status().is3xxRedirection()
                 )
                 .andExpect(
-                        redirectedUrl(RECIPES_HOME_PAGE)
+                        redirectedUrl(LOGIN_PAGE)
                 )
                 .andExpect(
                         flash().attribute(

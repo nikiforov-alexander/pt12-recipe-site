@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+import static com.techdegree.web.WebConstants.LOGIN_PAGE;
 import static com.techdegree.web.WebConstants.SIGN_UP_PAGE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasProperty;
@@ -77,7 +77,7 @@ public class LoginControllerItTest {
         // with valid UserDto data
         // Then:
         // - status should be 3xx redirection
-        // - redirectedUrl should be recipes home page
+        // - redirectedUrl should be LOGIN_PAGE
         // - one flash attribute with SUCCESS status
         //   should be sent
         mockMvc.perform(
@@ -91,7 +91,7 @@ public class LoginControllerItTest {
                 status().is3xxRedirection()
         )
         .andExpect(
-                redirectedUrl(RECIPES_HOME_PAGE)
+                redirectedUrl(LOGIN_PAGE)
         )
         .andExpect(
                 flash().attributeCount(1)
