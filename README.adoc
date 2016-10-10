@@ -39,6 +39,7 @@
 :FlashMessage: {main_package}web/FlashMessage.java[FlashMessage]
 :LoginController: {main_package}web/controller/LoginController.java[LoginController]
 :RecipeController: {main_package}web/controller/RecipeController.java[RecipeController]
+:UserController: {main_package}web/controller/UserController.java[UserController]
 :IndexRedirectController: {main_package}web/controller/IndexRedirectController.java[IndexRedirectController]
 :WebConstants: {main_package}web/WebConstants.java[WebConstants]
 :RecipeEventHandler: {main_package}handler/RecipeEventHandler.java[RecipeEventHandler]
@@ -52,6 +53,7 @@
 :IndexRedirectControllerTest: {test_package}/web/controller/IndexRedirectControllerTest.java[IndexRedirectControllerTest]
 :RecipeControllerItTest: {test_package}/web/controller/RecipeControllerItTest.java[RecipeControllerItTest]
 :RecipeControllerTest: {test_package}/web/controller/RecipeControllerTest.java[RecipeControllerTest]
+:UserControllerTest: {test_package}/web/controller/UserControllerTest.java[UserControllerTest]
 :build_gradle: link:./build.gradle[build.gradle]
 :main_resources: link:./src/main/resources/
 :templates: {main_resources}templates
@@ -352,9 +354,24 @@ A user must have an account
 
 ---
 
-I guess by that is meant that user has to be logged?
-Anyway, user is saved in database, for now
-user registration is under construction
+User has an account page at the address
+
+```
+/profile
+```
+
+In order to get to this page, being logged on, user
+has to click on his name in the top left corner on
+`<nav>` element
+
+This is implemented in {UserController} class, and is
+tested in {UserControllerTest} class.
+
+The template rendering this page is called {profile_html}.
+
+On this page all user's favorite recipes are displayed.
+May be later I will include also owned recipes. For now
+I'll leave that as TODO.
 
 [[edit_and_delete_recipe]]
 ==== Edit and Delete Recipe
