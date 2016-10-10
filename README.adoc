@@ -541,7 +541,7 @@ One has also note here, that in order to ensure more
 security and not sending password back and forth, i.e.
 to increase user experience I've added in {app_js} file
 JavaScript Jquery function checking whether passwords in
-`SIGN_UP_PAGE` match, ans whether they are strong or not.
+`SIGN_UP_PAGE` match, and whether they are strong or not.
 The most of the code was taken from
 {jqueryPasswordCheckerLink}[here].
 
