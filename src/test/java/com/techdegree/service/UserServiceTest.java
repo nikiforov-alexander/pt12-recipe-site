@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CustomUserDetailsServiceTest {
+public class UserServiceTest {
 
     @Mock
     private UserDao userDao;
@@ -30,7 +30,7 @@ public class CustomUserDetailsServiceTest {
     private RoleDao roleDao;
 
     @InjectMocks
-    private CustomUserDetailsService userService =
+    private UserService userService =
         new CustomUserDetailsService();
 
     @Before
