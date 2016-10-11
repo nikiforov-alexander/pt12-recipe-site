@@ -9,6 +9,13 @@ public final class WebConstants {
     public static final String LOGIN_PAGE = "/login";
     public static final String PROFILE_PAGE = "/profile";
 
+    // REST API URI-s
+
+    public static final String RECIPES_REST_PAGE = "/recipes";
+    public static final String INGREDIENTS_REST_PAGE = "/ingredients";
+    public static final String STEPS_REST_PAGE = "/steps";
+    public static final String ITEMS_REST_PAGE = "/items";
+
 
     // Thymeleaf templates
 
