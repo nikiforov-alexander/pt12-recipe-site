@@ -22,9 +22,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static com.techdegree.web.WebConstants.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -108,6 +110,10 @@ public class ApplicationRestItTest {
      * Generates String JSON of {@code Step} with
      * @param step Step, which values will be set
      *             to JSON properties
+     * @param recipeUrl String, recipe url that is
+     *                  added to the JSON in order
+     *                  for steps to be created with
+     *                  some recipe
      * @return String JSON of Step:
      * for example:
      * @{code
@@ -119,7 +125,10 @@ public class ApplicationRestItTest {
      *  }
      * }
      */
-    private String generateStepJsonWithFirstRecipe(Step step) {
+    private String generateStepJsonWithFirstRecipe(
+            Step step,
+            String recipeUrl
+    ) {
         String stepJson = "{";
         stepJson = addCustomProperty(
                 stepJson,
@@ -140,7 +149,7 @@ public class ApplicationRestItTest {
         stepJson = addCustomProperty(
                 stepJson,
                 "recipe",
-                BASE_URL + "/recipes/1",
+                recipeUrl,
                 false // no comma at the end
         );
         stepJson += "}";
@@ -194,7 +203,7 @@ public class ApplicationRestItTest {
                 );
     }
 
-    // POST requests tests
+    // POST requests tests: steps
 
     @Test
     public void postRequestWithValidStepFieldsCanCreateNewRecipeStep()
@@ -221,7 +230,8 @@ public class ApplicationRestItTest {
                 ).contentType(contentType)
                 .content(
                         generateStepJsonWithFirstRecipe(
-                                testStep
+                                testStep,
+                                BASE_URL + "/recipes/1"
                         )
                 )
         ).andDo(print())
@@ -246,4 +256,49 @@ public class ApplicationRestItTest {
         //        )
         // );
     }
+
+    @Test
+    public void postRequestWithInvalidStepFieldsReturnsValidationErrors()
+            throws Exception {
+        // Arrange: mockMvc with real app context
+
+        // Arrange: calculate number of steps before req
+        int numberOfStepsBeforePostReq =
+                stepService.findAll().size();
+
+        // Act and Assert:
+        // When POST request to STEPS_REST_PAGE is made
+        // with empty JSON
+        // Then:
+        // - status should bad request
+        // - 3 errors are expected :
+        //  @NotNull, @NotEmpty for step.description
+        //  @NotNull for step.recipe
+        mockMvc.perform(
+                post(
+                        BASE_URL + STEPS_REST_PAGE
+                ).contentType(contentType)
+                .content(
+                        "{}"
+                )
+        ).andDo(print())
+        .andExpect(
+                status().isBadRequest()
+        )
+        .andExpect(
+                jsonPath(
+                        "$.errors",
+                        hasSize(3)
+                )
+        );
+
+        // Assert that number of steps is the same
+        assertThat(
+                stepService.findAll().size(),
+                is(
+                        numberOfStepsBeforePostReq
+                )
+        );
+    }
+
 }
