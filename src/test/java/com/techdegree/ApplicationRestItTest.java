@@ -5,10 +5,9 @@ import com.techdegree.dao.IngredientDao;
 import com.techdegree.dao.ItemDao;
 import com.techdegree.dao.RecipeDao;
 import com.techdegree.dao.StepDao;
+import com.techdegree.model.Item;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.Step;
-import com.techdegree.service.IngredientService;
-import com.techdegree.service.StepService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -163,6 +162,45 @@ public class ApplicationRestItTest {
         stepJson += "}";
         return stepJson;
     }
+
+    /**
+     * Generates String JSON of {@code Item} with
+     * @param item Item, which values will be set
+     *             to JSON properties
+     * @return String JSON of Item:
+     * for example:
+     * @{code
+     *  {
+     *      "id" : "null",
+     *      "version" : "null",
+     *      "name" : "name"
+     *  }
+     * }
+     */
+    private String generateItemJson(
+            Item item
+    ) {
+        String itemJson = "{";
+        itemJson = addCustomProperty(
+                itemJson,
+                "id", item.getId() + "",
+                true
+        );
+        itemJson = addCustomProperty(
+                itemJson,
+                "version", item.getVersion() + "",
+                true
+        );
+        itemJson = addCustomProperty(
+                itemJson,
+                "name",
+                item.getName(),
+                false // no comma at the end
+        );
+        itemJson += "}";
+        return itemJson;
+    }
+
 
     /**
      * returns size of iterable
@@ -351,17 +389,17 @@ public class ApplicationRestItTest {
                 post(
                         BASE_URL + ITEMS_REST_PAGE
                 ).contentType(contentType)
-                .content("{}")
+                        .content("{}")
         ).andDo(print())
-        .andExpect(
-                status().isBadRequest()
-        )
-        .andExpect(
-                jsonPath(
-                        "$.errors",
-                        hasSize(2)
+                .andExpect(
+                        status().isBadRequest()
                 )
-        );
+                .andExpect(
+                        jsonPath(
+                                "$.errors",
+                                hasSize(2)
+                        )
+                );
 
         // Assert that no items should be created
         assertThat(
@@ -373,4 +411,47 @@ public class ApplicationRestItTest {
                 )
         );
     }
+
+    @Test
+    public void postWithValidItemCreatesNewItem()
+            throws Exception {
+        // Arrange : mockMvc is set up with webAppContext
+
+        // Arrange : calculate number of items before req
+        int numberOfItemsBeforeReq =
+                getSizeOfIterable(
+                        itemDao.findAll()
+                );
+
+        // Arrange testItem
+        Item testItem = new Item("test item name");
+
+        // Act and Assert:
+        // When POST request to ITEMS_REST_PAGE is
+        // made with valid Item JSON
+        // Then :
+        // - status should be "created"
+        mockMvc.perform(
+                post(
+                        BASE_URL + ITEMS_REST_PAGE
+                ).contentType(contentType)
+                .content(
+                        generateItemJson(testItem)
+                )
+        ).andDo(print())
+        .andExpect(
+                status().isCreated()
+        );
+
+        // Assert number of items increased
+        assertThat(
+                getSizeOfIterable(
+                        itemDao.findAll()
+                ),
+                is(
+                        numberOfItemsBeforeReq + 1
+                )
+        );
+    }
+
 }
