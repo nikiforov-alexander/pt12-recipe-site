@@ -454,4 +454,51 @@ public class ApplicationRestItTest {
         );
     }
 
+    // Ingredient POST tests
+
+
+    @Test
+    public void postCreatingNewIngredientWithEmptyJsonShouldBeBadRequestWithValidationErrors()
+            throws Exception {
+        // Arrange : mockMvc created with webAppContext
+
+        // Arrange : calculate number of ingredients before req
+        int numberOfIngredientsBeforeReq =
+                getSizeOfIterable(
+                        ingredientDao.findAll()
+                );
+
+        // Act and Assert:
+        // When POST request to INGREDIENTS_REST_PAGE is
+        // made with empty JSON "{}"
+        // Then :
+        // - status should be "bad request"
+        // - 7 errors should be thrown
+        // - @NotNull, @ValidItem for "item" field
+        //   @NotNull, @NotEmpty for "condition" field
+        //   @NotNull, @NotEmpty for "quantity" field
+        //   @NotNull for "recipe" field
+        mockMvc.perform(
+                post(BASE_URL + INGREDIENTS_REST_PAGE)
+                .contentType(contentType)
+                .content("{}")
+        ).andDo(print())
+        .andExpect(
+                status().isBadRequest()
+        )
+        .andExpect(
+                jsonPath(
+                        "$.errors",
+                        hasSize(7)
+                )
+        );
+
+        // Assert that number of ingredients stayed same
+        assertThat(
+                getSizeOfIterable(
+                        ingredientDao.findAll()
+                ),
+                is(numberOfIngredientsBeforeReq)
+        );
+    }
 }
