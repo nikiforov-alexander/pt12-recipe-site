@@ -1,10 +1,13 @@
 package com.techdegree;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.techdegree.dao.IngredientDao;
+import com.techdegree.dao.ItemDao;
+import com.techdegree.dao.RecipeDao;
+import com.techdegree.dao.StepDao;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.Step;
 import com.techdegree.service.IngredientService;
-import com.techdegree.service.RecipeService;
 import com.techdegree.service.StepService;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +22,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.List;
 
 import static com.techdegree.web.WebConstants.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,14 +49,17 @@ public class ApplicationRestItTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
+    // we autowire DAO-s here because
+    // REST is created through DAOs, not
+    // services
     @Autowired
-    private RecipeService recipeService;
-
+    private RecipeDao recipeDao;
     @Autowired
-    private StepService stepService;
-
+    private StepDao stepDao;
     @Autowired
-    private IngredientService ingredientService;
+    private IngredientDao ingredientDao;
+    @Autowired
+    private ItemDao itemDao;
 
     private MockMvc mockMvc;
 
@@ -156,6 +164,16 @@ public class ApplicationRestItTest {
         return stepJson;
     }
 
+    /**
+     * returns size of iterable
+     * @param iterable
+     * @return size of passed ${@code iterable}
+     */
+    private int getSizeOfIterable(Iterable<?> iterable) {
+        List<?> list = (List<?>) iterable;
+        return list.size();
+    }
+
     // Tests checking that all DAOs are good, i.e.
     // no referential integrity violations
 
@@ -216,7 +234,9 @@ public class ApplicationRestItTest {
 
         // Arrange: calculate number of steps before req
         int numberOfStepsBeforePostReq =
-                stepService.findAll().size();
+                getSizeOfIterable(
+                        stepDao.findAll()
+                );
 
         // Act and Assert:
         // When POST request to STEPS_REST_PAGE is made
@@ -239,9 +259,11 @@ public class ApplicationRestItTest {
                 status().isCreated()
         );
 
-        // Assert that new step will be found in stepService
+        // Assert that new step will be found in stepDao
         assertThat(
-                stepService.findAll().size(),
+                getSizeOfIterable(
+                        stepDao.findAll()
+                ),
                 is(
                         numberOfStepsBeforePostReq + 1
                 )
@@ -250,7 +272,7 @@ public class ApplicationRestItTest {
         // Assert that number of steps for recipe increased
         // TODO: find out why lazy instantiation problem is thrown
         // assertThat(
-        //        recipeService.findOne(1L).getSteps().size(),
+        //        recipeDao.findOne(1L).getSteps().size(),
         //        is(
         //                numberOfRecipeStepsBeforePostReq + 1
         //        )
@@ -264,7 +286,9 @@ public class ApplicationRestItTest {
 
         // Arrange: calculate number of steps before req
         int numberOfStepsBeforePostReq =
-                stepService.findAll().size();
+                getSizeOfIterable(
+                        stepDao.findAll()
+                );
 
         // Act and Assert:
         // When POST request to STEPS_REST_PAGE is made
@@ -294,11 +318,59 @@ public class ApplicationRestItTest {
 
         // Assert that number of steps is the same
         assertThat(
-                stepService.findAll().size(),
+                getSizeOfIterable(
+                        stepDao.findAll()
+                ),
                 is(
                         numberOfStepsBeforePostReq
                 )
         );
     }
 
+    // POST items tests
+
+    @Test
+    public void postWithEmptyJsonToCreateNewItemReturnsValidationErrors()
+            throws Exception {
+        // Arrange : mockMvc is set up with webAppContext
+
+        // Arrange : calculate number of items before req
+        int numberOfItemsBeforeReq =
+                getSizeOfIterable(
+                        itemDao.findAll()
+                );
+
+        // Act and Assert:
+        // When POST request to ITEMS_REST_PAGE is
+        // made with empty JSON "{}"
+        // Then :
+        // - status should be Bad Request
+        // - there has to be two errors
+        //   @NotNull and @NotEmpty for "item.name"
+        mockMvc.perform(
+                post(
+                        BASE_URL + ITEMS_REST_PAGE
+                ).contentType(contentType)
+                .content("{}")
+        ).andDo(print())
+        .andExpect(
+                status().isBadRequest()
+        )
+        .andExpect(
+                jsonPath(
+                        "$.errors",
+                        hasSize(2)
+                )
+        );
+
+        // Assert that no items should be created
+        assertThat(
+                getSizeOfIterable(
+                        itemDao.findAll()
+                ),
+                is(
+                        numberOfItemsBeforeReq
+                )
+        );
+    }
 }
