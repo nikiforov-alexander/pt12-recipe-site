@@ -5,6 +5,7 @@ import com.techdegree.dao.IngredientDao;
 import com.techdegree.dao.ItemDao;
 import com.techdegree.dao.RecipeDao;
 import com.techdegree.dao.StepDao;
+import com.techdegree.model.Ingredient;
 import com.techdegree.model.Item;
 import com.techdegree.model.Recipe;
 import com.techdegree.model.Step;
@@ -199,6 +200,73 @@ public class ApplicationRestItTest {
         );
         itemJson += "}";
         return itemJson;
+    }
+
+    /**
+     * Generates String JSON of {@code Ingredient} with
+     * @param ingredient Ingredient, which values will be set
+     *             to JSON properties
+     * @param itemUrl String, item url that is
+     *                  added to the JSON in order
+     *                  for ingredients to be created with
+     *                  some item
+     * @param recipeUrl String, recipe url that is
+     *                  added to the JSON in order
+     *                  for ingredients to be created with
+     *                  some recipe
+     * @return String JSON of Ingredient:
+     * for example:
+     * @{code
+     *  {
+     *      "id" : "null",
+     *      "version" : "null",
+     *      "item" : "/api/v1/items/1"
+     *      "condition" : "condition"
+     *      "quantity" : "quantity"
+     *      "recipe" : "/api/v1/recipes/1"
+     *  }
+     * }
+     */
+    private String generateIngredientJsonWithItemAndRecipe(
+            Ingredient ingredient,
+            String recipeUrl,
+            String itemUrl
+    ) {
+        String ingredientJson = "{";
+        ingredientJson = addCustomProperty(
+                ingredientJson,
+                "id", ingredient.getId() + "",
+                true
+        );
+        ingredientJson = addCustomProperty(
+                ingredientJson,
+                "version", ingredient.getVersion() + "",
+                true
+        );
+        ingredientJson = addCustomProperty(
+                ingredientJson,
+                "condition", ingredient.getCondition() + "",
+                true
+        );
+        ingredientJson = addCustomProperty(
+                ingredientJson,
+                "quantity", ingredient.getQuantity() + "",
+                true
+        );
+        ingredientJson = addCustomProperty(
+                ingredientJson,
+                "item",
+                itemUrl,
+                true
+        );
+        ingredientJson = addCustomProperty(
+                ingredientJson,
+                "recipe",
+                recipeUrl,
+                false // no comma at the end
+        );
+        ingredientJson += "}";
+        return ingredientJson;
     }
 
 
@@ -499,6 +567,53 @@ public class ApplicationRestItTest {
                         ingredientDao.findAll()
                 ),
                 is(numberOfIngredientsBeforeReq)
+        );
+    }
+
+    @Test
+    public void postRequestWithValidIngredientFieldShouldCreateNewIngredient()
+            throws Exception {
+        // Arrange : mockMvc created with webAppContext
+
+        // Arrange : calculate number of ingredients before req
+        int numberOfIngredientsBeforeReq =
+                getSizeOfIterable(
+                        ingredientDao.findAll()
+                );
+
+        // Arrange : create test ingredient to be added
+        // we put "null" for item, because we manually
+        // specify its url later on
+        Ingredient testIngredient =
+                new Ingredient(null, "condition", "quantity");
+
+        // Act and Assert:
+        // When POST request to INGREDIENTS_REST_PAGE is
+        // made with valid JSON:
+        // with 1-st "item" and 1-st "recipe"
+        // Then :
+        // - status should be "created"
+        mockMvc.perform(
+                post(BASE_URL + INGREDIENTS_REST_PAGE)
+                .contentType(contentType)
+                .content(
+                        generateIngredientJsonWithItemAndRecipe(
+                            testIngredient,
+                            BASE_URL + RECIPES_REST_PAGE + "/1",
+                            BASE_URL + ITEMS_REST_PAGE + "/1"
+                        )
+                )
+        ).andDo(print())
+        .andExpect(
+                status().isCreated()
+        );
+
+        // Assert that number of ingredients increased
+        assertThat(
+                getSizeOfIterable(
+                        ingredientDao.findAll()
+                ),
+                is(numberOfIngredientsBeforeReq + 1)
         );
     }
 }
