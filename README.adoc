@@ -573,5 +573,28 @@ be found in following classes:
 
 === Task 6 : REST API
 
+Create REST endpoints for CRUD operations.
+
+---
+
+==== Configuration
+
+REST API is build with HATEOAS and HAL browser, from the
+following dependencies in {build_gradle}:
+
+```
+    compile 'org.springframework.boot:spring-boot-starter-data-rest'
+    compile 'org.springframework.data:spring-data-rest-hal-browser'
+```
+
+In {application_properties} file `spring.data.rest.base-path` is defined, so
+that we know upon which address to find out REST API.
+
+
+
+
+
+
+
 
 
