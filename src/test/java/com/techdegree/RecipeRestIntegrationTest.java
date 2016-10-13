@@ -3,6 +3,9 @@ package com.techdegree;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techdegree.dao.RecipeDao;
 import com.techdegree.model.Recipe;
+import com.techdegree.model.RecipeCategory;
+import com.techdegree.model.User;
+import com.techdegree.service.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,13 +14,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
 import static com.techdegree.web.WebConstants.RECIPES_REST_PAGE;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -45,6 +54,9 @@ public class RecipeRestIntegrationTest {
     // services
     @Autowired
     private RecipeDao recipeDao;
+
+    @Autowired
+    private UserService userService;
 
     private MockMvc mockMvc;
 
@@ -113,6 +125,76 @@ public class RecipeRestIntegrationTest {
                 jsonPath(
                         "$.errors",
                         hasSize(11)
+                )
+        );
+    }
+
+    @Test
+    public void postNewRecipeWithValidFieldsAndLoggedUserShouldCreateNewRecipeWithOwner()
+            throws Exception {
+        // Arrange : mockMvc is arranged
+
+        // Arrange : create test Recipe
+        Recipe testRecipe = new Recipe.RecipeBuilder(null)
+                .withVersion(null)
+                .withName("test name")
+                .withDescription("test description")
+                .withRecipeCategory(RecipeCategory.BREAKFAST)
+                .withPhotoUrl("test photo url")
+                .withPreparationTime("test prep time")
+                .withCookTime("test cook time")
+                .build();
+
+        // Arrange : calculate number of recipes before req
+        int numberOfRecipesBeforeReq =
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                );
+        // Arrange : get Test user from db
+        User user = (User) userService.loadUserByUsername("jd");
+
+        // Act and Assert:
+        // When POST request with valid testRecipe to
+        // and with test user, to set owner
+        // RECIPES_REST_PAGE is made,
+        // Then :
+        // - status should be created
+        mockMvc.perform(
+                post(
+                        BASE_URL + RECIPES_REST_PAGE
+                ).contentType(contentType)
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                user
+                        )
+                )
+                .content(
+                        recipeJacksonTester.write(
+                                testRecipe
+                        ).getJson()
+                )
+        ).andDo(print())
+        .andExpect(
+                status().isCreated()
+        );
+
+        // Assert that number of recipes increased
+        assertThat(
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                ),
+                is(numberOfRecipesBeforeReq + 1)
+        );
+
+        // Assert that user owns the recipe
+        // NOTE: numberOfRecipesBeforeReq + 1 is equal to "id" of
+        // newly created recipe
+        assertThat(
+                recipeDao.findOne(
+                        (long) numberOfRecipesBeforeReq + 1
+                ),
+                hasProperty(
+                        "owner", equalTo(user)
                 )
         );
     }
