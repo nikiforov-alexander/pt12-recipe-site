@@ -62,6 +62,10 @@
 :LoginControllerItTest: {test_package}/web/controller/LoginControllerItTest.java[LoginControllerItTest]
 :LoginControllerTest: {test_package}/web/controller/LoginControllerTest.java[LoginControllerTest]
 :UserControllerTest: {test_package}/web/controller/UserControllerTest.java[UserControllerTest]
+:RecipeRestIntegrationTest: {test_package}/RecipeRestIntegrationTest.java[RecipeRestIntegrationTest]
+:IngredientRestIntegrationTest: {test_package}/IngredientRestIntegrationTest.java[IngredientRestIntegrationTest]
+:StepRestIntegrationTest: {test_package}/StepRestIntegrationTest.java[StepRestIntegrationTest]
+:ItemRestIntegrationTest: {test_package}/ItemRestIntegrationTest.java[ItemRestIntegrationTest]
 :build_gradle: link:./build.gradle[build.gradle]
 :main_resources: link:./src/main/resources/
 :templates: {main_resources}templates
@@ -91,7 +95,7 @@ Under Construction.
 == Tasks
 
 
-=== Task 1
+=== Task 1 - Overview: Model/Dao/Service, Unit Tests
 
 Create model classes, DAO interfaces, services,
 and add unit tests to components.
@@ -183,7 +187,7 @@ gzipped it, because it has too many files. Later
 I will try to create task in Gradle, but for now
 that is best I can do.
 
-=== Task 2
+=== Task 2 - Recipes Index Page
 Using the supplied files, create the template for the recipe list page.
 Use the following requirements list to ensure all functionality
 is included in the recipe list page.
@@ -431,7 +435,7 @@ recipe owner consistency as well. See tests:
 * `savingNewRecipeWithAllValidFieldsWorks`
 * `deletingRecipeShouldBePossible`
 
-=== Task 3
+=== Task 3 : Recipe Details Page
 
 Using the supplied files, create the template for the recipe detail page.
 Use the following requirements list to ensure all functionality
@@ -450,7 +454,7 @@ is included in the recipe detail page.
 
 Under Construction ..
 
-=== Task 4
+=== Task 4 : Search Features
 
 The recipe list page should have a search feature.
 A user can enter a search term and the recipe
@@ -461,7 +465,7 @@ phrase in the description.
 
 Under construction.
 
-=== Task 5
+=== Task 5 : Security
 
 Enable user authentication with Spring Security.
 Use the supplied files to create templates
@@ -541,7 +545,7 @@ One has also note here, that in order to ensure more
 security and not sending password back and forth, i.e.
 to increase user experience I've added in {app_js} file
 JavaScript Jquery function checking whether passwords in
-`SIGN_UP_PAGE` match, ans whether they are strong or not.
+`SIGN_UP_PAGE` match, and whether they are strong or not.
 The most of the code was taken from
 {jqueryPasswordCheckerLink}[here].
 
@@ -570,6 +574,130 @@ be found in following classes:
 * {LoginControllerTest}
 * {LoginControllerItTest}
 * {UserServiceTest}
+
+=== Task 6 : REST API
+
+Create REST endpoints for CRUD operations.
+
+---
+
+==== Configuration
+
+REST API is build with HATEOAS and HAL browser, from the
+following dependencies in {build_gradle}:
+
+```
+    compile 'org.springframework.boot:spring-boot-starter-data-rest'
+    compile 'org.springframework.data:spring-data-rest-hal-browser'
+```
+
+In {application_properties} file `spring.data.rest.base-path` is defined, so
+that we know upon which address to find out REST API.
+
+In the `@Configuration` {RestConfig} class we add @Validator for
+all entities as `ValidatingRepositoryEventListener`. Apparently that
+is because REST is built from DAO, and without having *Service*
+layer helping out with the stuff, we are using *Events* and
+*Listeners*.
+
+`Validator` itself is defined from `LocalValidatorFactoryBean` in
+{AppConfig} class.
+
+One more important class that interacts with REST is
+{RecipeEventHandler}. For now `@HandleBeforeCreate` event is
+defined there, with which we set-up owner of the `Recipe`
+before saving.
+
+==== End Points
+
+Below is the list of links REST generates for us to use:
+
+```
+/api/v1/recipes : GET, PUT, POST, DELETE
+/api/v1/ingredients : GET, PUT, POST, DELETE
+/api/v1/steps : GET, PUT, POST, DELETE
+/api/v1/items : GET, PUT, POST, DELETE
+```
+
+URI-s are defined automatically, but I've also specified
+them in {WebConstants} class, so that we can use them
+type-safe in tests.
+
+In order to see specific object one has to add `id` at the
+end.
+
+==== Life Cycle of REST requests
+
+It is impossible to create `Recipe` with `Ingredient`-s and `Step`-s
+in one request unfortunately.
+And I don't know how to do it. In order to create new Recipe
+one has to do the following:
+
+* make POST request to create new `Recipe` without links:
++
+```
+{
+    "id" : null,
+    "version" : null,
+    "name" : "test name",
+    "description" : "test description",
+    "recipeCategory" : "BREAKFAST",
+    "photoUrl" : "test photo url",
+    "preparationTime" : "test prep time",
+    "cookTime" : "test cook time",
+    "ingredients" : [],
+    "steps" : []
+}
+```
+* make POST request to create new `Ingredient` with `Recipe`
+and `Item` link:
++
+```
+{
+   "id" : "null",
+   "version" : "null",
+   "item" : "http://localhost:8080/api/v1/items/1"
+   "condition" : "condition"
+   "quantity" : "quantity"
+   "recipe" : "http://localhost:8080/api/v1/recipes/1"
+}
+```
++
+NOTE: `Item` can be created without links
++
+* make POST request to create new `Step` with `Recipe` link:
++
+```
+{
+   "id" : "null",
+   "version" : "null",
+   "description" : "description"
+   "recipe" : "http://localhost:8080/api/v1/recipes/1"
+}
+```
+
+`PUT` requests can be done in the same manner. So I omit this
+section description here
+
+`DELETE` requests are under construction.
+
+==== Security
+
+Under Construction.
+
+==== Tests
+
+Mostly REST API is tested with following integration tests:
+
+* {RecipeRestIntegrationTest}
+* {StepRestIntegrationTest}
+* {IngredientRestIntegrationTest}
+* {ItemRestIntegrationTest}
+
+
+
+
+
 
 
 

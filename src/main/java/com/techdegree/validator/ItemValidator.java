@@ -19,7 +19,7 @@ public class ItemValidator
 
     @Override
     public boolean isValid(Item value, ConstraintValidatorContext context) {
-        if (value.getId() == 0) {
+        if (value == null || value.getId() == 0) {
             return false;
         }
         return true;
