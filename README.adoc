@@ -91,7 +91,7 @@ Under Construction.
 == Tasks
 
 
-=== Task 1
+=== Task 1 - Overview: Model/Dao/Service, Unit Tests
 
 Create model classes, DAO interfaces, services,
 and add unit tests to components.
@@ -183,7 +183,7 @@ gzipped it, because it has too many files. Later
 I will try to create task in Gradle, but for now
 that is best I can do.
 
-=== Task 2
+=== Task 2 - Recipes Index Page
 Using the supplied files, create the template for the recipe list page.
 Use the following requirements list to ensure all functionality
 is included in the recipe list page.
@@ -431,7 +431,7 @@ recipe owner consistency as well. See tests:
 * `savingNewRecipeWithAllValidFieldsWorks`
 * `deletingRecipeShouldBePossible`
 
-=== Task 3
+=== Task 3 : Recipe Details Page
 
 Using the supplied files, create the template for the recipe detail page.
 Use the following requirements list to ensure all functionality
@@ -450,7 +450,7 @@ is included in the recipe detail page.
 
 Under Construction ..
 
-=== Task 4
+=== Task 4 : Search Features
 
 The recipe list page should have a search feature.
 A user can enter a search term and the recipe
@@ -461,7 +461,7 @@ phrase in the description.
 
 Under construction.
 
-=== Task 5
+=== Task 5 : Security
 
 Enable user authentication with Spring Security.
 Use the supplied files to create templates
@@ -571,6 +571,7 @@ be found in following classes:
 * {LoginControllerItTest}
 * {UserServiceTest}
 
+=== Task 6 : REST API
 
 
 
