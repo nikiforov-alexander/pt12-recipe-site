@@ -36,8 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:./test-ApplicationRestItTest.properties")
-public class ApplicationRestItTest {
+@TestPropertySource("classpath:./test-RecipeRestIntegrationTest.properties")
+public class RecipeRestIntegrationTest {
 
     // will be something like "/api/v1":
     // is set from properties file
