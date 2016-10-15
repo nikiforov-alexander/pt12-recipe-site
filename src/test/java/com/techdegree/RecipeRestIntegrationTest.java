@@ -28,8 +28,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -196,6 +195,65 @@ public class RecipeRestIntegrationTest {
                 hasProperty(
                         "owner", equalTo(user)
                 )
+        );
+    }
+
+    @Test
+    public void notOwnerUserWithRoleUserCannotChangeRecipe()
+            throws Exception {
+        // Arrange : mockMvc is arranged
+
+        // Arrange : create test Recipe
+        Recipe testRecipe = new Recipe.RecipeBuilder(1L)
+                .withVersion(0L)
+                .withName("test name")
+                .withDescription("test description")
+                .withRecipeCategory(RecipeCategory.BREAKFAST)
+                .withPhotoUrl("test photo url")
+                .withPreparationTime("test prep time")
+                .withCookTime("test cook time")
+                .build();
+
+        // Arrange : get Test user from db
+        User user = (User) userService.loadUserByUsername("ad");
+
+        // Arrange : calculate number of recipes before req
+        int numberOfRecipesBeforeReq =
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                );
+
+        // Act and Assert:
+        // When POST request with valid testRecipe to
+        // and with test user, to set owner
+        // RECIPES_REST_PAGE is made,
+        // Then :
+        // - status should be FORBIDDEN
+        mockMvc.perform(
+                put(
+                        BASE_URL + RECIPES_REST_PAGE + "/" + testRecipe.getId()
+                ).contentType(contentType)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        user
+                                )
+                        )
+                        .content(
+                                recipeJacksonTester.write(
+                                        testRecipe
+                                ).getJson()
+                        )
+        ).andDo(print())
+        .andExpect(
+                status().isForbidden()
+        );
+
+        // Assert that number of recipes stayed same
+        assertThat(
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                ),
+                is(numberOfRecipesBeforeReq)
         );
     }
 }
