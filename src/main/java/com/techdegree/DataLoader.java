@@ -95,6 +95,30 @@ public class DataLoader implements ApplicationRunner {
         stepDao.save(step2);
     }
 
+    /**
+     * helpful method just to "unload" {@code run} method,
+     * and to separate chunk of code that does this
+     * specific thing: save three users in database:
+     * Two users with "ROLE_USER", first one is
+     * owner to all recipes "jd".
+     * Second one does not own any recipe
+     * Third one is system admin with "ROLE_ADMIN"
+     */
+    private void createUsersAddRolesAndSave() {
+        // TODO : refactor this roleDao.findOne(1L), to findByName("ROLE_USER")
+        User johnDoe = new User("John Doe", "jd", "jd");
+        johnDoe.setRole(roleDao.findOne(1L));
+        userDao.save(johnDoe);
+
+        User alexDoe = new User("Alex Doe", "ad", "ad");
+        alexDoe.setRole(roleDao.findOne(1L));
+        userDao.save(alexDoe);
+
+        User admin = new User("Administrator", "sa", "sa");
+        admin.setRole(roleDao.findOne(2L));
+        userDao.save(admin);
+    }
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         // create roles and save
@@ -104,9 +128,7 @@ public class DataLoader implements ApplicationRunner {
         roleDao.save(roleAdmin);
 
         // create users, add roles and save
-        User user = new User("John Doe", "jd", "jd");
-        user.setRole(role);
-        userDao.save(user);
+        createUsersAddRolesAndSave();
 
         // create items and save items, because they
         // are for now unbound to Ingredient and
