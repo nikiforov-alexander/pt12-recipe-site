@@ -21,10 +21,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
+
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
 import static com.techdegree.web.WebConstants.RECIPES_REST_PAGE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
@@ -203,19 +206,28 @@ public class RecipeRestIntegrationTest {
             throws Exception {
         // Arrange : mockMvc is arranged
 
-        // Arrange : create test Recipe
-        Recipe testRecipe = new Recipe.RecipeBuilder(1L)
-                .withVersion(0L)
-                .withName("test name")
-                .withDescription("test description")
-                .withRecipeCategory(RecipeCategory.BREAKFAST)
-                .withPhotoUrl("test photo url")
-                .withPreparationTime("test prep time")
-                .withCookTime("test cook time")
-                .build();
+        // Arrange : get first Recipe, and change
+        // its name, ingredients and steps
+        Recipe firstRecipe = recipeDao.findOne(1L);
+        firstRecipe.setName("new name");
+        firstRecipe.setIngredients(new ArrayList<>());
+        firstRecipe.setSteps(new ArrayList<>());
 
-        // Arrange : get Test user from db
+        // Arrange : get Test non-admin user from db
         User user = (User) userService.loadUserByUsername("ad");
+
+        assertThat(
+                "user is not admin",
+                user.getRole().getName(),
+                is("ROLE_USER")
+        );
+        assertThat(
+                "user is not owner",
+                firstRecipe.getOwner(),
+                not(
+                        is(user)
+                )
+        );
 
         // Arrange : calculate number of recipes before req
         int numberOfRecipesBeforeReq =
@@ -224,14 +236,15 @@ public class RecipeRestIntegrationTest {
                 );
 
         // Act and Assert:
-        // When POST request with valid testRecipe to
-        // and with test user, to set owner
+        // When PUT request with valid testRecipe to
+        // and with test non-admin, non-owner user
         // RECIPES_REST_PAGE is made,
         // Then :
         // - status should be FORBIDDEN
         mockMvc.perform(
                 put(
-                        BASE_URL + RECIPES_REST_PAGE + "/" + testRecipe.getId()
+                        BASE_URL + RECIPES_REST_PAGE +
+                                "/" + firstRecipe.getId()
                 ).contentType(contentType)
                         .with(
                                 SecurityMockMvcRequestPostProcessors.user(
@@ -240,7 +253,7 @@ public class RecipeRestIntegrationTest {
                         )
                         .content(
                                 recipeJacksonTester.write(
-                                        testRecipe
+                                        firstRecipe
                                 ).getJson()
                         )
         ).andDo(print())
@@ -248,12 +261,87 @@ public class RecipeRestIntegrationTest {
                 status().isForbidden()
         );
 
-        // Assert that number of recipes stayed same
         assertThat(
+                "Number of recipes should stay same",
                 getSizeOfIterable(
                         recipeDao.findAll()
                 ),
                 is(numberOfRecipesBeforeReq)
+        );
+
+    }
+
+    @Test
+    public void adminUserNonOwnerCanChangeRecipe()
+            throws Exception {
+        // Arrange : mockMvc is arranged
+
+        // Arrange : get first Recipe, and change
+        // its name, ingredients and steps
+        // because otherwise we get lazy instantiation error
+        // TODO: figure out lazy instantiation error
+        Recipe firstRecipe = recipeDao.findOne(1L);
+        firstRecipe.setName("new name");
+        firstRecipe.setIngredients(new ArrayList<>());
+        firstRecipe.setSteps(new ArrayList<>());
+        long versionOfRecipe = firstRecipe.getVersion();
+
+        // Arrange : get Admin user
+        User user = (User) userService.loadUserByUsername("sa");
+
+        assertThat(
+                "user is admin",
+                user.getRole().getName(),
+                is("ROLE_ADMIN")
+        );
+        assertThat(
+                "user is not owner",
+                firstRecipe.getOwner(),
+                not(
+                        is(user)
+                )
+        );
+
+        // Act and Assert:
+        // When PUT request with valid first recipe
+        // with user admin to
+        // RECIPES_REST_PAGE + "/1" is made,
+        // Then :
+        // - status should be no content
+        mockMvc.perform(
+                put(
+                        BASE_URL + RECIPES_REST_PAGE +
+                                "/" + firstRecipe.getId()
+                ).contentType(contentType)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        user
+                                )
+                        )
+                        .content(
+                                recipeJacksonTester.write(
+                                        firstRecipe
+                                ).getJson()
+                        )
+        ).andDo(print())
+        .andExpect(
+                status().isNoContent()
+        );
+
+        // TODO : figure out why we can't compare recipes using equals
+        //assertThat(
+        //        "recipe should change",
+        //        recipeDao.findOne(1L),
+        //        is(firstRecipe)
+        //);
+
+        assertThat(
+                "Recipe Version should change",
+                recipeDao.findOne(1L),
+                hasProperty(
+                        "version",
+                        is(versionOfRecipe + 1)
+                )
         );
     }
 }
