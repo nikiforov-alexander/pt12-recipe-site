@@ -324,9 +324,9 @@ public class RecipeRestIntegrationTest {
                                 ).getJson()
                         )
         ).andDo(print())
-        .andExpect(
-                status().isNoContent()
-        );
+                .andExpect(
+                        status().isNoContent()
+                );
 
         // TODO : figure out why we can't compare recipes using equals
         //assertThat(
@@ -334,6 +334,71 @@ public class RecipeRestIntegrationTest {
         //        recipeDao.findOne(1L),
         //        is(firstRecipe)
         //);
+
+        assertThat(
+                "Recipe Version should change",
+                recipeDao.findOne(1L),
+                hasProperty(
+                        "version",
+                        is(versionOfRecipe + 1)
+                )
+        );
+    }
+
+    @Test
+    public void recipeOwnerCanChangeRecipe()
+            throws Exception {
+        // Arrange : mockMvc is arranged
+
+        // Arrange : get first Recipe, and change
+        // its name, ingredients and steps
+        // because otherwise we get lazy instantiation error
+        // TODO: figure out lazy instantiation error
+        Recipe firstRecipe = recipeDao.findOne(1L);
+        firstRecipe.setName("new name");
+        firstRecipe.setIngredients(new ArrayList<>());
+        firstRecipe.setSteps(new ArrayList<>());
+        long versionOfRecipe = firstRecipe.getVersion();
+
+        // Arrange : get user: recipe owner
+        User user = (User) userService.loadUserByUsername("jd");
+
+        assertThat(
+                "user is normal user",
+                user.getRole().getName(),
+                is("ROLE_USER")
+        );
+        assertThat(
+                "user is owner",
+                firstRecipe.getOwner(),
+                is(user)
+        );
+
+        // Act and Assert:
+        // When PUT request with valid first recipe
+        // with user that is owner
+        // RECIPES_REST_PAGE + "/1" is made,
+        // Then :
+        // - status should be no content
+        mockMvc.perform(
+                put(
+                        BASE_URL + RECIPES_REST_PAGE +
+                                "/" + firstRecipe.getId()
+                ).contentType(contentType)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        user
+                                )
+                        )
+                        .content(
+                                recipeJacksonTester.write(
+                                        firstRecipe
+                                ).getJson()
+                        )
+        ).andDo(print())
+        .andExpect(
+                status().isNoContent()
+        );
 
         assertThat(
                 "Recipe Version should change",
