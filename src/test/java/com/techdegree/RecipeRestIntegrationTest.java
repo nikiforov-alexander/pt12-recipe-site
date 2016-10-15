@@ -281,7 +281,7 @@ public class RecipeRestIntegrationTest {
         // because otherwise we get lazy instantiation error
         // TODO: figure out lazy instantiation error
         Recipe firstRecipe = recipeDao.findOne(1L);
-        firstRecipe.setName("new name");
+        firstRecipe.setName("new name for admin test");
         firstRecipe.setIngredients(new ArrayList<>());
         firstRecipe.setSteps(new ArrayList<>());
         long versionOfRecipe = firstRecipe.getVersion();
@@ -355,7 +355,7 @@ public class RecipeRestIntegrationTest {
         // because otherwise we get lazy instantiation error
         // TODO: figure out lazy instantiation error
         Recipe firstRecipe = recipeDao.findOne(1L);
-        firstRecipe.setName("new name");
+        firstRecipe.setName("new name for owner test");
         firstRecipe.setIngredients(new ArrayList<>());
         firstRecipe.setSteps(new ArrayList<>());
         long versionOfRecipe = firstRecipe.getVersion();
