@@ -2,7 +2,11 @@ package com.techdegree;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.techdegree.dao.IngredientDao;
+import com.techdegree.dao.RecipeDao;
 import com.techdegree.model.Ingredient;
+import com.techdegree.model.Recipe;
+import com.techdegree.model.User;
+import com.techdegree.service.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,8 +26,7 @@ import static com.techdegree.testing_shared_helpers.GenericJsonWithLinkGenerator
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
 import static com.techdegree.web.WebConstants.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -48,6 +52,12 @@ public class IngredientRestIntegrationTest {
     // services
     @Autowired
     private IngredientDao ingredientDao;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RecipeDao recipeDao;
 
     private MockMvc mockMvc;
 
@@ -205,7 +215,7 @@ public class IngredientRestIntegrationTest {
     }
 
     @Test
-    public void postNewIngredientWithValidFieldsShouldCreateNewIngredient()
+    public void postNewIngredientWithValidFieldsMadeByIngredientRecipeOwnerShouldCreateNewIngredient()
             throws Exception {
         // Arrange : mockMvc created with webAppContext
 
@@ -221,6 +231,28 @@ public class IngredientRestIntegrationTest {
         Ingredient testIngredient =
                 new Ingredient(null, "condition", "quantity");
 
+        // Arrange: get first recipe
+        Recipe firstRecipe = recipeDao.findOne(1L);
+
+        // Arrange: get logged user that is non-admin, but
+        // owner
+        User ingredientRecipeOwner =
+                (User) userService.loadUserByUsername("jd");
+        assertThat(
+                "user is ingredient.recipe.owner",
+                ingredientRecipeOwner,
+                is(
+                        firstRecipe.getOwner()
+                )
+        );
+        assertThat(
+                "user is ingredient.recipe.owner",
+                ingredientRecipeOwner.getRole(),
+                hasProperty(
+                        "name", equalTo("ROLE_USER")
+                )
+        );
+
         // Act and Assert:
         // When POST request to INGREDIENTS_REST_PAGE is
         // made with valid JSON:
@@ -235,6 +267,11 @@ public class IngredientRestIntegrationTest {
                                         testIngredient,
                                         BASE_URL + RECIPES_REST_PAGE + "/1",
                                         BASE_URL + ITEMS_REST_PAGE + "/1"
+                                )
+                        )
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        ingredientRecipeOwner
                                 )
                         )
         ).andDo(print())
