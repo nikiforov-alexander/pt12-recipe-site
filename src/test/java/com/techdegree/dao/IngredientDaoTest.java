@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -144,5 +145,45 @@ public class IngredientDaoTest {
                 savedIngredient,
                 is(ingredientToBeSaved)
         );
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void ingredientCannotBeSavedByNonAdminNonOwnerOfIngredientRecipe()
+            throws Exception {
+        // Arrange: get first recipe from dao
+        Recipe firstRecipe = recipeDao.findOne(1L);
+
+        // Arrange: log in user: non-owner, non-admin
+        User admin = loginUserByUsername("ad");
+
+        assertThat(
+                "logged in user is NOT owner",
+                admin,
+                not(
+                        is(firstRecipe.getOwner())
+                )
+        );
+        assertThat(
+                "logged in user is NOT admin",
+                admin.getRole(),
+                hasProperty(
+                        "name", equalTo("ROLE_USER")
+                )
+        );
+
+        // Arrange: create test Ingredient to be saved
+        Ingredient ingredientToBeSaved =
+                new Ingredient(
+                        itemDao.findOne(1L), "test", "test"
+                );
+        ingredientToBeSaved.setRecipe(firstRecipe);
+
+        // Act: When Ingredient is saved with recipe, that
+        // is owned by ingredient.recipe
+        ingredientDao.save(
+                ingredientToBeSaved
+        );
+
+        // Assert: AccessDeniedException should be thrown
     }
 }
