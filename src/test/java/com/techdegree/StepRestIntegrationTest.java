@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.util.NestedServletException;
 
 import static com.techdegree.testing_shared_helpers.GenericJsonWithLinkGenerator.addCustomProperty;
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
@@ -145,6 +146,62 @@ public class StepRestIntegrationTest {
     }
 
     // POST requests tests
+
+    // TODO : write stack post about NestedServletException
+    @Test(expected = NestedServletException.class)
+    public void nonAdminNonRecipeOwnerCannotCreateNewStepForRecipeWithValidFields()
+            throws Exception {
+        // Arrange: mockMvc with real app context
+
+        // Arrange : generate testStep to be added
+        // using POST request
+        Step testStep = new Step("test description");
+
+        // Arrange : get user non-owner, to log in with
+        // POST request
+        User user = userDao.findByUsername("ad");
+
+        assertThat(
+                "user is non-admin",
+                user.getRole(),
+                hasProperty(
+                        "name",
+                        equalTo("ROLE_USER")
+                )
+        );
+
+        assertThat(
+                "user is non-owner",
+                recipeDao.findOne(1L).getOwner(),
+                not(
+                        is(user)
+                )
+        );
+
+        // Act and Assert:
+        // When POST request to STEPS_REST_PAGE is made
+        // with "testStep" converted to JSON and
+        // recipe with "id=1"
+        // Then:
+        // - status should be created
+        mockMvc.perform(
+                post(
+                        BASE_URL + STEPS_REST_PAGE
+                ).contentType(contentType)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        user
+                                )
+                        )
+                        .content(
+                                generateStepJsonWithFirstRecipe(
+                                        testStep,
+                                        BASE_URL + "/recipes/1"
+                                )
+                        )
+        ).andDo(print());
+        // Nothing here because of NestedServletException
+    }
 
     @Test
     public void postNewStepWithValidFieldsAndAdminShouldCreateNewRecipeStep()
