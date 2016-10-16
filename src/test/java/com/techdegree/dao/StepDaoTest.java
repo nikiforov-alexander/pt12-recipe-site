@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.TestPropertySource;
@@ -132,6 +133,44 @@ public class StepDaoTest {
                 savedStep,
                 is(testStep)
         );
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void stepCannotBeSavedByNonAdminNonOwnerOfRecipeStep()
+            throws Exception {
+        // Arrange:
+        // get first recipe
+        Recipe firstRecipe = recipeDao.findOne(1L);
+
+        // Arrange:
+        // login "sa" user that is not owner of test step.recipe
+        // but admin
+        User loggedUser = loginUserByUsername("ad");
+
+        assertThat(
+                "logged user is NOT owner",
+                loggedUser,
+                not(
+                        is(firstRecipe.getOwner())
+                )
+        );
+        assertThat(
+                "logged user is NOT admin",
+                loggedUser.getRole(),
+                hasProperty(
+                        "name", is("ROLE_USER")
+                )
+        );
+
+        // Arrange: create test step with first recipe to be
+        // saved
+        Step testStep = new Step("test description");
+        testStep.setRecipe(firstRecipe);
+
+        // Act : When test step is saved
+        Step savedStep = stepDao.save(testStep);
+
+        // Assert: Then AccessDeniedException should be thrown
     }
 
 }
