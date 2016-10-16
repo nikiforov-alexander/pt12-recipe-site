@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.TestPropertySource;
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
@@ -51,19 +53,65 @@ public class StepDaoTest {
     @Test
     public void stepCanBeSavedByOwnerOfRecipeStep() throws Exception {
         // Arrange:
-        // login "ad" user that is not owner of test step
+        // get first recipe, that is owned by loggedUser
+        // and will be saved with step
+        Recipe firstRecipe = recipeDao.findOne(1L);
+
+        // Arrange:
+        // login "ad" user that is owner of test step.recipe
         // to be saved
         User loggedUser = loginUserByUsername("jd");
 
-        // Arrange:
-        // get test recipe
-        Recipe firstRecipe = recipeDao.findOne(1L);
-
         assertThat(
                 "logged user is owner",
-            loggedUser,
+                loggedUser,
                 is(
                         firstRecipe.getOwner()
+                )
+        );
+
+        // Arrange: create test step with first recipe to be
+        // saved
+        Step testStep = new Step("test description");
+        testStep.setRecipe(firstRecipe);
+
+        // Act : When test step is saved
+        Step savedStep = stepDao.save(testStep);
+
+        // set id and version to testStep passed to DAO
+        testStep.setId(savedStep.getId());
+        testStep.setVersion(savedStep.getVersion());
+
+        assertThat(
+                "savedStep is testStep with new version and id",
+                savedStep,
+                is(testStep)
+        );
+    }
+
+    @Test
+    public void stepCanBeSavedByAdminOfRecipeStep() throws Exception {
+        // Arrange:
+        // get first recipe
+        Recipe firstRecipe = recipeDao.findOne(1L);
+
+        // Arrange:
+        // login "sa" user that is not owner of test step.recipe
+        // but admin
+        User loggedUser = loginUserByUsername("sa");
+
+        assertThat(
+                "logged user is NOT owner",
+                loggedUser,
+                not(
+                        is(firstRecipe.getOwner())
+                )
+        );
+        assertThat(
+                "logged user is admin",
+                loggedUser.getRole(),
+                hasProperty(
+                        "name", is("ROLE_ADMIN")
                 )
         );
 
