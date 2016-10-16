@@ -287,4 +287,80 @@ public class IngredientRestIntegrationTest {
                 is(numberOfIngredientsBeforeReq + 1)
         );
     }
+
+    @Test
+    public void postNewIngredientWithValidFieldsMadeByAdminNonIngredientRecipeOwnerShouldCreateNewIngredient()
+            throws Exception {
+        // Arrange : mockMvc created with webAppContext
+
+        // Arrange : calculate number of ingredients before req
+        int numberOfIngredientsBeforeReq =
+                getSizeOfIterable(
+                        ingredientDao.findAll()
+                );
+
+        // Arrange : create test ingredient to be added
+        // we put "null" for item, because we manually
+        // specify its url later on
+        Ingredient testIngredient =
+                new Ingredient(null, "condition", "quantity");
+
+        // Arrange: get first recipe
+        Recipe firstRecipe = recipeDao.findOne(1L);
+
+        // Arrange: get logged user that is admin, and
+        // non ingredient.recipe.owner
+        User adminUser =
+                (User) userService.loadUserByUsername("sa");
+        assertThat(
+                "user is NOT ingredient.recipe.owner",
+                adminUser,
+                not(
+                        is(firstRecipe.getOwner())
+                )
+        );
+        assertThat(
+                "user is admin",
+                adminUser.getRole(),
+                hasProperty(
+                        "name", equalTo("ROLE_ADMIN")
+                )
+        );
+
+        // Act and Assert:
+        // When POST request to INGREDIENTS_REST_PAGE is
+        // made with valid JSON with logged admin user:
+        // with 1-st "item" and 1-st "recipe"
+        // Then :
+        // - status should be "created"
+        mockMvc.perform(
+                post(BASE_URL + INGREDIENTS_REST_PAGE)
+                        .contentType(contentType)
+                        .content(
+                                generateIngredientJsonWithItemAndRecipe(
+                                        testIngredient,
+                                        BASE_URL + RECIPES_REST_PAGE + "/1",
+                                        BASE_URL + ITEMS_REST_PAGE + "/1"
+                                )
+                        )
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        adminUser
+                                )
+                        )
+        ).andDo(print())
+                .andExpect(
+                        status().isCreated()
+                );
+
+        // Assert that number of ingredients increased
+        assertThat(
+                getSizeOfIterable(
+                        ingredientDao.findAll()
+                ),
+                is(numberOfIngredientsBeforeReq + 1)
+        );
+    }
+
+
 }
