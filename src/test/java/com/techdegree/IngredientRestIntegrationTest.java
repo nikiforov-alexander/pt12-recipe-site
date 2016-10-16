@@ -16,11 +16,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.util.NestedServletException;
 
 import static com.techdegree.testing_shared_helpers.GenericJsonWithLinkGenerator.addCustomProperty;
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
@@ -364,6 +364,64 @@ public class IngredientRestIntegrationTest {
                 ),
                 is(numberOfIngredientsBeforeReq + 1)
         );
+    }
+
+
+    @Test(expected = NestedServletException.class)
+    public void postNewIngredientWithValidFieldsMadeByNonAdminNonIngredientRecipeOwnerShouldThrowException()
+            throws Exception {
+        // Arrange : mockMvc created with webAppContext
+
+        // Arrange : create test ingredient to be added
+        // we put "null" for item, because we manually
+        // specify its url later on
+        Ingredient testIngredient =
+                new Ingredient(null, "condition", "quantity");
+
+        // Arrange: get first recipe
+        Recipe firstRecipe = recipeDao.findOne(1L);
+
+        // Arrange: get logged user that is admin, and
+        // non ingredient.recipe.owner
+        User nonOwnerNonAdmin =
+                (User) userService.loadUserByUsername("ad");
+        assertThat(
+                "user is NOT ingredient.recipe.owner",
+                nonOwnerNonAdmin,
+                not(
+                        is(firstRecipe.getOwner())
+                )
+        );
+        assertThat(
+                "user is NOT admin",
+                nonOwnerNonAdmin.getRole(),
+                hasProperty(
+                        "name", equalTo("ROLE_USER")
+                )
+        );
+
+        // Act and Assert:
+        // When POST request to INGREDIENTS_REST_PAGE is
+        // made with valid JSON with logged non-owner, non-admin
+        // with 1-st "item" and 1-st "recipe"
+        // Then :
+        // - status should be "created"
+        mockMvc.perform(
+                post(BASE_URL + INGREDIENTS_REST_PAGE)
+                        .contentType(contentType)
+                        .content(
+                                generateIngredientJsonWithItemAndRecipe(
+                                        testIngredient,
+                                        BASE_URL + RECIPES_REST_PAGE + "/1",
+                                        BASE_URL + ITEMS_REST_PAGE + "/1"
+                                )
+                        )
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        nonOwnerNonAdmin
+                                )
+                        )
+        ).andDo(print());
     }
 
 
