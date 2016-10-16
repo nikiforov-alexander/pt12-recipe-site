@@ -34,8 +34,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:./test-IngredientRestIntegrationTest.properties")
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.datasource.url = " +
+                "jdbc:h2:./database/test-IngredientRestIntegrationTest;" +
+                "DB_CLOSE_ON_EXIT=FALSE"
+)
 public class IngredientRestIntegrationTest {
     // will be something like "/api/v1":
     // is set from properties file
