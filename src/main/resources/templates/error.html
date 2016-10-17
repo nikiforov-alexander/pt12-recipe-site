@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="layout :: head('My Recipes')">
+</head>
+
+<body>
+
+<nav th:replace="layout :: nav">
+</nav>
+
+<div class="grid-container">
+
+
+    <div th:replace="layout :: my_recipes_logo"
+         class="grid-100">
+    </div>
+
+    <div th:replace="layout :: flash('grid-100')"></div>
+
+    <div class="grid-100">
+
+        <div class="recipes">
+
+            <div class="grid-100 row addHover">
+                <!--/*
+                    prints error message and status
+                */-->
+                <div class="grid-100">
+                    <p th:text="|${#httpServletRequest.getAttribute('javax.servlet.error.status_code')}|">
+                    </p>
+                    <p th:text="|${#httpServletRequest.getAttribute('javax.servlet.error.message')}|">
+                    </p>
+                </div>
+
+                <div class="clear"></div>
+
+            </div>
+
+            <div class="clear"></div>
+
+            <div class="row">&nbsp;</div>
+
+        </div> <!-- recipes -->
+    </div> <!-- grid-100 -->
+</div> <!-- grid-container -->
+
+<div th:replace="layout :: scripts"></div>
+
+</body>
+</html>
