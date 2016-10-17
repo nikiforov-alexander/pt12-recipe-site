@@ -479,4 +479,77 @@ public class RecipeRestIntegrationTest {
                 is(numberOfRecipesBeforeAddDelete)
         );
     }
+
+    @Test
+    public void recipeCanBeDeletedByAdmin() throws Exception {
+        // Arrange: mockMvc with webAppContext is arranged
+
+        // Arrange: get admin
+        User admin = (User) userService.loadUserByUsername("sa");
+
+        assertThat(
+                "user is admin",
+                admin.getRole(),
+                hasProperty(
+                        "name", equalTo("ROLE_ADMIN")
+                )
+        );
+
+        // Arrange: calculate number of recipes before
+        // add/delete test
+        int numberOfRecipesBeforeAddDelete =
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                );
+
+        // Arrange: add new recipe to be deleted afterwards
+        // and set owner of the recipe to logged user
+        Recipe recipeToBeSavedAndDeleted =
+                new Recipe.RecipeBuilder(null)
+                        .withVersion(null)
+                        .withName("test name")
+                        .withDescription("test description")
+                        .withRecipeCategory(RecipeCategory.BREAKFAST)
+                        .withPhotoUrl("test photo url")
+                        .withPreparationTime("test prep time")
+                        .withCookTime("test cook time")
+                        .build();
+        recipeToBeSavedAndDeleted.setOwner(
+                (User) userService.loadUserByUsername("jd")
+        );
+        Recipe savedRecipe = recipeDao.save(recipeToBeSavedAndDeleted);
+
+        // Act and Assert:
+        // When DELETE request is made to newly added recipe
+        // with JSON from savedRecipe
+        // Then :
+        // - status should be no content
+        mockMvc.perform(
+                delete(
+                        BASE_URL + RECIPES_REST_PAGE
+                                + "/" + savedRecipe.getId()
+                ).contentType(contentType)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        admin
+                                )
+                        )
+                        .content(
+                                recipeJacksonTester.write(
+                                        savedRecipe
+                                ).getJson()
+                        )
+        ).andDo(print())
+                .andExpect(
+                        status().isNoContent()
+                );
+
+        // Assert that number of recipes stayed same
+        assertThat(
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                ),
+                is(numberOfRecipesBeforeAddDelete)
+        );
+    }
 }
