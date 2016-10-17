@@ -9,16 +9,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringRunner.class)
@@ -215,6 +215,36 @@ public class RecipeDaoTest {
         );
     }
 
+    @Test(expected = AccessDeniedException.class)
+    public void deletingRecipeByNonAdminNonOwnerShouldThrowException()
+            throws Exception {
+        // Arrange : log in non-admin, non-owner
+        User nonAdminNonOwner = loginUserByUsername("ad");
+        assertThat(
+                "user is NOT admin",
+                nonAdminNonOwner.getRole(),
+                hasProperty(
+                        "name",
+                        equalTo("ROLE_USER")
+                )
+        );
+
+        // Arrange : add recipe to be deleted
+        Recipe recipeToBeDeleted = recipeDao.findOne(1L);
+
+        assertThat(
+                "owner of the recipe is not our logged user",
+                recipeToBeDeleted.getOwner(),
+                not(
+                        is(nonAdminNonOwner)
+                )
+        );
+
+        // Act : When recipe is deleted
+        recipeDao.delete(recipeToBeDeleted);
+
+        // Assert: Then AccessDeniedException should be thrown
+    }
 
 
 
