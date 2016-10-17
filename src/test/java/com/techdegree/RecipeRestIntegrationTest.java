@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.util.NestedServletException;
 
 import java.util.ArrayList;
 
@@ -551,5 +552,38 @@ public class RecipeRestIntegrationTest {
                 ),
                 is(numberOfRecipesBeforeAddDelete)
         );
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void recipeCannotBeDeletedByNonAdminNonOwner() throws Exception {
+        // Arrange: mockMvc with webAppContext is arranged
+
+        // Arrange: get admin
+        User nonOwnerNonAdmin = (User) userService.loadUserByUsername("ad");
+
+        assertThat(
+                "user is non-admin",
+                nonOwnerNonAdmin.getRole(),
+                hasProperty(
+                        "name", equalTo("ROLE_USER")
+                )
+        );
+
+        // Act and Assert:
+        // When DELETE request is made to first recipe
+        // with JSON from savedRecipe
+        mockMvc.perform(
+                delete(
+                        BASE_URL + RECIPES_REST_PAGE
+                                + "/" + 1L
+                ).contentType(contentType)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        nonOwnerNonAdmin
+                                )
+                        )
+        ).andDo(print());
+
+        // Assert: Then Exception should be thrown
     }
 }
