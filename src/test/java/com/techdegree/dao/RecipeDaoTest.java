@@ -125,15 +125,15 @@ public class RecipeDaoTest {
 
         // Arrange : add recipe to be deleted
         Recipe recipeToBeDeleted = recipeDao.save(
-            new Recipe.RecipeBuilder(null)
-                .withVersion(null)
-                .withName("test name")
-                .withDescription("test description")
-                .withRecipeCategory(RecipeCategory.BREAKFAST)
-                .withPhotoUrl("test photo url")
-                .withPreparationTime("test prepTime")
-                .withCookTime("test cookTime")
-                .build()
+                new Recipe.RecipeBuilder(null)
+                        .withVersion(null)
+                        .withName("test name")
+                        .withDescription("test description")
+                        .withRecipeCategory(RecipeCategory.BREAKFAST)
+                        .withPhotoUrl("test photo url")
+                        .withPreparationTime("test prepTime")
+                        .withCookTime("test cookTime")
+                        .build()
         );
         // set recipe owner to logged user
         // TODO : figure out why we have to explicitly set owner
@@ -161,6 +161,61 @@ public class RecipeDaoTest {
                 )
         );
     }
+
+    @Test
+    public void deletingRecipeByAdminShouldBePossible() throws Exception {
+        // Arrange : calculate number of recipes before
+        // adding the recipe to be deleted
+        int numberOfRecipesBeforeAddDelete =
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                );
+
+        // Arrange : log in admin
+        User admin = loginUserByUsername("sa");
+        assertThat(
+                "user is admin",
+                admin.getRole(),
+                hasProperty(
+                        "name",
+                        equalTo("ROLE_ADMIN")
+                )
+        );
+
+        // Arrange : add recipe to be deleted
+        Recipe recipeToBeDeleted = recipeDao.save(
+            new Recipe.RecipeBuilder(null)
+                .withVersion(null)
+                .withName("test name")
+                .withDescription("test description")
+                .withRecipeCategory(RecipeCategory.BREAKFAST)
+                .withPhotoUrl("test photo url")
+                .withPreparationTime("test prepTime")
+                .withCookTime("test cookTime")
+                .build()
+        );
+        // set recipe owner to other user, not admin
+        // TODO : figure out why we have to explicitly set owner
+        recipeToBeDeleted.setOwner(
+                userDao.findByUsername("jd")
+        );
+
+        // Act : When recipe is deleted
+        recipeDao.delete(recipeToBeDeleted);
+
+        // Assert: Then number of recipesBefore delete
+        // should be the same as numberOfRecipesBeforeAddDelete
+        assertThat(
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                ),
+                is(
+                        numberOfRecipesBeforeAddDelete
+                )
+        );
+    }
+
+
 
 
 }
