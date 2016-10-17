@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -25,9 +24,7 @@ import java.util.ArrayList;
 
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
 import static com.techdegree.web.WebConstants.RECIPES_REST_PAGE;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
@@ -37,8 +34,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:./test-RecipeRestIntegrationTest.properties")
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.datasource.url = jdbc:h2:./database/test-RecipeRestIntegrationTest-recipes;DB_CLOSE_ON_EXIT=FALSE"
+)
 public class RecipeRestIntegrationTest {
 
     // will be something like "/api/v1":
@@ -407,6 +406,77 @@ public class RecipeRestIntegrationTest {
                         "version",
                         is(versionOfRecipe + 1)
                 )
+        );
+    }
+
+    @Test
+    public void recipeCanBeDeletedByOwner() throws Exception {
+        // Arrange: mockMvc with webAppContext is arranged
+
+        // Arrange: get owner of recipe from service
+        User owner = (User) userService.loadUserByUsername("jd");
+
+        assertThat(
+                "user is non-admin",
+                owner.getRole(),
+                hasProperty(
+                        "name", equalTo("ROLE_USER")
+                )
+        );
+
+        // Arrange: calculate number of recipes before
+        // add/delete test
+        int numberOfRecipesBeforeAddDelete =
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                );
+
+        // Arrange: add new recipe to be deleted afterwards
+        // and set owner of the recipe to logged user
+        Recipe recipeToBeSavedAndDeleted =
+                new Recipe.RecipeBuilder(null)
+                .withVersion(null)
+                .withName("test name")
+                .withDescription("test description")
+                .withRecipeCategory(RecipeCategory.BREAKFAST)
+                .withPhotoUrl("test photo url")
+                .withPreparationTime("test prep time")
+                .withCookTime("test cook time")
+                .build();
+        recipeToBeSavedAndDeleted.setOwner(owner);
+        Recipe savedRecipe = recipeDao.save(recipeToBeSavedAndDeleted);
+
+        // Act and Assert:
+        // When DELETE request is made to newly added recipe
+        // with JSON from savedRecipe
+        // Then :
+        // - status should be no content
+        mockMvc.perform(
+                delete(
+                        BASE_URL + RECIPES_REST_PAGE
+                                + "/" + savedRecipe.getId()
+                ).contentType(contentType)
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                owner
+                        )
+                )
+                .content(
+                        recipeJacksonTester.write(
+                                savedRecipe
+                        ).getJson()
+                )
+        ).andDo(print())
+        .andExpect(
+                status().isNoContent()
+        );
+
+        // Assert that number of recipes stayed same
+        assertThat(
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                ),
+                is(numberOfRecipesBeforeAddDelete)
         );
     }
 }
