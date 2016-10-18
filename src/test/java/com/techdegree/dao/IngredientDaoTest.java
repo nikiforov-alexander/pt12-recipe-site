@@ -12,9 +12,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.junit.Assert.*;
 
@@ -46,6 +46,18 @@ public class IngredientDaoTest {
                 )
         );
         return user;
+    }
+
+    /**
+     * Helpful method checking if ingredientDao contains
+     * passed {@literal ingredient}
+     * @param ingredient
+     * @return true if contains, false otherwise
+     */
+    private boolean checkIfIngredientDaoContains(Ingredient ingredient) {
+        List<Ingredient> ingredients =
+                (List<Ingredient>) ingredientDao.findAll();
+        return ingredients.contains(ingredient);
     }
 
     @Test
@@ -186,4 +198,48 @@ public class IngredientDaoTest {
 
         // Assert: AccessDeniedException should be thrown
     }
+
+    @Test
+    public void ingredientCanBeDeletedByOwnerOfIngredientRecipe()
+            throws Exception {
+        // Arrange: get first recipe from dao
+        Recipe firstRecipe = recipeDao.findOne(1L);
+
+        // Arrange: log in user: owner
+        User ownerOfIngredientRecipe = loginUserByUsername("jd");
+
+        assertThat(
+                "logged in user is owner",
+                ownerOfIngredientRecipe,
+                is(
+                        firstRecipe.getOwner()
+                )
+        );
+
+        // Arrange: create test Ingredient with first recipe
+        // and save it
+        Ingredient ingredientToBeSaved =
+                new Ingredient(
+                        itemDao.findOne(1L), "test", "test"
+                );
+        ingredientToBeSaved.setRecipe(firstRecipe);
+        Ingredient savedIngredient = ingredientDao.save(
+                ingredientToBeSaved
+        );
+
+
+        // Act: When Ingredient is deleted
+        ingredientDao.delete(
+                savedIngredient
+        );
+
+        // Assert: that saved ingredient can't be found
+        assertFalse(
+                checkIfIngredientDaoContains(
+                        savedIngredient
+                )
+        );
+
+    }
+
 }
