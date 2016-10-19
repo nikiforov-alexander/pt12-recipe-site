@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
+
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -246,6 +248,32 @@ public class RecipeDaoTest {
         // Assert: Then AccessDeniedException should be thrown
     }
 
+    @Test
+    public void recipeCanBeAddedToFavorites() throws Exception {
+        // Arrange : integration test with webAppContext is arranged
 
+        // Arrange : log in user that does not have any favorites
+        User userWithNoFavorites =
+                loginUserByUsername("ad");
 
+        assertThat(
+                "user does not have any favorites",
+                recipeDao.findAllFavoriteRecipesFor(userWithNoFavorites),
+                iterableWithSize(0)
+        );
+
+        // Act : when we add first recipe as favorite for user
+        recipeDao.addFavoriteRecipeForUser(
+                1L, userWithNoFavorites.getId()
+        );
+
+        // Assert: Then favoriteRecipes for user list should increase
+        assertThat(
+                "user's favorite recipes list increased",
+                recipeDao.findAllFavoriteRecipesFor(
+                        userWithNoFavorites
+                ),
+                iterableWithSize(1)
+        );
+    }
 }
