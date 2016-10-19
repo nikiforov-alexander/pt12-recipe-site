@@ -607,7 +607,8 @@ layer helping out with the stuff, we are using *Events* and
 One more important class that interacts with REST is
 {RecipeEventHandler}. For now `@HandleBeforeCreate` event is
 defined there, with which we set-up owner of the `Recipe`
-before saving.
+before saving, and `@HandleBeforeSave` as well, by checking that
+only owner of `Recipe` or admin can update `Recipe`.
 
 ==== End Points
 
