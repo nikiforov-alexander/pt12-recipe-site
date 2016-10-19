@@ -26,6 +26,7 @@
 :User: {main_package}model/User.java[User]
 :UserDto: {main_package}dto/UserDto.java[UserDto]
 :UserAlreadyExistsException: {main_package}exception/UserAlreadyExistsException.java[UserAlreadyExistsException]
+:CustomAccessDeniedException: {main_package}exception/CustomAccessDeniedException.java[CustomAccessDeniedException]
 :RoleClass: {main_package}model/Role.java[Role]
 :RecipeCategory: {main_package}model/RecipeCategory.java[RecipeCategory]
 :Ingredient: {main_package}model/Ingredient.java[Ingredient]
@@ -683,7 +684,32 @@ section description here
 
 ==== Security
 
-Under Construction.
+===== Recipes
+
+`Recipe` can be updated only by owner of `Recipe` or admin user.
+Whether user is admin or owner is checked in {RecipeEventHandler} class in
+`checkIfOwnerOrAdminIsEditing` method. Upon authentication error,
+{CustomAccessDeniedException} is thrown that is just like usual
+`AccessDeniedException` provided by Spring, but this custom 
+can be tested. When we throw `AccessDeniedException` then
+in tests `NestedServletException` is thrown, that complicates
+test checks.
+
+`Recipe` deletion is managed by `@PreAuthorize` Spring Security
+Expression, that is enabled in {SecurityConfig} class. The idea
+here is naturally same: only owner of `Recipe` or admin user
+can delete Recipe.
+
+===== Ingredients and Steps
+
+For both of these entities `save` and `delete` methods are 
+introduced with the same Spring Security `@PreAuthorize` 
+expression that permits actions only to `ingredient.recipe.owner` or 
+admin.
+
+For `Step` `delete` method is not introduced, and for `Ingredient` 
+method `delete` is not fully tested. `save` method is tested for
+both `Ingredient` and `Step`
 
 ==== Tests
 
