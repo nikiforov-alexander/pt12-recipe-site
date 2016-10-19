@@ -15,8 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.List;
-
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -274,6 +272,49 @@ public class RecipeDaoTest {
                         userWithNoFavorites
                 ),
                 iterableWithSize(1)
+        );
+    }
+
+    @Test
+    public void recipeCanBeRemovedFromFavorites() throws Exception {
+        // Arrange : integration test with webAppContext is arranged
+
+        // Arrange : log in user that does not have any favorites
+        User userWithOneFavoriteRecipe =
+                loginUserByUsername("ad");
+
+        assertThat(
+                "user does not have any favorites",
+                recipeDao.findAllFavoriteRecipesFor(userWithOneFavoriteRecipe),
+                iterableWithSize(0)
+        );
+
+        // Arrange : add first recipe as favorite for user
+        recipeDao.addFavoriteRecipeForUser(
+                1L, userWithOneFavoriteRecipe.getId()
+        );
+
+        // Arrange: Then favoriteRecipes for user list should increase
+        assertThat(
+                "user's favorite recipes list increased",
+                recipeDao.findAllFavoriteRecipesFor(
+                        userWithOneFavoriteRecipe
+                ),
+                iterableWithSize(1)
+        );
+
+        // Act : When 1-st recipe is removed from favorites
+        recipeDao.removeFavoriteRecipeForUser(
+                1L, userWithOneFavoriteRecipe.getId()
+        );
+
+        // Assert: Then favorite recipes for user should
+        // be again size 0
+        assertThat(
+                recipeDao.findAllFavoriteRecipesFor(
+                        userWithOneFavoriteRecipe
+                ),
+                iterableWithSize(0)
         );
     }
 }
