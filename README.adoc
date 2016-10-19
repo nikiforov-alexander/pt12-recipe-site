@@ -656,14 +656,14 @@ and `Item` link:
 {
    "id" : "null",
    "version" : "null",
-   "item" : "http://localhost:8080/api/v1/items/1"
-   "condition" : "condition"
-   "quantity" : "quantity"
+   "item" : "http://localhost:8080/api/v1/items/1",
+   "condition" : "condition",
+   "quantity" : "quantity",
    "recipe" : "http://localhost:8080/api/v1/recipes/1"
 }
 ```
 +
-NOTE: `Item` can be created without links
+NOTE: `Item` can be created without links easily via POST with: `{ "name" : "item" }`
 +
 * make POST request to create new `Step` with `Recipe` link:
 +
@@ -671,7 +671,7 @@ NOTE: `Item` can be created without links
 {
    "id" : "null",
    "version" : "null",
-   "description" : "description"
+   "description" : "description",
    "recipe" : "http://localhost:8080/api/v1/recipes/1"
 }
 ```
