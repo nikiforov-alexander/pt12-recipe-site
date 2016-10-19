@@ -14,6 +14,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.util.NestedServletException;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 import static org.hamcrest.Matchers.*;
@@ -234,11 +235,9 @@ public class RecipeControllerItTest {
         User user = (User) userService.loadUserByUsername("jd");
 
         // and we calculate number of
-        // recipes, steps, ingredients before
+        // recipes
         // request to compare later on
-        int numberOfIngredientsBeforeReq = ingredientService.findAll().size();
         int numberOfRecipesBeforeReq = recipeService.findAll().size();
-        int numberOfStepsBeforeRequest = stepService.findAll().size();
 
         // Add recipe to be deleted and get its id to
         // pass to request
@@ -303,7 +302,7 @@ public class RecipeControllerItTest {
                         )
                 );
         // Assert that number of
-        // recipes, ingredients and steps
+        // recipes
         // increased by one: well they are actually did not change
         // after edit. But we calculated them before adding
         // recipe that we edit, so +1 is right number
@@ -311,16 +310,6 @@ public class RecipeControllerItTest {
                 "number of recipes increased by 1",
                 recipeService.findAll().size(),
                 is(numberOfRecipesBeforeReq + 1)
-        );
-        assertThat(
-                "number of ingredients increased by 1",
-                ingredientService.findAll().size(),
-                is(numberOfIngredientsBeforeReq + 1)
-        );
-        assertThat(
-                "number of steps increased by 1",
-                stepService.findAll().size(),
-                is(numberOfStepsBeforeRequest + 1)
         );
         // Also assert that recipe has still user and
         // is equal user with which we created recipe
@@ -456,11 +445,23 @@ public class RecipeControllerItTest {
                 .param("ingredients[0].quantity", "quantity")
                 .param("steps[0].description", "description")
         );
-        return recipeService.findAll().size();
+        // here we check recipe with highest id, that will be the one
+        // we just added
+        int idOfNewlyCreatedRecipe = recipeService.findAll().size();
+        Recipe recipe = recipeService.findOne(
+                (long) idOfNewlyCreatedRecipe
+        );
+        while (recipe == null) {
+            idOfNewlyCreatedRecipe--;
+            recipe = recipeService.findOne(
+                    (long) idOfNewlyCreatedRecipe
+            );
+        }
+        return idOfNewlyCreatedRecipe;
     }
 
     @Test
-    public void deletingRecipeShouldBePossible() throws Exception {
+    public void deletingRecipeByOwnerShouldBePossible() throws Exception {
         // Arrange:
         // mockMvc is set up as real and DatabaseLoader is used
         // to populate data
@@ -534,5 +535,127 @@ public class RecipeControllerItTest {
                 stepService.findAll().size(),
                 is(numberOfStepsBeforeAddingRecipeToDelete)
         );
+    }
+
+    @Test
+    public void deletingRecipeByAdminShouldBePossible() throws Exception {
+        // Arrange:
+        // mockMvc is set up as real and DatabaseLoader is used
+        // to populate data
+
+        // Arrange user:
+        // We also load non-admin user "jd" by username to set it as owner
+        // recipe.
+        User user = (User) userService.loadUserByUsername("jd");
+
+        // Calculate number of
+        // recipes, ingredients, steps
+        // before request. To check consistency
+        // afterwards
+        int numberOfIngredientsBeforeAddingRecipeToDelete =
+                ingredientService.findAll().size();
+        int numberOfStepsBeforeAddingRecipeToDelete =
+                stepService.findAll().size();
+        int numberOfRecipesBeforeAddingRecipesToDelete =
+                recipeService.findAll().size();
+
+        // Add recipe to be deleted and get its id to
+        // pass to request
+        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+
+        // When POST request to "/recipes/delete/idOfNewlyAddedRecipe"
+        // with admin user is made
+        // Then :
+        // - status should be redirect 3xx
+        // - redirected page should be RECIPES_HOME_PAGE
+        // - successful flash should be sent
+        mockMvc.perform(
+                post("/recipes/delete/" + idOfNewlyAddedRecipe)
+                        .with(
+                                // log admin user
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        userService.loadUserByUsername("sa")
+                                )
+                        )
+        ).andDo(print())
+                .andExpect(
+                        status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl(RECIPES_HOME_PAGE)
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "status",
+                                        equalTo(FlashMessage.Status.SUCCESS)
+                                )
+                        )
+                );
+        // Assert that system after add and delete
+        // should be as it was, i.e. number of recipes,
+        // ingredients and steps added with this request
+        // should stay the same
+        assertThat(
+                "number of recipes should be the same",
+                recipeService.findAll().size(),
+                is(numberOfRecipesBeforeAddingRecipesToDelete)
+        );
+        assertThat(
+                "number of ingredients should be the same",
+                ingredientService.findAll().size(),
+                is(numberOfIngredientsBeforeAddingRecipeToDelete)
+        );
+        assertThat(
+                "number of steps should be the same",
+                stepService.findAll().size(),
+                is(numberOfStepsBeforeAddingRecipeToDelete)
+        );
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void deletingRecipeByNonAdminNonOwnerShouldThrowException()
+            throws Exception {
+        // Arrange:
+        // mockMvc is set up as real and DatabaseLoader is used
+        // to populate data
+
+        // Arrange user:
+        // We also load non-admin user "jd" by username to set it as owner
+        // recipe.
+        User user = (User) userService.loadUserByUsername("jd");
+
+        // Arrange : set up user that will make POST request
+        User nonOwnerNonAdmin = (User) userService.loadUserByUsername("ad");
+        assertThat(
+                "user is NOT admin",
+                nonOwnerNonAdmin.getRole(),
+                hasProperty("name", equalTo("ROLE_USER"))
+        );
+        assertThat(
+                "user is NOT owner",
+                nonOwnerNonAdmin,
+                not(
+                        is(
+                                recipeService.findOne(1L).getOwner()
+                        )
+                )
+        );
+
+        // When POST request to "/recipes/delete/idOfNewlyAddedRecipe"
+        // with non-admin, not owner user is made
+        // Then :
+        // - status should be redirect 3xx
+        // - redirected page should be RECIPES_HOME_PAGE
+        // - successful flash should be sent
+        mockMvc.perform(
+                post("/recipes/delete/" + 1L)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                       nonOwnerNonAdmin
+                                )
+                        )
+        ).andDo(print());
     }
 }

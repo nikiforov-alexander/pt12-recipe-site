@@ -1,8 +1,11 @@
 package com.techdegree;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.techdegree.dao.RecipeDao;
 import com.techdegree.dao.StepDao;
+import com.techdegree.dao.UserDao;
 import com.techdegree.model.Step;
+import com.techdegree.model.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,18 +14,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.util.NestedServletException;
 
 import static com.techdegree.testing_shared_helpers.GenericJsonWithLinkGenerator.addCustomProperty;
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
 import static com.techdegree.web.WebConstants.STEPS_REST_PAGE;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -49,6 +53,12 @@ public class StepRestIntegrationTest {
     // services
     @Autowired
     private StepDao stepDao;
+
+    @Autowired
+    private RecipeDao recipeDao;
+
+    @Autowired
+    private UserDao userDao;
 
     private MockMvc mockMvc;
 
@@ -137,8 +147,64 @@ public class StepRestIntegrationTest {
 
     // POST requests tests
 
+    // TODO : write stack post about NestedServletException
+    @Test(expected = NestedServletException.class)
+    public void nonAdminNonRecipeOwnerCannotCreateNewStepForRecipeWithValidFields()
+            throws Exception {
+        // Arrange: mockMvc with real app context
+
+        // Arrange : generate testStep to be added
+        // using POST request
+        Step testStep = new Step("test description");
+
+        // Arrange : get user non-owner, to log in with
+        // POST request
+        User user = userDao.findByUsername("ad");
+
+        assertThat(
+                "user is non-admin",
+                user.getRole(),
+                hasProperty(
+                        "name",
+                        equalTo("ROLE_USER")
+                )
+        );
+
+        assertThat(
+                "user is non-owner",
+                recipeDao.findOne(1L).getOwner(),
+                not(
+                        is(user)
+                )
+        );
+
+        // Act and Assert:
+        // When POST request to STEPS_REST_PAGE is made
+        // with "testStep" converted to JSON and
+        // recipe with "id=1"
+        // Then:
+        // - status should be created
+        mockMvc.perform(
+                post(
+                        BASE_URL + STEPS_REST_PAGE
+                ).contentType(contentType)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        user
+                                )
+                        )
+                        .content(
+                                generateStepJsonWithFirstRecipe(
+                                        testStep,
+                                        BASE_URL + "/recipes/1"
+                                )
+                        )
+        ).andDo(print());
+        // Nothing here because of NestedServletException
+    }
+
     @Test
-    public void postNewStepWithValidFieldsShouldCreateNewRecipeStep()
+    public void postNewStepWithValidFieldsAndAdminShouldCreateNewRecipeStep()
             throws Exception {
         // Arrange: mockMvc with real app context
 
@@ -152,6 +218,19 @@ public class StepRestIntegrationTest {
                         stepDao.findAll()
                 );
 
+        // Arrange : get admin, to log in with
+        // POST request
+        User admin = userDao.findByUsername("sa");
+
+        assertThat(
+                "user is admin",
+                admin.getRole(),
+                hasProperty(
+                        "name",
+                        equalTo("ROLE_ADMIN")
+                )
+        );
+
         // Act and Assert:
         // When POST request to STEPS_REST_PAGE is made
         // with "testStep" converted to JSON and
@@ -162,12 +241,73 @@ public class StepRestIntegrationTest {
                 post(
                         BASE_URL + STEPS_REST_PAGE
                 ).contentType(contentType)
+                        .with(
+                                SecurityMockMvcRequestPostProcessors.user(
+                                        admin
+                                )
+                        )
                         .content(
                                 generateStepJsonWithFirstRecipe(
                                         testStep,
                                         BASE_URL + "/recipes/1"
                                 )
                         )
+        ).andDo(print())
+                .andExpect(
+                        status().isCreated()
+                );
+
+        // Assert that new step will be found in stepDao
+        assertThat(
+                getSizeOfIterable(
+                        stepDao.findAll()
+                ),
+                is(
+                        numberOfStepsBeforePostReq + 1
+                )
+        );
+    }
+
+    @Test
+    public void postNewStepWithValidFieldsAndOwnerShouldCreateNewRecipeStep()
+            throws Exception {
+        // Arrange: mockMvc with real app context
+
+        // Arrange : generate testStep to be added
+        // using POST request
+        Step testStep = new Step("test description");
+
+        // Arrange: calculate number of steps before req
+        int numberOfStepsBeforePostReq =
+                getSizeOfIterable(
+                        stepDao.findAll()
+                );
+
+        // Arrange : get owner of recipe, to log in with
+        // POST request
+        User ownerOfRecipe = recipeDao.findOne(1L).getOwner();
+
+        // Act and Assert:
+        // When POST request to STEPS_REST_PAGE is made
+        // with "testStep" converted to JSON and
+        // recipe with "id=1"
+        // Then:
+        // - status should be created
+        mockMvc.perform(
+                post(
+                        BASE_URL + STEPS_REST_PAGE
+                ).contentType(contentType)
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                ownerOfRecipe
+                        )
+                )
+                .content(
+                        generateStepJsonWithFirstRecipe(
+                                testStep,
+                                BASE_URL + "/recipes/1"
+                        )
+                )
         ).andDo(print())
                 .andExpect(
                         status().isCreated()

@@ -1,5 +1,6 @@
 package com.techdegree.dao;
 
+import com.techdegree.model.Recipe;
 import com.techdegree.model.RecipeCategory;
 import com.techdegree.model.User;
 import com.techdegree.service.CustomUserDetailsService;
@@ -8,36 +9,55 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment =
-        SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.datasource.url = jdbc:h2:./database/test-RecipeDaoTest-recipes;DB_CLOSE_ON_EXIT=FALSE"
+)
 // Wanted to use DataJpaTest, but could not
 // so lets live as
 // TODO: figure out how to use DataJpaTest
 //@DataJpaTest
-@TestPropertySource("classpath:./test-RecipeDaoTest.properties")
 public class RecipeDaoTest {
     @Autowired
     private RecipeDao recipeDao;
-
     @Autowired
     private WebApplicationContext webAppContext;
-
     @Autowired
     private CustomUserDetailsService userService;
+    @Autowired
+    private UserDao userDao;
 
     @Before
     public void setUp() throws Exception {
         webAppContextSetup(webAppContext).build();
+    }
+
+    /**
+     * Login and authorizes user by username.
+     * @param username of the User to be logged in
+     * @return user User that was logged
+     */
+    private User loginUserByUsername(String username) {
+        User user = userDao.findByUsername(username);
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities()
+                )
+        );
+        return user;
     }
 
     @Test
@@ -82,4 +102,150 @@ public class RecipeDaoTest {
 //                is(recipeDao.findOne(1L))
 //        );
     }
+
+    @Test
+    public void deletingRecipeByOwnerShouldBePossible() throws Exception {
+        // Arrange : calculate number of recipes before
+        // adding the recipe to be deleted
+        int numberOfRecipesBeforeAddDelete =
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                );
+
+        // Arrange : log in owner of Recipe
+        User owner = loginUserByUsername("jd");
+        assertThat(
+                "user is non-admin",
+                owner.getRole(),
+                hasProperty(
+                        "name",
+                        equalTo("ROLE_USER")
+                )
+        );
+
+        // Arrange : add recipe to be deleted
+        Recipe recipeToBeDeleted = recipeDao.save(
+                new Recipe.RecipeBuilder(null)
+                        .withVersion(null)
+                        .withName("test name")
+                        .withDescription("test description")
+                        .withRecipeCategory(RecipeCategory.BREAKFAST)
+                        .withPhotoUrl("test photo url")
+                        .withPreparationTime("test prepTime")
+                        .withCookTime("test cookTime")
+                        .build()
+        );
+        // set recipe owner to logged user
+        // TODO : figure out why we have to explicitly set owner
+        recipeToBeDeleted.setOwner(owner);
+
+        assertThat(
+                "logged user is owner",
+                recipeToBeDeleted.getOwner(),
+                is(
+                        owner
+                )
+        );
+
+        // Act : When recipe is deleted
+        recipeDao.delete(recipeToBeDeleted);
+
+        // Assert: Then number of recipesBefore delete
+        // should be the same as numberOfRecipesBeforeAddDelete
+        assertThat(
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                ),
+                is(
+                        numberOfRecipesBeforeAddDelete
+                )
+        );
+    }
+
+    @Test
+    public void deletingRecipeByAdminShouldBePossible() throws Exception {
+        // Arrange : calculate number of recipes before
+        // adding the recipe to be deleted
+        int numberOfRecipesBeforeAddDelete =
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                );
+
+        // Arrange : log in admin
+        User admin = loginUserByUsername("sa");
+        assertThat(
+                "user is admin",
+                admin.getRole(),
+                hasProperty(
+                        "name",
+                        equalTo("ROLE_ADMIN")
+                )
+        );
+
+        // Arrange : add recipe to be deleted
+        Recipe recipeToBeDeleted = recipeDao.save(
+            new Recipe.RecipeBuilder(null)
+                .withVersion(null)
+                .withName("test name")
+                .withDescription("test description")
+                .withRecipeCategory(RecipeCategory.BREAKFAST)
+                .withPhotoUrl("test photo url")
+                .withPreparationTime("test prepTime")
+                .withCookTime("test cookTime")
+                .build()
+        );
+        // set recipe owner to other user, not admin
+        // TODO : figure out why we have to explicitly set owner
+        recipeToBeDeleted.setOwner(
+                userDao.findByUsername("jd")
+        );
+
+        // Act : When recipe is deleted
+        recipeDao.delete(recipeToBeDeleted);
+
+        // Assert: Then number of recipesBefore delete
+        // should be the same as numberOfRecipesBeforeAddDelete
+        assertThat(
+                getSizeOfIterable(
+                        recipeDao.findAll()
+                ),
+                is(
+                        numberOfRecipesBeforeAddDelete
+                )
+        );
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void deletingRecipeByNonAdminNonOwnerShouldThrowException()
+            throws Exception {
+        // Arrange : log in non-admin, non-owner
+        User nonAdminNonOwner = loginUserByUsername("ad");
+        assertThat(
+                "user is NOT admin",
+                nonAdminNonOwner.getRole(),
+                hasProperty(
+                        "name",
+                        equalTo("ROLE_USER")
+                )
+        );
+
+        // Arrange : add recipe to be deleted
+        Recipe recipeToBeDeleted = recipeDao.findOne(1L);
+
+        assertThat(
+                "owner of the recipe is not our logged user",
+                recipeToBeDeleted.getOwner(),
+                not(
+                        is(nonAdminNonOwner)
+                )
+        );
+
+        // Act : When recipe is deleted
+        recipeDao.delete(recipeToBeDeleted);
+
+        // Assert: Then AccessDeniedException should be thrown
+    }
+
+
+
 }

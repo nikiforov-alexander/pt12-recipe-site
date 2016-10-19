@@ -26,6 +26,7 @@
 :User: {main_package}model/User.java[User]
 :UserDto: {main_package}dto/UserDto.java[UserDto]
 :UserAlreadyExistsException: {main_package}exception/UserAlreadyExistsException.java[UserAlreadyExistsException]
+:CustomAccessDeniedException: {main_package}exception/CustomAccessDeniedException.java[CustomAccessDeniedException]
 :RoleClass: {main_package}model/Role.java[Role]
 :RecipeCategory: {main_package}model/RecipeCategory.java[RecipeCategory]
 :Ingredient: {main_package}model/Ingredient.java[Ingredient]
@@ -606,7 +607,8 @@ layer helping out with the stuff, we are using *Events* and
 One more important class that interacts with REST is
 {RecipeEventHandler}. For now `@HandleBeforeCreate` event is
 defined there, with which we set-up owner of the `Recipe`
-before saving.
+before saving, and `@HandleBeforeSave` as well, by checking that
+only owner of `Recipe` or admin can update `Recipe`.
 
 ==== End Points
 
@@ -656,14 +658,14 @@ and `Item` link:
 {
    "id" : "null",
    "version" : "null",
-   "item" : "http://localhost:8080/api/v1/items/1"
-   "condition" : "condition"
-   "quantity" : "quantity"
+   "item" : "http://localhost:8080/api/v1/items/1",
+   "condition" : "condition",
+   "quantity" : "quantity",
    "recipe" : "http://localhost:8080/api/v1/recipes/1"
 }
 ```
 +
-NOTE: `Item` can be created without links
+NOTE: `Item` can be created without links easily via POST with: `{ "name" : "item" }`
 +
 * make POST request to create new `Step` with `Recipe` link:
 +
@@ -671,7 +673,7 @@ NOTE: `Item` can be created without links
 {
    "id" : "null",
    "version" : "null",
-   "description" : "description"
+   "description" : "description",
    "recipe" : "http://localhost:8080/api/v1/recipes/1"
 }
 ```
@@ -679,11 +681,37 @@ NOTE: `Item` can be created without links
 `PUT` requests can be done in the same manner. So I omit this
 section description here
 
-`DELETE` requests are under construction.
+`DELETE` requests are done with empty body but with `id` of the entity
+to be deleted.
 
 ==== Security
 
-Under Construction.
+===== Recipes
+
+`Recipe` can be updated only by owner of `Recipe` or admin user.
+Whether user is admin or owner is checked in {RecipeEventHandler} class in
+`checkIfOwnerOrAdminIsEditing` method. Upon authentication error,
+{CustomAccessDeniedException} is thrown that is just like usual
+`AccessDeniedException` provided by Spring, but this custom 
+can be tested. When we throw `AccessDeniedException` then
+in tests `NestedServletException` is thrown, that complicates
+test checks.
+
+`Recipe` deletion is managed by `@PreAuthorize` Spring Security
+Expression, that is enabled in {SecurityConfig} class. The idea
+here is naturally same: only owner of `Recipe` or admin user
+can delete Recipe.
+
+===== Ingredients and Steps
+
+For both of these entities `save` and `delete` methods are 
+introduced with the same Spring Security `@PreAuthorize` 
+expression that permits actions only to `ingredient.recipe.owner` or 
+admin.
+
+For `Step` `delete` method is not introduced, and for `Ingredient` 
+method `delete` is not fully tested. `save` method is tested for
+both `Ingredient` and `Step`
 
 ==== Tests
 
