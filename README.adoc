@@ -681,7 +681,8 @@ NOTE: `Item` can be created without links easily via POST with: `{ "name" : "ite
 `PUT` requests can be done in the same manner. So I omit this
 section description here
 
-`DELETE` requests are under construction.
+`DELETE` requests are done with empty body but with `id` of the entity
+to be deleted.
 
 ==== Security
 
