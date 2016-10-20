@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @ComponentScan
@@ -83,6 +84,63 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public List<Recipe> findFavoriteRecipesForUser(User user) {
         return recipeDao.findAllFavoriteRecipesFor(user);
+    }
+
+
+
+    /**
+     * Updates favorite status of {@literal recipe} for
+     * {@literal user}. If recipe was already favorite,
+     * then it is removed from favorites using
+     * {@code recipeDao.removeFavoriteRecipesForUser} method.
+     * It it was not
+     * @param recipe - {@literal Recipe} which will become
+     *               favorite or will be removed from
+     *               favorites
+     * @param user - {@literal User} for which recipe will be
+     *             added as favorite, or removed from favorites
+     * @return boolean : true - if recipes becomes favorite,
+     * false if recipe is removed from favorites.
+     */
+    @Override
+    public boolean updateFavoriteRecipesForUser(Recipe recipe, User user) {
+        if (checkIfRecipeIsFavoriteForUser(recipe, user)) {
+            recipeDao.removeFavoriteRecipeForUser(
+                    recipe.getId(),
+                    user.getId()
+            );
+            return false;
+        } else {
+            recipeDao.addFavoriteRecipeForUser(
+                    recipe.getId(),
+                    user.getId()
+            );
+            return true;
+        }
+    }
+
+    /**
+     * here we convert favorite recipes for user
+     * to List<Long> because I have troubles with
+     * writing proper equals method, for now. It is
+     * causing more problems that it should. And
+     * comparison by Id is pretty enough for me
+     * @param recipe {@literal Recipe} which is checked
+     *        for being favorite
+     * @param user {@literal User} for whom we
+     *        check favorite recipes
+     * @return boolean : true - if recipe is favorite
+     *                 : false - if recipe is not
+     */
+    @Override
+    public boolean checkIfRecipeIsFavoriteForUser(Recipe recipe, User user) {
+        // TODO : figure out what to do with equals and hashCode problems
+        List<Long> listOfFavoriteRecipesIds =
+                findFavoriteRecipesForUser(user)
+                        .stream()
+                        .map(Recipe::getId)
+                        .collect(Collectors.toList());
+        return listOfFavoriteRecipesIds.contains(recipe.getId());
     }
 
     @Override
