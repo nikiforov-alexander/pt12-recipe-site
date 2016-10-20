@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
@@ -200,9 +202,6 @@ public class RecipeControllerTest {
                 testRecipe1
         );
 
-        // Arrange: Given some test user
-        User testUser = new User();
-
         // Arrange : Given that checkIfRecipeIsFavoriteForUser will
         // return true
         when(
@@ -217,11 +216,90 @@ public class RecipeControllerTest {
         // - status should be OK
         // - view should be "detail"
         // - model should contain "recipe" attribute
+        // - model attribute "favoriteImageSrc" should
+        //   contain "favorited." indicating that recipe is
+        //   favorite for user
+        // - model attribute "favoriteButtonText" should
+        //   contain "Remove" indication that by pressing
+        //   we'll remove Recipe
         mockMvc.perform(
                 get(BASE_URI + "/recipes/1")
         ).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("detail"))
+                .andExpect(
+                        model().attribute(
+                                "favoriteImageSrc",
+                                containsString("favorited.")
+                        )
+                )
+                .andExpect(
+                        model().attribute(
+                                "favoriteButtonText",
+                                containsString("Remove")
+                        )
+                )
+                .andExpect(
+                        model().attribute(
+                                "recipe",
+                                testRecipe1
+                        )
+                );
+
+        // Verify mocks
+        verify(recipeService).findOne(1L);
+        verify(recipeService).checkIfRecipeIsFavoriteForUser(
+                any(Recipe.class), any(User.class)
+        );
+    }
+
+    @Test
+    public void detailRecipePageWithNonFavoriteRecipeShouldRenderSuccessfully()
+            throws Exception {
+        // Arrange : Given mockMvc arranged with injected Controller
+
+        // Arrange: Given that findOne will return testRecipe1
+        when(recipeService.findOne(1L)).thenReturn(
+                testRecipe1
+        );
+
+        // Arrange : Given that checkIfRecipeIsFavoriteForUser will
+        // return false
+        when(
+                recipeService.checkIfRecipeIsFavoriteForUser(
+                        any(Recipe.class), any(User.class)
+                )
+        ).thenReturn(false);
+
+        // Act and Assert
+        // When request to detail page is made
+        // Then:
+        // - status should be OK
+        // - view should be "detail"
+        // - model should contain "recipe" attribute
+        // - model should contain "favoriteImageSrc"
+        //   with "favorite." in it, rendering empty heart
+        // - model should contain "Add" in "favoriteButtonText"
+        //   attribute, indicating that by pressing we'll
+        //   make Recipe favorite
+
+        mockMvc.perform(
+                get(BASE_URI + "/recipes/1")
+        ).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("detail"))
+                .andExpect(
+                        model().attribute(
+                                "favoriteImageSrc",
+                                containsString("favorite.")
+                        )
+                )
+                .andExpect(
+                        model().attribute(
+                                "favoriteButtonText",
+                                containsString("Add")
+                        )
+                )
                 .andExpect(
                         model().attribute(
                                 "recipe",
