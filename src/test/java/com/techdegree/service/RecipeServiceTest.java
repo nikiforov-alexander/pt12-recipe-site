@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -337,6 +339,43 @@ public class RecipeServiceTest {
         // Assert: Then recipeDao.addFavoriteRecipeForUser
         // should be called
         verify(recipeDao).removeFavoriteRecipeForUser(
+                Mockito.anyLong(), Mockito.anyLong()
+        );
+    }
+
+    @Test
+    public void updatingRecipeWhenRecipeIsNotFavoriteShouldAddRecipeToFavorites()
+            throws Exception {
+
+        // Arrange : Given that findFavoriteRecipesForUser
+        // return empty new List<Recipe>
+        when(recipeService.findFavoriteRecipesForUser(
+                Mockito.any(User.class))
+        ).thenReturn(new ArrayList<>());
+
+        // Arrange: Given that when called
+        // recipeDao.addFavoriteRecipeForUser will
+        // return something
+        doAnswer(
+                invocation -> null
+        ).when(recipeDao).addFavoriteRecipeForUser(
+                Mockito.anyLong(), Mockito.anyLong()
+        );
+
+        // Act and Assert:
+        // When update favorites will be called with
+        // some recipe and some user
+        assertTrue(
+                "true should be returned as indication that" +
+                        "recipe is now NOT favorite",
+                recipeService.updateFavoriteRecipesForUser(
+                        new Recipe(), new User()
+                )
+        );
+
+        // Assert: Then recipeDao.addFavoriteRecipeForUser
+        // should be called
+        verify(recipeDao).addFavoriteRecipeForUser(
                 Mockito.anyLong(), Mockito.anyLong()
         );
     }
