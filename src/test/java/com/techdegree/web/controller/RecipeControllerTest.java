@@ -7,9 +7,6 @@ import com.techdegree.model.User;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
 import com.techdegree.web.FlashMessage;
-// these matchers decided to come non-static ... I hope its ok
-// for now don't know how to fix them
-import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.Before;
@@ -25,8 +22,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -204,7 +207,7 @@ public class RecipeControllerTest {
         // return true
         when(
                 recipeService.checkIfRecipeIsFavoriteForUser(
-                        testRecipe1, testUser
+                        any(Recipe.class), any(User.class)
                 )
         ).thenReturn(true);
 
@@ -226,12 +229,11 @@ public class RecipeControllerTest {
                         )
                 );
 
-        // Then recipe service.findOne(1L) should be called
+        // Verify mocks
         verify(recipeService).findOne(1L);
-        // TODO: check why we cannot use any(User.class) here
-        //verify(recipeService.checkIfRecipeIsFavoriteForUser(
-        //        testRecipe1, any(User.class)
-        //));
+        verify(recipeService).checkIfRecipeIsFavoriteForUser(
+                any(Recipe.class), any(User.class)
+        );
     }
 
     @Test
@@ -311,9 +313,7 @@ public class RecipeControllerTest {
                         view().name("edit")
                 )
                 .andExpect(
-                        model().attribute("recipe",
-                                Matchers.any(Recipe.class)
-                        )
+                        model().attributeExists("recipe")
                 )
                 .andExpect(
                         model().attribute("categories", RecipeCategory.values())
@@ -367,9 +367,9 @@ public class RecipeControllerTest {
         .andExpect(
                 flash().attribute(
                         "flash",
-                        Matchers.hasProperty(
+                        hasProperty(
                                 "status",
-                                Matchers.equalTo(FlashMessage.Status.SUCCESS)
+                                equalTo(FlashMessage.Status.SUCCESS)
                         )
                 )
         );
