@@ -1,9 +1,6 @@
 package com.techdegree.web.controller;
 
-import com.techdegree.model.Item;
-import com.techdegree.model.Recipe;
-import com.techdegree.model.RecipeCategory;
-import com.techdegree.model.User;
+import com.techdegree.model.*;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
 import com.techdegree.web.FlashMessage;
@@ -15,8 +12,11 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.NestedServletException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,9 +30,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -625,4 +623,25 @@ public class RecipeControllerTest {
         );
     }
 
+    @Test(expected = NestedServletException.class)
+    public void nonOwnerNonAdminCannotUpdateRecipe() throws Exception {
+
+        // Given that when recipeService.checkForUser
+        // will throw AccessDeniedException
+        doThrow(
+                AccessDeniedException.class
+        ).when(recipeService)
+                .checkIfUserCanEditRecipe(
+                        any(User.class), any(Recipe.class)
+                );
+
+        // When we make POST request to update recipe
+        // with "id = 1"
+        mockMvc.perform(
+                post("/recipes/save")
+                .param("id", "1")
+        ).andDo(print());
+
+        // Then NestedServletException should be thrown
+    }
 }
