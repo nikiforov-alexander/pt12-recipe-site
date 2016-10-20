@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -378,5 +379,41 @@ public class RecipeServiceTest {
         verify(recipeDao).addFavoriteRecipeForUser(
                 Mockito.anyLong(), Mockito.anyLong()
         );
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void permissionDeniedIsThrownWhenUserIsNonOwnerNonAdmin()
+            throws Exception {
+        // Given test recipe with some owner and id = 1L
+        Recipe testRecipe = new Recipe();
+        testRecipe.setId(1L);
+        testRecipe.setOwner(
+                new User("name", "username", "password")
+        );
+
+        // Given user that is non-owner, non-admin
+        User nonOwnerNonAdmin = new User();
+        nonOwnerNonAdmin.setRole(new Role("ROLE_USER"));
+
+        assertThat(
+                "user is non owner",
+                nonOwnerNonAdmin,
+                not(
+                        is(testRecipe.getOwner())
+                )
+        );
+
+        // Given that when recipeDao.findOne(1L) will be called
+        // testRecipe will be returned
+        when(
+                recipeDao.findOne(anyLong())
+        ).thenReturn(testRecipe);
+
+        // When checkIfUserIsAdminIsCalled
+        recipeService.checkIfUserCanEditRecipe(
+                nonOwnerNonAdmin, testRecipe
+        );
+
+        // Then AccessDeniedException should be thrown
     }
 }
