@@ -2,15 +2,20 @@ package com.techdegree.service;
 
 import com.techdegree.dao.RecipeDao;
 import com.techdegree.model.*;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
@@ -289,5 +294,50 @@ public class RecipeServiceTest {
         // verify mock interactions
         verify(recipeDao, times(2)).findOne(1L);
         verify(recipeDao).save(any(Recipe.class));
+    }
+
+    @Test
+    public void updatingRecipeWhenRecipeIsAlreadyFavoriteShouldRemoveRecipeFromFavorites()
+            throws Exception {
+        // Arrange: Given Recipe with id = 1L
+        // that will be added to list of favorite recipes
+        Recipe recipeWithIdOne = new Recipe();
+        recipeWithIdOne.setId(1L);
+
+        // Arrange: add recipe to favorites
+        List<Recipe> listOfFavoriteRecipesIds =
+                Arrays.asList(recipeWithIdOne);
+
+        // Arrange : Given that findFavoriteRecipesForUser
+        // return listOfFavoriteRecipeIds above
+        when(recipeService.findFavoriteRecipesForUser(
+                Mockito.any(User.class))
+        ).thenReturn(listOfFavoriteRecipesIds);
+
+        // Arrange: Given that when called
+        // recipeDao.removeFavoriteRecipeForUser will
+        // return something
+        doAnswer(
+                invocation -> null
+        ).when(recipeDao).removeFavoriteRecipeForUser(
+                Mockito.anyLong(), Mockito.anyLong()
+        );
+
+        // Act and Assert:
+        // When update favorites will be called with
+        // first recipe and some user
+        assertFalse(
+                "false should be returned as indication that" +
+                        "recipe is now NOT favorite",
+                recipeService.updateFavoriteRecipesForUser(
+                        recipeWithIdOne, new User()
+                )
+        );
+
+        // Assert: Then recipeDao.addFavoriteRecipeForUser
+        // should be called
+        verify(recipeDao).removeFavoriteRecipeForUser(
+                Mockito.anyLong(), Mockito.anyLong()
+        );
     }
 }
