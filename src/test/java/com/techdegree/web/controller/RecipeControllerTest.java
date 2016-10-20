@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+import static com.techdegree.web.WebConstants.getEditRecipePageWithId;
 import static com.techdegree.web.WebConstants.updateFavoriteStatusPageWithId;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -640,6 +641,27 @@ public class RecipeControllerTest {
         mockMvc.perform(
                 post("/recipes/save")
                 .param("id", "1")
+        ).andDo(print());
+
+        // Then NestedServletException should be thrown
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void nonOwnerNonAdminCannotAccessEditRecipePage()
+            throws Exception {
+        // Given that AccessDeniedException will be thrown
+        // when checkIfUserCanEditRecipe method on service
+        // will be called
+        doThrow(
+                AccessDeniedException.class
+        ).when(recipeService)
+                .checkIfUserCanEditRecipe(
+                        any(User.class), any(Recipe.class)
+                );
+
+        // When we make GET request to render "edit" page
+        mockMvc.perform(
+                get(getEditRecipePageWithId("1"))
         ).andDo(print());
 
         // Then NestedServletException should be thrown
