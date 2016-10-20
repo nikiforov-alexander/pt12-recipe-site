@@ -6,6 +6,7 @@ import com.techdegree.model.RecipeCategory;
 import com.techdegree.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -141,6 +142,24 @@ public class RecipeServiceImpl implements RecipeService {
                         .map(Recipe::getId)
                         .collect(Collectors.toList());
         return listOfFavoriteRecipesIds.contains(recipe.getId());
+    }
+
+    /**
+     * Checks if user is owner or admin to be able to edit recipe
+     * @param user : {@code User} which ownership is checked
+     * @param recipe : {@code Recipe} which owner is checked
+     * @throws AccessDeniedException : if user is non-admin or non-owner
+     */
+    @Override
+    public void checkIfUserCanEditRecipe(User user, Recipe recipe)
+            throws AccessDeniedException {
+        Recipe recipeFromDb = recipeDao.findOne(recipe.getId());
+        if (!recipeFromDb.getOwner().equals(user) &&
+                !user.getRole().getName().equals("ROLE_ADMIN")) {
+            throw new AccessDeniedException(
+                    "Permission Denied"
+            );
+        }
     }
 
     @Override
