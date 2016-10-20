@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+import static com.techdegree.web.WebConstants.updateFavoriteStatusPageWithId;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasProperty;
@@ -522,4 +523,55 @@ public class RecipeControllerTest {
                 categoryNameParameter
         );
     }
+
+    @Test
+    public void userCanAddRecipeToFavoritesFromDetailPage() throws Exception {
+        // Given mocked Controller
+
+        // Given that first recipe will be returned
+        // when recipe service find one is called
+        when(
+                recipeService.findOne(any(Long.class))
+        ).thenReturn(testRecipe1);
+
+        // Given that "true" will be returned when
+        // updateFavoriteRecipesForUser will be called
+        when(
+                recipeService.updateFavoriteRecipesForUser(
+                        any(Recipe.class), any(User.class)
+                )
+        ).thenReturn(true);
+
+        // When POST request to updateFavoriteStatusPageWithId(1)
+        // is called
+        // Then :
+        // - status should be 3xx
+        // - redirected page should be RECIPES_HOME_PAGE
+        // - model attribute "flash" should have "added" String
+        mockMvc.perform(
+                post(updateFavoriteStatusPageWithId("1"))
+        ).andDo(print())
+                .andExpect(
+                       status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl(RECIPES_HOME_PAGE)
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "message",
+                                        containsString("added")
+                                )
+                        )
+                );
+
+        // Verify mocks
+        verify(recipeService).findOne(any(Long.class));
+        verify(recipeService).updateFavoriteRecipesForUser(
+                any(Recipe.class), any(User.class)
+        );
+    }
+
 }
