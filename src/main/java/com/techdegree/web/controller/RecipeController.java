@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.techdegree.web.WebConstants.EDIT_RECIPE_PAGE_PREFIX;
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 import static com.techdegree.web.WebConstants.UPDATE_FAVORITES_PAGE_PREFIX;
 
@@ -265,13 +266,22 @@ public class RecipeController {
 
     // edit recipe page GET
     // it does not work when "/id/edit" in tests :(
-    @RequestMapping("/edit/{id}")
+    @RequestMapping(EDIT_RECIPE_PAGE_PREFIX + "/{id}")
     public String editRecipePage(
             @PathVariable Long id,
+            @AuthenticationPrincipal User user,
             Model model) {
+
+        Recipe recipe = recipeService.findOne(id);
+
+        // check if user is authorized to edit
+        recipeService.checkIfUserCanEditRecipe(
+                user, recipe
+        );
+
         // here recipe found in database will be added
         model = addAttributesToModelForBothEditAndAddNewPages(
-                recipeService.findOne(id),
+                recipe,
                 model
         );
 
