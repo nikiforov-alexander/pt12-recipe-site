@@ -443,17 +443,53 @@ Use the following requirements list to ensure all functionality
 is included in the recipe detail page.
 
 .Recipe Detail
-- Allows a user to add a recipe, or edit the recipe if they are the owner
-- Allows a user to provide a recipe name, description, category (from a list of values), prep time, and cook time
-- Allows a user to provide a list of ingredients
-- Each ingredient includes an item, condition, and quantity
-- Allows a user to provide a list of steps
-- Each step includes a description
-- Any user can add the recipe to their favorites
+. <<recipe_details_owner, Only Owner Can Edit Recipe>>
++
+Allows a user to add a recipe, or edit the recipe if they are the owner
+
+. <<provide_recipe_details, User Can Add Recipe details>>
++
+Allows a user to provide a recipe name, description, category 
+(from a list of values), prep time, and cook time
+
+. <<ingredients_list_edit_recipe, User Can Add Ingredients>>
++
+Allows a user to provide a list of ingredients. Each ingredient includes an item, condition, and quantity
+
+. <<steps_list_edit_recipe, User Can Add Steps>>
++
+Allows a user to provide a list of steps. Each step includes a description
+
+. <<recipe_favorite_detail_page, User Can Add/Remove Recipe to/from Favorites>>
++
+Any user can add the recipe to their favorites
 
 ---
 
-Under Construction ..
+[[recipe_details_owner]]
+==== Only owner can edit recipe
+
+Under construction.
+
+[[provide_recipe_details]]
+==== User Can Add Recipe Details
+
+Under construction.
+
+[[ingredients_list_edit_recipe]]
+==== User Can Add Ingredients
+
+Under construction.
+
+[[steps_list_edit_recipe]]
+==== User Can Add Steps
+
+Under construction.
+
+[[recipe_favorite_detail_page]]
+==== User Can Add/Remove Recipe to/from Favorites
+
+Under construction.
 
 === Task 4 : Search Features
 
