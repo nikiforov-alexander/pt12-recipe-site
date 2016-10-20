@@ -18,8 +18,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+import static com.techdegree.web.WebConstants.UPDATE_FAVORITES_PAGE_PREFIX;
 
 @Controller
 @RequestMapping("/recipes")
@@ -155,9 +157,33 @@ public class RecipeController {
     @RequestMapping("/{id}")
     public String detailRecipePage(
             @PathVariable Long id,
-            Model model) {
+            Model model,
+            @AuthenticationPrincipal User user
+    ) {
         Recipe recipe = recipeService.findOne(id);
         model.addAttribute("recipe", recipe);
+
+        if (recipeService.checkIfRecipeIsFavoriteForUser(
+                recipe, user
+        )) {
+            model.addAttribute(
+                    "favoriteImageSrc",
+                    "/assets/images/favorited.svg"
+            );
+            model.addAttribute(
+                    "favoriteButtonText",
+                        "Remove From Favorites"
+                    );
+        } else {
+            model.addAttribute(
+                    "favoriteImageSrc",
+                    "/assets/images/favorite.svg"
+            );
+            model.addAttribute(
+                    "favoriteButtonText",
+                    "Add To Favorites"
+            );
+        }
         return "detail";
     }
 
@@ -250,6 +276,39 @@ public class RecipeController {
         );
 
         return "edit";
+    }
+
+    @RequestMapping(value = UPDATE_FAVORITES_PAGE_PREFIX + "/{id}",
+            method = RequestMethod.POST)
+    public String updateFavoriteStatusOfRecipe(
+            @AuthenticationPrincipal User user,
+            @PathVariable("id") Long recipeId,
+            RedirectAttributes redirectAttributes
+    ) {
+        Recipe recipe = recipeService.findOne(recipeId);
+        boolean isFavorite = recipeService.updateFavoriteRecipesForUser(
+                recipe, user
+        );
+        if (isFavorite) {
+            redirectAttributes.addFlashAttribute(
+                    "flash",
+                    new FlashMessage(
+                            "Recipe '" + recipe.getName() +
+                                    "' is added to favorites",
+                            FlashMessage.Status.SUCCESS
+                    )
+            );
+        } else {
+            redirectAttributes.addFlashAttribute(
+                    "flash",
+                    new FlashMessage(
+                            "Recipe '" + recipe.getName() +
+                                    "' is removed from favorites",
+                            FlashMessage.Status.SUCCESS
+                    )
+            );
+        }
+        return "redirect:" + RECIPES_HOME_PAGE;
     }
 
     // POST request to change saved item
