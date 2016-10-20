@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface FavoriteRecipesDao {
     List<Recipe> findAllFavoriteRecipesFor(User user);
+
+    void addFavoriteRecipeForUser(Long recipeId, Long userId);
+
+    void removeFavoriteRecipeForUser(Long recipeId, Long userId);
 }
