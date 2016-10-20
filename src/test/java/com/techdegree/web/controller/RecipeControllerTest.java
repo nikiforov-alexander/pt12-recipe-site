@@ -525,7 +525,8 @@ public class RecipeControllerTest {
     }
 
     @Test
-    public void userCanAddRecipeToFavoritesFromDetailPage() throws Exception {
+    public void userCanAddRecipeToFavoritesFromDetailPage()
+            throws Exception {
         // Given mocked Controller
 
         // Given that first recipe will be returned
@@ -552,7 +553,7 @@ public class RecipeControllerTest {
                 post(updateFavoriteStatusPageWithId("1"))
         ).andDo(print())
                 .andExpect(
-                       status().is3xxRedirection()
+                        status().is3xxRedirection()
                 )
                 .andExpect(
                         redirectedUrl(RECIPES_HOME_PAGE)
@@ -563,6 +564,56 @@ public class RecipeControllerTest {
                                 hasProperty(
                                         "message",
                                         containsString("added")
+                                )
+                        )
+                );
+
+        // Verify mocks
+        verify(recipeService).findOne(any(Long.class));
+        verify(recipeService).updateFavoriteRecipesForUser(
+                any(Recipe.class), any(User.class)
+        );
+    }
+
+    @Test
+    public void userCanRemoveRecipeFromFavoritesFromDetailPage() throws Exception {
+        // Given mocked Controller
+
+        // Given that first recipe will be returned
+        // when recipe service find one is called
+        when(
+                recipeService.findOne(any(Long.class))
+        ).thenReturn(testRecipe1);
+
+        // Given that "false" will be returned when
+        // updateFavoriteRecipesForUser will be called
+        when(
+                recipeService.updateFavoriteRecipesForUser(
+                        any(Recipe.class), any(User.class)
+                )
+        ).thenReturn(false);
+
+        // When POST request to updateFavoriteStatusPageWithId(1)
+        // is called
+        // Then :
+        // - status should be 3xx
+        // - redirected page should be RECIPES_HOME_PAGE
+        // - model attribute "flash" should have "removed" String
+        mockMvc.perform(
+                post(updateFavoriteStatusPageWithId("1"))
+        ).andDo(print())
+                .andExpect(
+                       status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl(RECIPES_HOME_PAGE)
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "message",
+                                        containsString("removed")
                                 )
                         )
                 );
