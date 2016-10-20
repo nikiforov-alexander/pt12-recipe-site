@@ -30,11 +30,20 @@
                 </div>
                 <div class="grid-50">
                     <h2 class="flush-right">
-                        <a href="#">
-                            <img th:src="@{/assets/images/favorite.svg}"
+                        <!--/* inline form that updates favorite status
+                               of recipe for current user. Image is changed
+                               depending whether user's recipe is favorite or
+                               not. The same applies to button text
+                         */-->
+                        <form method="post"
+                              th:action="@{|/recipes/update-favorite-status-of-recipe/${recipe.id}|}">
+                            <img th:src="@{|${favoriteImageSrc}|}"
                                  alt="favorite-icon"
                                  height="16px">
-                        </a>
+                            <button type="submit"
+                                    th:text="${favoriteButtonText}">
+                            </button>
+                        </form>
                     </h2>
                 </div>
             </div>
