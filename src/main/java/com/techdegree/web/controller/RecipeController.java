@@ -329,6 +329,11 @@ public class RecipeController {
         if (recipe.getId() != null) {
             pageFromWherePostReqWasMade = "/recipes/edit/" +
                     recipe.getId();
+            // if recipe is being updated, here we make security
+            // check
+            recipeService.checkIfUserCanEditRecipe(
+                    user, recipe
+            );
         }
         // for each recipe.ingredient and recipe.step we set
         // recipe. Thymeleaf cannot make it right somehow ...
