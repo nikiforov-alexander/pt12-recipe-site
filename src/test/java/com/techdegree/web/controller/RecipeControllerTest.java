@@ -188,14 +188,25 @@ public class RecipeControllerTest {
     }
 
     @Test
-    public void detailRecipePage_shouldRenderSuccessfully()
+    public void detailRecipePageWithFavoriteRecipeShouldRenderSuccessfully()
             throws Exception {
-        // Arrange : mockMvc is arranged with injected Controller
-        // we arrange recipeService to return first test Recipe
-        // when service.findOne(1L) will be called
+        // Arrange : Given mockMvc arranged with injected Controller
+
+        // Arrange: Given that findOne will return testRecipe1
         when(recipeService.findOne(1L)).thenReturn(
                 testRecipe1
         );
+
+        // Arrange: Given some test user
+        User testUser = new User();
+
+        // Arrange : Given that checkIfRecipeIsFavoriteForUser will
+        // return true
+        when(
+                recipeService.checkIfRecipeIsFavoriteForUser(
+                        testRecipe1, testUser
+                )
+        ).thenReturn(true);
 
         // Act and Assert
         // When request to detail page is made
@@ -214,8 +225,13 @@ public class RecipeControllerTest {
                                 testRecipe1
                         )
                 );
+
         // Then recipe service.findOne(1L) should be called
         verify(recipeService).findOne(1L);
+        // TODO: check why we cannot use any(User.class) here
+        //verify(recipeService.checkIfRecipeIsFavoriteForUser(
+        //        testRecipe1, any(User.class)
+        //));
     }
 
     @Test
