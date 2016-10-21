@@ -154,6 +154,28 @@ public class RecipeController {
         return "index";
     }
 
+    // filter recipes by description
+    @RequestMapping(value = "/", params = "description")
+    public String filterByDescription(
+            @RequestParam ("description") String description,
+            @AuthenticationPrincipal User user,
+            Model model
+    ) {
+        model = fillModelWithRecipesFavoritesAndCategories(
+                model,
+                recipeService.findByDescriptionContaining(description),
+                user
+        );
+        // add empty category for now, because I don't know how
+        // to do otherwise ...
+        model.addAttribute("selectedCategory",
+                RecipeCategory.getRecipeCategoryWithHtmlName(
+                        ""
+                )
+        );
+        return "index";
+    }
+
     // detail recipe page
     @RequestMapping("/{id}")
     public String detailRecipePage(
