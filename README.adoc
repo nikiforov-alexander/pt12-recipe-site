@@ -469,6 +469,10 @@ Any user can add the recipe to their favorites
 [[recipe_details_owner]]
 ==== Only Owner And Admin Can Edit And/Or Update recipe
 
+Allows a user to add a recipe, or edit the recipe if they are the owner
+
+---
+
 In order to introduce security here, additional method that 
 `throws AccessDeniedException` was introduced in *Service* layer,
 in {RecipeServiceImpl}:
@@ -505,7 +509,39 @@ all the updates are made with logged owner user.
 [[provide_recipe_details]]
 ==== User Can Add Recipe Details
 
+Allows a user to provide a recipe name, description, category 
+(from a list of values), prep time, and cook time
 Under construction.
+
+---
+
+All fields that were provided in template files can be filled
+by user. I used `@NotNull` and `@NotEmpty` annotation for all
+of them for simplicity.
+
+When one will press 'Add Recipe' button at Home Page
+and will be redirect to page with adding new recipe.
+
+In order to see that fields are all required, one can press
+submit button, and see how all of them turn red.
+
+I tested the validation errors only in
+"Integration" {RecipeControllerItTest}. The problem emerged,
+because Thymeleaf did not set `Recipe` for each `recipe.ingredients`
+and `recipe.steps`. That is why we had to remove `@Valid` as 
+annotation from arguments of `saveRecipe` controller method, 
+and before validation, set missing relationships
+(see {RecipeController} `saveRecipe` for more).
+
+It is probably possible to test the functionality in "mock"
+{RecipeControllerTest}, but I need to somehow to `@Mock` 
+`Validator` manually, and I yet don't know how to do it.
+
+The Validation errors are tested in {RecipeControllerItTest} in
+following test:
+
+* `updatingRecipeWithAllNullInvalidFieldsShouldGiveThatNumberOfErrors`
+* `addingRecipeWithAllEmptyInvalidFieldsShouldGiveThatNumberOfErrors`
 
 [[ingredients_list_edit_recipe]]
 ==== User Can Add Ingredients
