@@ -173,6 +173,9 @@ $("#add-another-ingredient-button").click(function () {
     // in html5
     event.preventDefault();
 
+    // remove errors
+    $('div .ingredient-error').remove();
+
     // define <div> with ingredient that we will be appending to
     var divWithLastIngredient = $(".ingredient-row").last();
 

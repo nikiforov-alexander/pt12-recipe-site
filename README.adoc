@@ -11,6 +11,7 @@
 :PasswordMatchesValidator: {main_package}validator/PasswordMatchesValidator.java[PasswordMatchesValidator]
 :PasswordMatches: {main_package}validator/PasswordMatches.java[PasswordMatches]
 :ValidItem: {main_package}validator/ValidItem.java[ValidItem]
+:UserService: {main_package}service/UserService.java[UserService]
 :CustomUserDetailsService: {main_package}service/CustomUserDetailsService.java[CustomUserDetailsService]
 :IngredientService: {main_package}service/IngredientService.java[IngredientService]
 :StepService: {main_package}service/StepService.java[StepService]
@@ -54,6 +55,9 @@
 :TemplateConfig: {main_package}config/TemplateConfig.java[TemplateConfig]
 :RecipeCategoryTest: {test_package}/model/RecipeCategoryTest.java[RecipeCategoryTest]
 :RecipeDaoTest: {test_package}/dao/RecipeDaoTest.java[RecipeDaoTest]
+:RoleDaoTest: {test_package}/dao/RoleDaoTest.java[RoleDaoTest]
+:StepDaoTest: {test_package}/dao/StepDaoTest.java[StepDaoTest]
+:IngredientDaoTest: {test_package}/dao/IngredientDaoTest.java[IngredientDaoTest]
 :RecipeServiceTest: {test_package}/service/RecipeServiceTest.java[RecipeServiceTest]
 :UserServiceTest: {test_package}/service/UserServiceTest.java[UserServiceTest]
 :UserDtoTest: {test_package}/dto/UserDtoTest.java[UserDtoTest]
@@ -89,9 +93,8 @@ toc::[]
 [[eclipse]]
 == Eclipse Installation Instructions
 
-Under Construction.
-
-// Links
+Program can be run with Eclipse very easily, because I've added
+`apply plugin: 'eclipse'` in {build_gradle} file.
 
 == Tasks
 
@@ -147,7 +150,8 @@ All {User} related DAOs are not exposed to REST API.
 {FavoriteRecipesDao} is interface that allows us to add custom
 methods to Spring-Data DAOs. And {RecipeDaoImpl} is the class that
 implements {FavoriteRecipesDao} and defines manually defined
-methods (For now only method listing favorite recipes for user).
+methods, all of them are relevant to deal with `@ManyToMany`
+relationship between `User.favoriteRecipes`, and `User.favoriteUsers`
 
 [[task-1-service]]
 ==== Service
@@ -155,6 +159,7 @@ methods (For now only method listing favorite recipes for user).
 Service layer implementations do not have anything in particular,
 except repeating commands at DAO layer:
 
+* {UserService}
 * {CustomUserDetailsService}
 * {IngredientService}
 * {IngredientServiceImpl}
@@ -165,15 +170,17 @@ except repeating commands at DAO layer:
 * {StepService}
 * {StepServiceImpl}
 
-Most of them repeat commands at DAO layer with few exceptions:
+Most of them repeat commands at DAO layer with exceptions, that
+are relevant for {RecipeServiceImpl}, because we actually can
+access `Ingredient`, `Item` or `Step` only through changing
+recipe.
 
-{RecipeDao} has significantly different `save` method that takes
-into consideration that recipe has favorites and owner, see
-related <<favorites, Favorites>> and <<recipe_owner, Recipe Owner>>
-sections for more:
+There are many methods that were introduced to facilitate
+request processing in {RecipeController}.
 
 {CustomUserDetailsService} `implements UserDetailsService` and is very
-common service that has `loadUserByUsername` method
+common service that has `loadUserByUsername` method. It is used
+through the {UserService} interface.
 
 [[task-1-coverage]]
 ==== Coverage
@@ -253,9 +260,9 @@ elsewhere is `null`. This list is passed along with all recipes
 to `Model`.
 
 The list to be passed is generated in a
-[java]`RecipeController.generateFavoritesWithNullsForNonFavoritesList`
+`RecipeController.generateFavoritesWithNullsForNonFavoritesList`
 method. And because of that is tested separately in
-[java]`@Test favoritesWithNonNullsListIsGeneratedCorrectly` in
+`@Test favoritesWithNonNullsListIsGeneratedCorrectly` in
 {RecipeControllerTest}
 
 Simple list with favorite recipes for users is generated at DAO
@@ -396,9 +403,18 @@ Allows the user to edit or delete a recipe
 
 ---
 
-For now user can delete recipe, without any problems.
-No restrictions on that. About edit, the same policy
-applies, see section about saving recipe above.
+User can delete Recipe only if he is owner, or admin.
+
+This is enforced by `@PreAuthorize` in {RecipeDao} and works
+both for REST API part and non-REST part.
+
+Unfortunately in order to enforce security upon editing recipe,
+I had to use {RecipeEventHandler} for REST API and
+`checkIfUserCanEditRecipe` method in {RecipeServiceImpl}
+
+See the <<rest_recipes_security, REST Recipes Security>> and
+<<recipe_details_owner, Only Owner Or Admin Can Edit/Update Recipe>>
+for more.
 
 [[recipe_owner]]
 ==== Recipe Owner
@@ -1099,6 +1115,7 @@ to be deleted.
 
 ==== Security
 
+[[rest_recipes_security]]
 ===== Recipes
 
 `Recipe` can be updated only by owner of `Recipe` or admin user.
@@ -1137,7 +1154,118 @@ Mostly REST API is tested with following integration tests:
 
 
 
+== Quick Links To Files
 
+.Validators
+* {ItemValidator}
+* {PasswordMatchesValidator}
+* {PasswordMatches}
+* {ValidItem}
+
+.Service
+* {UserService}
+* {CustomUserDetailsService}
+* {IngredientService}
+* {StepService}
+* {ItemService}
+* {RecipeService}
+* {RecipeServiceImpl}
+* {IngredientServiceImpl}
+* {ItemServiceImpl}
+* {StepServiceImpl}
+
+.Misc
+* {DataLoader}
+* {Application}
+
+.Model and DTOs
+* {BaseEntity}
+* {User}
+* {UserDto}
+* {RoleClass}
+* {RecipeCategory}
+* {Ingredient}
+* {Item}
+* {Step}
+* {Recipe}
+
+.Exceptions
+* {UserAlreadyExistsException}
+* {CustomAccessDeniedException}
+
+.DAOs
+* {RecipeDaoImpl}
+* {RoleDao}
+* {UserDao}
+* {StepDao}
+* {ItemDao}
+* {IngredientDao}
+* {RecipeDao}
+* {FavoriteRecipesDao}
+
+.Web
+* {FlashMessage}
+* {WebConstants}
+
+.Controllers
+* {LoginController}
+* {RecipeController}
+* {UserController}
+* {IndexRedirectController}
+
+.Handlers
+* {RecipeEventHandler}
+
+.Config
+* {RestConfig}
+* {AppConfig}
+* {SecurityConfig}
+* {TemplateConfig}
+
+.Dao Tests
+* {RecipeDaoTest}
+* {StepDaoTest}
+* {IngredientDaoTest}
+* {RoleDaoTest}
+
+.Model Tests
+* {RecipeCategoryTest}
+* {UserDtoTest}
+
+.Service Tests
+* {RecipeServiceTest}
+* {UserServiceTest}
+
+.Controller Tests
+* {IndexRedirectControllerTest}
+* {RecipeControllerTest}
+* {LoginControllerTest}
+* {UserControllerTest}
+
+.Integration Tests
+* {RecipeControllerItTest}
+* {LoginControllerItTest}
+* {RecipeRestIntegrationTest}
+* {IngredientRestIntegrationTest}
+* {StepRestIntegrationTest}
+* {ItemRestIntegrationTest}
+
+.resources
+* {build_gradle}
+* {application_properties}
+* {coverage_report_tar_gz}
+
+.templates
+* {signup_html}
+* {edit_html}
+* {login_html}
+* {index_html}
+* {detail_html}
+* {layout_html}
+* {profile_html}
+
+.JavaScript
+* {app_js}
 
 
 
