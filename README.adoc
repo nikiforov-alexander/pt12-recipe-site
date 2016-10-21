@@ -546,7 +546,150 @@ following test:
 [[ingredients_list_edit_recipe]]
 ==== User Can Add Ingredients
 
-Under construction.
+Allows a user to provide a list of ingredients. 
+Each ingredient includes an item, condition, and quantity
+
+---
+
+In order to add Ingredients I used JavaScript. All functionality
+that is bound to 'Add Ingredient' button can be found in {app_js}
+file, in function that is bound to `#add-another-ingredient-button`
+and executed upon click.
+
+Simple Jquery is used all over the place and 
+in sudo code can be described as following
+
+* get last `<div class="ingredient-row">`
+* get `id` from that `divWithLastIngredient`
+* increment `id`
+* clone `divWithLastIngredient`
+* add clone after `divWithLastIngredient`
+* change `id` and `name` attributes for `<select>` element 
+that selects `ingredient.item.id`
+* change `id` and `name` attributes for `<input>`
+elements for `ingredient.condition` and
+`ingredient.quantity` 
+
+In the end the purpose of JavaScript is from this `<div>`:
+
+```HTML
+<div class="ingredient-row">
+    <input hidden="" 
+        type="text" 
+        id="ingredients0.id" 
+        name="ingredients[0].id" 
+        value="">
+    <input 
+        hidden="" 
+        type="text" 
+        id="ingredients0.version" 
+        name="ingredients[0].version" 
+        value="">
+    <div class="prefix-20 grid-30">
+        <p>
+            <select id="ingredients0.item.id" name="ingredients[0].item.id">
+                <option value="0">Select Item</option>
+                <option value="1">item 1</option>
+                <option value="2">item 2</option>
+            </select>
+        </p>
+    </div>
+    <div class="grid-30">
+        <p>
+            <input 
+                type="text" 
+                id="ingredients0.condition" 
+                name="ingredients[0].condition" 
+                value="">
+        </p>
+    </div>
+    <div class="grid-10 suffix-10">
+        <p>
+            <input 
+                type="text" 
+                id="ingredients0.quantity" 
+                name="ingredients[0].quantity" 
+                value="">
+        </p>
+    </div>
+    <div class="clear"></div>
+</div>
+```
+
+Create new `<div>` where:
+
+.`ingredient.quantity`
+* `id="ingredients0.quantity"` 
+* `name="ingredients[0].quantity"` 
+
+.`ingredient.condition`
+* `id="ingredients0.condition"`
+* `name="ingredients[0].condition"` 
+
+.`ingredient.item.id`
+* `id="ingredients0.item.id"` 
+* `name="ingredients[0].item.id"`
+
+Will be changed respectively to:
+
+.`ingredient.quantity`
+* `id="ingredients1.quantity"` 
+* `name="ingredients[1].quantity"` 
+
+.`ingredient.condition`
+* `id="ingredients1.condition"`
+* `name="ingredients[1].condition"` 
+
+.`ingredient.item.id`
+* `id="ingredients1.item.id"` 
+* `name="ingredients[1].item.id"`
+
+Of course `id` of last ingredient is taken from `divWithLastIngredient`. 
+When we add new Recipe, we generated "add new" page with one 
+`Ingredient` and one `Step`, so that cloning works.
+
+The new div will be without `hidden` `ingredient.version` and
+`ingredient.id`, because this fields should be left null when we add new 
+`Ingredient`.
+
+The resulting `<div>` with new Ingredient made from example 
+above should look like this:
+
+```HTML
+<div class="ingredient-row">
+    <div class="prefix-20 grid-30">
+        <p>
+            <select id="ingredients1.item.id" name="ingredients[1].item.id">
+                <option value="0">Select Item</option>
+                <option value="1">item 1</option>
+                <option value="2">item 2</option>
+            </select>
+        </p>
+    </div>
+    <div class="grid-30">
+        <p>
+            <input 
+                type="text" 
+                id="ingredients1.condition" 
+                name="ingredients[1].condition" 
+                value="">
+        </p>
+    </div>
+    <div class="grid-10 suffix-10">
+        <p>
+            <input 
+                type="text" 
+                id="ingredients1.quantity" 
+                name="ingredients[1].quantity" 
+                value="">
+        </p>
+    </div>
+    <div class="clear"></div>
+</div>
+```
+
+One should definitely test this somehow, hopefully I'll get
+to JavaScript Unit Testing someday.
 
 [[steps_list_edit_recipe]]
 ==== User Can Add Steps
