@@ -55,6 +55,9 @@
 :TemplateConfig: {main_package}config/TemplateConfig.java[TemplateConfig]
 :RecipeCategoryTest: {test_package}/model/RecipeCategoryTest.java[RecipeCategoryTest]
 :RecipeDaoTest: {test_package}/dao/RecipeDaoTest.java[RecipeDaoTest]
+:RoleDaoTest: {test_package}/dao/RoleDaoTest.java[RoleDaoTest]
+:StepDaoTest: {test_package}/dao/StepDaoTest.java[StepDaoTest]
+:IngredientDaoTest: {test_package}/dao/IngredientDaoTest.java[IngredientDaoTest]
 :RecipeServiceTest: {test_package}/service/RecipeServiceTest.java[RecipeServiceTest]
 :UserServiceTest: {test_package}/service/UserServiceTest.java[UserServiceTest]
 :UserDtoTest: {test_package}/dto/UserDtoTest.java[UserDtoTest]
@@ -90,9 +93,8 @@ toc::[]
 [[eclipse]]
 == Eclipse Installation Instructions
 
-Under Construction.
-
-// Links
+Program can be run with Eclipse very easily, because I've added
+`apply plugin: 'eclipse'` in {build_gradle} file.
 
 == Tasks
 
@@ -1152,7 +1154,118 @@ Mostly REST API is tested with following integration tests:
 
 
 
+== Quick Links To Files
 
+.Validators
+* {ItemValidator}
+* {PasswordMatchesValidator}
+* {PasswordMatches}
+* {ValidItem}
+
+.Service
+* {UserService}
+* {CustomUserDetailsService}
+* {IngredientService}
+* {StepService}
+* {ItemService}
+* {RecipeService}
+* {RecipeServiceImpl}
+* {IngredientServiceImpl}
+* {ItemServiceImpl}
+* {StepServiceImpl}
+
+.Misc
+* {DataLoader}
+* {Application}
+
+.Model and DTOs
+* {BaseEntity}
+* {User}
+* {UserDto}
+* {RoleClass}
+* {RecipeCategory}
+* {Ingredient}
+* {Item}
+* {Step}
+* {Recipe}
+
+.Exceptions
+* {UserAlreadyExistsException}
+* {CustomAccessDeniedException}
+
+.DAOs
+* {RecipeDaoImpl}
+* {RoleDao}
+* {UserDao}
+* {StepDao}
+* {ItemDao}
+* {IngredientDao}
+* {RecipeDao}
+* {FavoriteRecipesDao}
+
+.Web
+* {FlashMessage}
+* {WebConstants}
+
+.Controllers
+* {LoginController}
+* {RecipeController}
+* {UserController}
+* {IndexRedirectController}
+
+.Handlers
+* {RecipeEventHandler}
+
+.Config
+* {RestConfig}
+* {AppConfig}
+* {SecurityConfig}
+* {TemplateConfig}
+
+.Dao Tests
+* {RecipeDaoTest}
+* {StepDaoTest}
+* {IngredientDaoTest}
+* {RoleDaoTest}
+
+.Model Tests
+* {RecipeCategoryTest}
+* {UserDtoTest}
+
+.Service Tests
+* {RecipeServiceTest}
+* {UserServiceTest}
+
+.Controller Tests
+* {IndexRedirectControllerTest}
+* {RecipeControllerTest}
+* {LoginControllerTest}
+* {UserControllerTest}
+
+.Integration Tests
+* {RecipeControllerItTest}
+* {LoginControllerItTest}
+* {RecipeRestIntegrationTest}
+* {IngredientRestIntegrationTest}
+* {StepRestIntegrationTest}
+* {ItemRestIntegrationTest}
+
+.resources
+* {build_gradle}
+* {application_properties}
+* {coverage_report_tar_gz}
+
+.templates
+* {signup_html}
+* {edit_html}
+* {login_html}
+* {index_html}
+* {detail_html}
+* {layout_html}
+* {profile_html}
+
+.JavaScript
+* {app_js}
 
 
 
