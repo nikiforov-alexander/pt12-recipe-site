@@ -103,6 +103,14 @@ public class RecipeControllerItTest {
         // mockMvc is set up as real all, DatabaseLoader is used
         // to populate data
 
+        // Given the owner of recipe will make request
+        User owner = (User) userService.loadUserByUsername("jd");
+        assertThat(
+                "user is owner",
+                owner,
+                is (recipeService.findOne(1L).getOwner())
+        );
+
         // When POST request updating Recipe with all
         // invalid fields is made
         // Then:
@@ -125,6 +133,11 @@ public class RecipeControllerItTest {
                 post(BASE_URI + "/recipes/save")
                         .param("id", "1")
                         .param("version", "0")
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                owner
+                        )
+                )
         ).andDo(print())
                 .andExpect(
                         status().is3xxRedirection()
@@ -252,6 +265,11 @@ public class RecipeControllerItTest {
         // - flash message should be sent with success status
         mockMvc.perform(
         post(BASE_URI + "/recipes/save")
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                user
+                        )
+                )
                 .param("id",
                         idOfNewlyAddedRecipe + "")
                 .param("version",

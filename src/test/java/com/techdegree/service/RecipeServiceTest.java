@@ -2,16 +2,24 @@ package com.techdegree.service;
 
 import com.techdegree.dao.RecipeDao;
 import com.techdegree.model.*;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.access.AccessDeniedException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
@@ -289,5 +297,179 @@ public class RecipeServiceTest {
         // verify mock interactions
         verify(recipeDao, times(2)).findOne(1L);
         verify(recipeDao).save(any(Recipe.class));
+    }
+
+    @Test
+    public void updatingRecipeWhenRecipeIsAlreadyFavoriteShouldRemoveRecipeFromFavorites()
+            throws Exception {
+        // Arrange: Given Recipe with id = 1L
+        // that will be added to list of favorite recipes
+        Recipe recipeWithIdOne = new Recipe();
+        recipeWithIdOne.setId(1L);
+
+        // Arrange: add recipe to favorites
+        List<Recipe> listOfFavoriteRecipesIds =
+                Arrays.asList(recipeWithIdOne);
+
+        // Arrange : Given that findFavoriteRecipesForUser
+        // return listOfFavoriteRecipeIds above
+        when(recipeService.findFavoriteRecipesForUser(
+                Mockito.any(User.class))
+        ).thenReturn(listOfFavoriteRecipesIds);
+
+        // Arrange: Given that when called
+        // recipeDao.removeFavoriteRecipeForUser will
+        // return something
+        doAnswer(
+                invocation -> null
+        ).when(recipeDao).removeFavoriteRecipeForUser(
+                Mockito.anyLong(), Mockito.anyLong()
+        );
+
+        // Act and Assert:
+        // When update favorites will be called with
+        // first recipe and some user
+        assertFalse(
+                "false should be returned as indication that" +
+                        "recipe is now NOT favorite",
+                recipeService.updateFavoriteRecipesForUser(
+                        recipeWithIdOne, new User()
+                )
+        );
+
+        // Assert: Then recipeDao.addFavoriteRecipeForUser
+        // should be called
+        verify(recipeDao).removeFavoriteRecipeForUser(
+                Mockito.anyLong(), Mockito.anyLong()
+        );
+    }
+
+    @Test
+    public void updatingRecipeWhenRecipeIsNotFavoriteShouldAddRecipeToFavorites()
+            throws Exception {
+
+        // Arrange : Given that findFavoriteRecipesForUser
+        // return empty new List<Recipe>
+        when(recipeService.findFavoriteRecipesForUser(
+                Mockito.any(User.class))
+        ).thenReturn(new ArrayList<>());
+
+        // Arrange: Given that when called
+        // recipeDao.addFavoriteRecipeForUser will
+        // return something
+        doAnswer(
+                invocation -> null
+        ).when(recipeDao).addFavoriteRecipeForUser(
+                Mockito.anyLong(), Mockito.anyLong()
+        );
+
+        // Act and Assert:
+        // When update favorites will be called with
+        // some recipe and some user
+        assertTrue(
+                "true should be returned as indication that" +
+                        "recipe is now NOT favorite",
+                recipeService.updateFavoriteRecipesForUser(
+                        new Recipe(), new User()
+                )
+        );
+
+        // Assert: Then recipeDao.addFavoriteRecipeForUser
+        // should be called
+        verify(recipeDao).addFavoriteRecipeForUser(
+                Mockito.anyLong(), Mockito.anyLong()
+        );
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void permissionDeniedIsThrownWhenUserIsNonOwnerNonAdmin()
+            throws Exception {
+        // Given test recipe with some owner and id = 1L
+        Recipe testRecipe = new Recipe();
+        testRecipe.setId(1L);
+        testRecipe.setOwner(
+                new User("name", "username", "password")
+        );
+
+        // Given user that is non-owner, non-admin
+        User nonOwnerNonAdmin = new User();
+        nonOwnerNonAdmin.setRole(new Role("ROLE_USER"));
+
+        assertThat(
+                "user is non owner",
+                nonOwnerNonAdmin,
+                not(
+                        is(testRecipe.getOwner())
+                )
+        );
+
+        // Given that when recipeDao.findOne(1L) will be called
+        // testRecipe will be returned
+        when(
+                recipeDao.findOne(anyLong())
+        ).thenReturn(testRecipe);
+
+        // When checkIfUserIsAdminIsCalled
+        recipeService.checkIfUserCanEditRecipe(
+                nonOwnerNonAdmin, testRecipe
+        );
+
+        // Then AccessDeniedException should be thrown
+    }
+
+    @Test
+    public void trueIsReturnedWhenRecipeIsFavoriteForCheckIfFavoriteMethod()
+            throws Exception {
+        // Given testRecipe with id = 1, that will be returned as
+        // favorite:
+        Recipe testRecipe = new Recipe();
+        testRecipe.setId(1L);
+
+        // Given that recipeDao.findAllFavoriteRecipesForUser will
+        // return List<Recipe> with one test recipe
+        when(
+                recipeDao.findAllFavoriteRecipesFor(any(User.class))
+        ).thenReturn(Collections.singletonList(testRecipe));
+
+        // When recipeService.checkIfRecipeIsFavorite is called
+        // Then true should be returned
+        assertTrue(
+                recipeService.checkIfRecipeIsFavoriteForUser(
+                        testRecipe, any(User.class)
+                )
+        );
+
+        // Verify mocks
+        verify(recipeDao).findAllFavoriteRecipesFor(
+                any(User.class)
+        );
+    }
+
+    @Test
+    public void falseIsReturnedWhenRecipeIsNotFavoriteForCheckIfFavoriteMethod()
+            throws Exception {
+        // Given testRecipe with id = 1, that will be passed as
+        // argument to check method
+        Recipe testRecipe = new Recipe();
+        testRecipe.setId(1L);
+
+        // Given that recipeDao.findAllFavoriteRecipesForUser will
+        // return new empty ArrayList<>
+        when(
+                recipeDao.findAllFavoriteRecipesFor(any(User.class))
+        ).thenReturn(new ArrayList<>());
+
+        // When recipeService.checkIfRecipeIsFavorite is called
+        // Then false should be returned
+        assertFalse(
+                recipeService.checkIfRecipeIsFavoriteForUser(
+                        testRecipe, any(User.class)
+                )
+        );
+
+        // Verify mocks
+        verify(recipeDao).findAllFavoriteRecipesFor(
+                any(User.class)
+        );
     }
 }

@@ -2,11 +2,13 @@ package com.techdegree.dao;
 
 import com.techdegree.model.Recipe;
 import com.techdegree.model.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
+@Transactional
 public class RecipeDaoImpl implements FavoriteRecipesDao {
     // I've no idea how does it work, but apparently
     // just specifying this guy here is enough
@@ -34,5 +36,26 @@ public class RecipeDaoImpl implements FavoriteRecipesDao {
                 .setParameter(1, user.getId())
                 .getResultList();
         return favoriteRecipes;
+    }
+
+    @Override
+    public void addFavoriteRecipeForUser(Long recipeId, Long userId) {
+        entityManager.createNativeQuery(
+                "INSERT INTO users_favorite_recipes " +
+                        "(recipe_id, user_id) " +
+                        "VALUES (?, ?)")
+                .setParameter(1, recipeId)
+                .setParameter(2, userId)
+                .executeUpdate();
+    }
+
+    @Override
+    public void removeFavoriteRecipeForUser(Long recipeId, Long userId) {
+        entityManager.createNativeQuery(
+                "DELETE FROM users_favorite_recipes " +
+                        "WHERE recipe_id = ? AND user_id = ?")
+                .setParameter(1, recipeId)
+                .setParameter(2, userId)
+                .executeUpdate();
     }
 }

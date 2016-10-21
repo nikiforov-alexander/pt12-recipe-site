@@ -8,6 +8,22 @@ public final class WebConstants {
     public static final String SIGN_UP_PAGE = "/sign-up";
     public static final String LOGIN_PAGE = "/login";
     public static final String PROFILE_PAGE = "/profile";
+    public static final String UPDATE_FAVORITES_PAGE_PREFIX =
+            "/update-favorite-status-of-recipe";
+    public static final String EDIT_RECIPE_PAGE_PREFIX =
+            "/edit";
+
+    public static String
+    getEditRecipePageWithId(String id) {
+        return RECIPES_HOME_PAGE + EDIT_RECIPE_PAGE_PREFIX + "/" + id;
+    }
+
+    public static String
+    updateFavoriteStatusPageWithId(String id) {
+                return RECIPES_HOME_PAGE +
+                        UPDATE_FAVORITES_PAGE_PREFIX +
+                        "/" + id;
+    }
 
     // REST API URI-s
 

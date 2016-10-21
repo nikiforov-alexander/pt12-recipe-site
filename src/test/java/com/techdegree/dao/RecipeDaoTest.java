@@ -246,6 +246,75 @@ public class RecipeDaoTest {
         // Assert: Then AccessDeniedException should be thrown
     }
 
+    @Test
+    public void recipeCanBeAddedToFavorites() throws Exception {
+        // Arrange : integration test with webAppContext is arranged
 
+        // Arrange : log in user that does not have any favorites
+        User userWithNoFavorites =
+                loginUserByUsername("ad");
 
+        assertThat(
+                "user does not have any favorites",
+                recipeDao.findAllFavoriteRecipesFor(userWithNoFavorites),
+                iterableWithSize(0)
+        );
+
+        // Act : when we add first recipe as favorite for user
+        recipeDao.addFavoriteRecipeForUser(
+                1L, userWithNoFavorites.getId()
+        );
+
+        // Assert: Then favoriteRecipes for user list should increase
+        assertThat(
+                "user's favorite recipes list increased",
+                recipeDao.findAllFavoriteRecipesFor(
+                        userWithNoFavorites
+                ),
+                iterableWithSize(1)
+        );
+    }
+
+    @Test
+    public void recipeCanBeRemovedFromFavorites() throws Exception {
+        // Arrange : integration test with webAppContext is arranged
+
+        // Arrange : log in user that does not have any favorites
+        User userWithOneFavoriteRecipe =
+                loginUserByUsername("ad");
+
+        assertThat(
+                "user does not have any favorites",
+                recipeDao.findAllFavoriteRecipesFor(userWithOneFavoriteRecipe),
+                iterableWithSize(0)
+        );
+
+        // Arrange : add first recipe as favorite for user
+        recipeDao.addFavoriteRecipeForUser(
+                1L, userWithOneFavoriteRecipe.getId()
+        );
+
+        // Arrange: Then favoriteRecipes for user list should increase
+        assertThat(
+                "user's favorite recipes list increased",
+                recipeDao.findAllFavoriteRecipesFor(
+                        userWithOneFavoriteRecipe
+                ),
+                iterableWithSize(1)
+        );
+
+        // Act : When 1-st recipe is removed from favorites
+        recipeDao.removeFavoriteRecipeForUser(
+                1L, userWithOneFavoriteRecipe.getId()
+        );
+
+        // Assert: Then favorite recipes for user should
+        // be again size 0
+        assertThat(
+                recipeDao.findAllFavoriteRecipesFor(
+                        userWithOneFavoriteRecipe
+                ),
+                iterableWithSize(0)
+        );
+    }
 }

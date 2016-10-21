@@ -443,17 +443,402 @@ Use the following requirements list to ensure all functionality
 is included in the recipe detail page.
 
 .Recipe Detail
-- Allows a user to add a recipe, or edit the recipe if they are the owner
-- Allows a user to provide a recipe name, description, category (from a list of values), prep time, and cook time
-- Allows a user to provide a list of ingredients
-- Each ingredient includes an item, condition, and quantity
-- Allows a user to provide a list of steps
-- Each step includes a description
-- Any user can add the recipe to their favorites
+. <<recipe_details_owner, Only Owner And Admin Can Edit And/Or Update Recipe>>
++
+Allows a user to add a recipe, or edit the recipe if they are the owner
+
+. <<provide_recipe_details, User Can Add Recipe details>>
++
+Allows a user to provide a recipe name, description, category 
+(from a list of values), prep time, and cook time
+
+. <<ingredients_list_edit_recipe, User Can Add Ingredients>>
++
+Allows a user to provide a list of ingredients. Each ingredient includes an item, condition, and quantity
+
+. <<steps_list_edit_recipe, User Can Add Steps>>
++
+Allows a user to provide a list of steps. Each step includes a description
+
+. <<recipe_favorite_detail_page, User Can Add/Remove Recipe to/from Favorites>>
++
+Any user can add the recipe to their favorites
 
 ---
 
-Under Construction ..
+[[recipe_details_owner]]
+==== Only Owner And Admin Can Edit And/Or Update recipe
+
+Allows a user to add a recipe, or edit the recipe if they are the owner
+
+---
+
+In order to introduce security here, additional method that 
+`throws AccessDeniedException` was introduced in *Service* layer,
+in {RecipeServiceImpl}:
+
+```
+checkIfUserCanEditRecipe
+
+```
+
+This method is used in `saveRecipe` processing POST request
+to add/update `Recipe` and in `editRecipePage` that is
+responsible to GET request that is sent when user wants
+to see "edit" recipe page.
+
+The sole purpose of this method as it follows from name
+is to check is user is admin or owner. If he is not, than
+exception is thrown.
+
+The functionality tested on all levels:
+
+* {RecipeServiceTest}
+
+** `permissionDeniedIsThrownWhenUserIsNonOwnerNonAdmin`
+
+* {RecipeControllerTest}
+
+** `nonOwnerNonAdminCannotAccessEditRecipePage`
+
+** `nonOwnerNonAdminCannotUpdateRecipe`
+
+In {RecipeControllerItTest} only positive test is done, i.e. for now
+all the updates are made with logged owner user.
+
+[[provide_recipe_details]]
+==== User Can Add Recipe Details
+
+Allows a user to provide a recipe name, description, category 
+(from a list of values), prep time, and cook time
+Under construction.
+
+---
+
+All fields that were provided in template files can be filled
+by user. I used `@NotNull` and `@NotEmpty` annotation for all
+of them for simplicity.
+
+When one will press 'Add Recipe' button at Home Page
+and will be redirect to page with adding new recipe.
+
+In order to see that fields are all required, one can press
+submit button, and see how all of them turn red.
+
+I tested the validation errors only in
+"Integration" {RecipeControllerItTest}. The problem emerged,
+because Thymeleaf did not set `Recipe` for each `recipe.ingredients`
+and `recipe.steps`. That is why we had to remove `@Valid` as 
+annotation from arguments of `saveRecipe` controller method, 
+and before validation, set missing relationships
+(see {RecipeController} `saveRecipe` for more).
+
+It is probably possible to test the functionality in "mock"
+{RecipeControllerTest}, but I need to somehow to `@Mock` 
+`Validator` manually, and I yet don't know how to do it.
+
+The Validation errors are tested in {RecipeControllerItTest} in
+following test:
+
+* `updatingRecipeWithAllNullInvalidFieldsShouldGiveThatNumberOfErrors`
+* `addingRecipeWithAllEmptyInvalidFieldsShouldGiveThatNumberOfErrors`
+
+[[ingredients_list_edit_recipe]]
+==== User Can Add Ingredients
+
+Allows a user to provide a list of ingredients. 
+Each ingredient includes an item, condition, and quantity
+
+---
+
+In order to add Ingredients I used JavaScript. All functionality
+that is bound to 'Add Ingredient' button can be found in {app_js}
+file, in function that is bound to `#add-another-ingredient-button`
+and executed upon click.
+
+Simple Jquery is used all over the place and 
+in sudo code can be described as following
+
+* get last `<div class="ingredient-row">`
+* get `id` from that `divWithLastIngredient`
+* increment `id`
+* clone `divWithLastIngredient`
+* add clone after `divWithLastIngredient`
+* change `id` and `name` attributes for `<select>` element 
+that selects `ingredient.item.id`
+* change `id` and `name` attributes for `<input>`
+elements for `ingredient.condition` and
+`ingredient.quantity` 
+
+In the end the purpose of JavaScript is from this `<div>`:
+
+```HTML
+<div class="ingredient-row">
+    <input hidden="" 
+        type="text" 
+        id="ingredients0.id" 
+        name="ingredients[0].id" 
+        value="">
+    <input 
+        hidden="" 
+        type="text" 
+        id="ingredients0.version" 
+        name="ingredients[0].version" 
+        value="">
+    <div class="prefix-20 grid-30">
+        <p>
+            <select id="ingredients0.item.id" name="ingredients[0].item.id">
+                <option value="0">Select Item</option>
+                <option value="1">item 1</option>
+                <option value="2">item 2</option>
+            </select>
+        </p>
+    </div>
+    <div class="grid-30">
+        <p>
+            <input 
+                type="text" 
+                id="ingredients0.condition" 
+                name="ingredients[0].condition" 
+                value="">
+        </p>
+    </div>
+    <div class="grid-10 suffix-10">
+        <p>
+            <input 
+                type="text" 
+                id="ingredients0.quantity" 
+                name="ingredients[0].quantity" 
+                value="">
+        </p>
+    </div>
+    <div class="clear"></div>
+</div>
+```
+
+Create new `<div>` where:
+
+.`ingredient.quantity`
+* `id="ingredients0.quantity"` 
+* `name="ingredients[0].quantity"` 
+
+.`ingredient.condition`
+* `id="ingredients0.condition"`
+* `name="ingredients[0].condition"` 
+
+.`ingredient.item.id`
+* `id="ingredients0.item.id"` 
+* `name="ingredients[0].item.id"`
+
+Will be changed respectively to:
+
+.`ingredient.quantity`
+* `id="ingredients1.quantity"` 
+* `name="ingredients[1].quantity"` 
+
+.`ingredient.condition`
+* `id="ingredients1.condition"`
+* `name="ingredients[1].condition"` 
+
+.`ingredient.item.id`
+* `id="ingredients1.item.id"` 
+* `name="ingredients[1].item.id"`
+
+Of course `id` of last ingredient is taken from `divWithLastIngredient`. 
+When we add new Recipe, we generated "add new" page with one 
+`Ingredient` and one `Step`, so that cloning works.
+
+The new div will be without `hidden` `ingredient.version` and
+`ingredient.id`, because this fields should be left null when we add new 
+`Ingredient`.
+
+The resulting `<div>` with new Ingredient made from example 
+above should look like this:
+
+```HTML
+<div class="ingredient-row">
+    <div class="prefix-20 grid-30">
+        <p>
+            <select id="ingredients1.item.id" name="ingredients[1].item.id">
+                <option value="0">Select Item</option>
+                <option value="1">item 1</option>
+                <option value="2">item 2</option>
+            </select>
+        </p>
+    </div>
+    <div class="grid-30">
+        <p>
+            <input 
+                type="text" 
+                id="ingredients1.condition" 
+                name="ingredients[1].condition" 
+                value="">
+        </p>
+    </div>
+    <div class="grid-10 suffix-10">
+        <p>
+            <input 
+                type="text" 
+                id="ingredients1.quantity" 
+                name="ingredients[1].quantity" 
+                value="">
+        </p>
+    </div>
+    <div class="clear"></div>
+</div>
+```
+
+One should definitely test this somehow, hopefully I'll get
+to JavaScript Unit Testing someday.
+
+[[steps_list_edit_recipe]]
+==== User Can Add Steps
+
+Allows a user to provide a list of steps. Each step includes a description
+
+---
+
+The way "Add New Step" button works on "edit" recipe page, is the
+same as ingredient. It is also defined in {app_js} file using
+Jquery that is tracking the click on button with
+`id="add-another-step-button"`. 
+
+Upon click in the same manner new `<div>` with new `Step` 
+is added in a bit different and easier manner, because `Step`
+has only one field `description`:
+
+- get last `<div class="step-row">`
+- get `id` or index of last `step` at page
+- increment `id`
+- create new `div` with new `id` and `name` attributes
+- insert new `div` after `divWithLastStep`
+
+So if initial div in blank "add new" recipe page looks like
+
+```HTML
+<div class="step-row">
+    <input 
+        hidden="" 
+        type="text" 
+        id="steps0.id" 
+        name="steps[0].id" 
+        value="">
+    <input 
+        hidden="" 
+        type="text" 
+        id="steps0.version" 
+        name="steps[0].version" 
+        value="">
+    <div class="prefix-20 grid-80">
+        <p>
+            <input 
+                id="steps0.description" 
+                name="steps[0].description" 
+                value="">
+        </p>
+    </div>
+</div>
+```
+
+Then according new `div` with new `Step` should look like:
+
+```HTML
+<div class="step-row">
+    <div class="prefix-20 grid-80">
+        <p>
+            <input 
+                id="steps1.description" 
+                name="steps[1].description" 
+                value="">
+        </p>
+    </div>
+</div>
+```
+
+[[recipe_favorite_detail_page]]
+==== User Can Add/Remove Recipe to/from Favorites
+
+===== DAO level
+
+At DAO level in {RecipeDaoImpl} class following to methods 
+were introduced:
+
+* `addFavoriteRecipeForUser`
+* `removeFavoriteRecipeForUser`
+
+Because relationship between `User.favoriteRecipes` and `Recipe.favoriteUsers`
+is of type `@ManyToMany`, all we need to do is to remove respective
+links in `@JoinTable` with name 'users_favorite_recipes'
+
+That is exactly what is done in both methods with following simple
+SQL queries.
+
+```SQL
+-- add to favorites query
+INSERT INTO users_favorite_recipes
+ (recipe_id, user_id)
+ VALUES (?, ?)
+
+-- remove from favorites query
+DELETE FROM users_favorite_recipes
+ WHERE recipe_id = ? AND user_id = ?
+``` 
+
+It could've been done with easier `@NativeQuery`, but well, 
+I found that pretty late, so this later can be refactored.
+
+The functionality tested at DAO level with the following tests
+in {RecipeDaoTest}:
+
+* `recipeCanBeAddedToFavorites`
+* `recipeCanBeRemovedFromFavorites`
+
+===== Service Layer
+
+At Service Layer we decided to take into account the check
+if recipe is favorite for user or not, and based on that
+update favorite status of recipe.
+
+That is why in {RecipeServiceImpl} two new methods were
+introduced:
+
+* `updateFavoriteRecipesForUser`
+* `checkIfRecipeIsFavoriteForUser`
+
+The last one simply checks and returns `true` if
+recipe is favorite and `false` otherwise.
+
+The first one uses the last one, and depending on 
+that calls respective method in DAO layer, that adds
+or removes recipe from favorites
+
+The functionality is tested in {RecipeServiceTest}:
+
+* `updatingRecipeWhenRecipeIsAlreadyFavoriteShouldRemoveRecipeFromFavorites`
+* `updatingRecipeWhenRecipeIsNotFavoriteShouldAddRecipeToFavorites`
+* `trueIsReturnedWhenRecipeIsFavoriteForCheckIfFavoriteMethod`
+* `falseIsReturnedWhenRecipeIsNotFavoriteForCheckIfFavoriteMethod`
+
+===== Controller
+
+Finally in {RecipeController} we introduced `updateFavoriteStatusOfRecipe`
+method that is responsible for inline form POST request,
+that updates favorite recipe for user, using method introduced in
+{RecipeServiceImpl} and sets flash message depending whether the
+recipe was removed or added from favorites.
+
+In the 'detail' recipe page, `detailRecipePage` method, 
+we use introduced in Service Layer
+method `checkIfRecipeIsFavoriteForUser` to pass proper
+heart icon, filled or empty and proper button name
+changing favorite status of recipe.
+
+The following tests were added in "mock" {RecipeControllerTest}:
+
+* `detailRecipePageWithFavoriteRecipeShouldRenderSuccessfully`
+* `detailRecipePageWithNonFavoriteRecipeShouldRenderSuccessfully`
+* `userCanAddRecipeToFavoritesFromDetailPage`
+* `userCanRemoveRecipeFromFavoritesFromDetailPage`
 
 === Task 4 : Search Features
 

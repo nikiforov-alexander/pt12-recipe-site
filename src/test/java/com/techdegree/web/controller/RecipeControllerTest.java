@@ -1,15 +1,9 @@
 package com.techdegree.web.controller;
 
-import com.techdegree.model.Item;
-import com.techdegree.model.Recipe;
-import com.techdegree.model.RecipeCategory;
-import com.techdegree.model.User;
+import com.techdegree.model.*;
 import com.techdegree.service.ItemService;
 import com.techdegree.service.RecipeService;
 import com.techdegree.web.FlashMessage;
-// these matchers decided to come non-static ... I hope its ok
-// for now don't know how to fix them
-import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.hamcrest.collection.IsIterableContainingInOrder;
 import org.junit.Before;
@@ -18,14 +12,25 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.NestedServletException;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+import static com.techdegree.web.WebConstants.getEditRecipePageWithId;
+import static com.techdegree.web.WebConstants.updateFavoriteStatusPageWithId;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -188,14 +193,22 @@ public class RecipeControllerTest {
     }
 
     @Test
-    public void detailRecipePage_shouldRenderSuccessfully()
+    public void detailRecipePageWithFavoriteRecipeShouldRenderSuccessfully()
             throws Exception {
-        // Arrange : mockMvc is arranged with injected Controller
-        // we arrange recipeService to return first test Recipe
-        // when service.findOne(1L) will be called
+        // Arrange : Given mockMvc arranged with injected Controller
+
+        // Arrange: Given that findOne will return testRecipe1
         when(recipeService.findOne(1L)).thenReturn(
                 testRecipe1
         );
+
+        // Arrange : Given that checkIfRecipeIsFavoriteForUser will
+        // return true
+        when(
+                recipeService.checkIfRecipeIsFavoriteForUser(
+                        any(Recipe.class), any(User.class)
+                )
+        ).thenReturn(true);
 
         // Act and Assert
         // When request to detail page is made
@@ -203,6 +216,12 @@ public class RecipeControllerTest {
         // - status should be OK
         // - view should be "detail"
         // - model should contain "recipe" attribute
+        // - model attribute "favoriteImageSrc" should
+        //   contain "favorited." indicating that recipe is
+        //   favorite for user
+        // - model attribute "favoriteButtonText" should
+        //   contain "Remove" indication that by pressing
+        //   we'll remove Recipe
         mockMvc.perform(
                 get(BASE_URI + "/recipes/1")
         ).andDo(print())
@@ -210,12 +229,89 @@ public class RecipeControllerTest {
                 .andExpect(view().name("detail"))
                 .andExpect(
                         model().attribute(
+                                "favoriteImageSrc",
+                                containsString("favorited.")
+                        )
+                )
+                .andExpect(
+                        model().attribute(
+                                "favoriteButtonText",
+                                containsString("Remove")
+                        )
+                )
+                .andExpect(
+                        model().attribute(
                                 "recipe",
                                 testRecipe1
                         )
                 );
-        // Then recipe service.findOne(1L) should be called
+
+        // Verify mocks
         verify(recipeService).findOne(1L);
+        verify(recipeService).checkIfRecipeIsFavoriteForUser(
+                any(Recipe.class), any(User.class)
+        );
+    }
+
+    @Test
+    public void detailRecipePageWithNonFavoriteRecipeShouldRenderSuccessfully()
+            throws Exception {
+        // Arrange : Given mockMvc arranged with injected Controller
+
+        // Arrange: Given that findOne will return testRecipe1
+        when(recipeService.findOne(1L)).thenReturn(
+                testRecipe1
+        );
+
+        // Arrange : Given that checkIfRecipeIsFavoriteForUser will
+        // return false
+        when(
+                recipeService.checkIfRecipeIsFavoriteForUser(
+                        any(Recipe.class), any(User.class)
+                )
+        ).thenReturn(false);
+
+        // Act and Assert
+        // When request to detail page is made
+        // Then:
+        // - status should be OK
+        // - view should be "detail"
+        // - model should contain "recipe" attribute
+        // - model should contain "favoriteImageSrc"
+        //   with "favorite." in it, rendering empty heart
+        // - model should contain "Add" in "favoriteButtonText"
+        //   attribute, indicating that by pressing we'll
+        //   make Recipe favorite
+
+        mockMvc.perform(
+                get(BASE_URI + "/recipes/1")
+        ).andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("detail"))
+                .andExpect(
+                        model().attribute(
+                                "favoriteImageSrc",
+                                containsString("favorite.")
+                        )
+                )
+                .andExpect(
+                        model().attribute(
+                                "favoriteButtonText",
+                                containsString("Add")
+                        )
+                )
+                .andExpect(
+                        model().attribute(
+                                "recipe",
+                                testRecipe1
+                        )
+                );
+
+        // Verify mocks
+        verify(recipeService).findOne(1L);
+        verify(recipeService).checkIfRecipeIsFavoriteForUser(
+                any(Recipe.class), any(User.class)
+        );
     }
 
     @Test
@@ -295,9 +391,7 @@ public class RecipeControllerTest {
                         view().name("edit")
                 )
                 .andExpect(
-                        model().attribute("recipe",
-                                Matchers.any(Recipe.class)
-                        )
+                        model().attributeExists("recipe")
                 )
                 .andExpect(
                         model().attribute("categories", RecipeCategory.values())
@@ -351,9 +445,9 @@ public class RecipeControllerTest {
         .andExpect(
                 flash().attribute(
                         "flash",
-                        Matchers.hasProperty(
+                        hasProperty(
                                 "status",
-                                Matchers.equalTo(FlashMessage.Status.SUCCESS)
+                                equalTo(FlashMessage.Status.SUCCESS)
                         )
                 )
         );
@@ -427,5 +521,149 @@ public class RecipeControllerTest {
         verify(recipeService).findByRecipeCategoryName(
                 categoryNameParameter
         );
+    }
+
+    @Test
+    public void userCanAddRecipeToFavoritesFromDetailPage()
+            throws Exception {
+        // Given mocked Controller
+
+        // Given that first recipe will be returned
+        // when recipe service find one is called
+        when(
+                recipeService.findOne(any(Long.class))
+        ).thenReturn(testRecipe1);
+
+        // Given that "true" will be returned when
+        // updateFavoriteRecipesForUser will be called
+        when(
+                recipeService.updateFavoriteRecipesForUser(
+                        any(Recipe.class), any(User.class)
+                )
+        ).thenReturn(true);
+
+        // When POST request to updateFavoriteStatusPageWithId(1)
+        // is called
+        // Then :
+        // - status should be 3xx
+        // - redirected page should be RECIPES_HOME_PAGE
+        // - model attribute "flash" should have "added" String
+        mockMvc.perform(
+                post(updateFavoriteStatusPageWithId("1"))
+        ).andDo(print())
+                .andExpect(
+                        status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl(RECIPES_HOME_PAGE)
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "message",
+                                        containsString("added")
+                                )
+                        )
+                );
+
+        // Verify mocks
+        verify(recipeService).findOne(any(Long.class));
+        verify(recipeService).updateFavoriteRecipesForUser(
+                any(Recipe.class), any(User.class)
+        );
+    }
+
+    @Test
+    public void userCanRemoveRecipeFromFavoritesFromDetailPage() throws Exception {
+        // Given mocked Controller
+
+        // Given that first recipe will be returned
+        // when recipe service find one is called
+        when(
+                recipeService.findOne(any(Long.class))
+        ).thenReturn(testRecipe1);
+
+        // Given that "false" will be returned when
+        // updateFavoriteRecipesForUser will be called
+        when(
+                recipeService.updateFavoriteRecipesForUser(
+                        any(Recipe.class), any(User.class)
+                )
+        ).thenReturn(false);
+
+        // When POST request to updateFavoriteStatusPageWithId(1)
+        // is called
+        // Then :
+        // - status should be 3xx
+        // - redirected page should be RECIPES_HOME_PAGE
+        // - model attribute "flash" should have "removed" String
+        mockMvc.perform(
+                post(updateFavoriteStatusPageWithId("1"))
+        ).andDo(print())
+                .andExpect(
+                       status().is3xxRedirection()
+                )
+                .andExpect(
+                        redirectedUrl(RECIPES_HOME_PAGE)
+                )
+                .andExpect(
+                        flash().attribute(
+                                "flash",
+                                hasProperty(
+                                        "message",
+                                        containsString("removed")
+                                )
+                        )
+                );
+
+        // Verify mocks
+        verify(recipeService).findOne(any(Long.class));
+        verify(recipeService).updateFavoriteRecipesForUser(
+                any(Recipe.class), any(User.class)
+        );
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void nonOwnerNonAdminCannotUpdateRecipe() throws Exception {
+
+        // Given that when recipeService.checkForUser
+        // will throw AccessDeniedException
+        doThrow(
+                AccessDeniedException.class
+        ).when(recipeService)
+                .checkIfUserCanEditRecipe(
+                        any(User.class), any(Recipe.class)
+                );
+
+        // When we make POST request to update recipe
+        // with "id = 1"
+        mockMvc.perform(
+                post("/recipes/save")
+                .param("id", "1")
+        ).andDo(print());
+
+        // Then NestedServletException should be thrown
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void nonOwnerNonAdminCannotAccessEditRecipePage()
+            throws Exception {
+        // Given that AccessDeniedException will be thrown
+        // when checkIfUserCanEditRecipe method on service
+        // will be called
+        doThrow(
+                AccessDeniedException.class
+        ).when(recipeService)
+                .checkIfUserCanEditRecipe(
+                        any(User.class), any(Recipe.class)
+                );
+
+        // When we make GET request to render "edit" page
+        mockMvc.perform(
+                get(getEditRecipePageWithId("1"))
+        ).andDo(print());
+
+        // Then NestedServletException should be thrown
     }
 }
