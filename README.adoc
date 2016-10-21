@@ -758,7 +758,40 @@ Then according new `div` with new `Step` should look like:
 [[recipe_favorite_detail_page]]
 ==== User Can Add/Remove Recipe to/from Favorites
 
-Under construction.
+===== DAO level
+
+At DAO level in {RecipeDaoImpl} class following to methods 
+were introduced:
+
+* `addFavoriteRecipeForUser`
+* `removeFavoriteRecipeForUser`
+
+Because relationship between `User.favoriteRecipes` and `Recipe.favoriteUsers`
+is of type `@ManyToMany`, all we need to do is to remove respective
+links in `@JoinTable` with name 'users_favorite_recipes'
+
+That is exactly what is done in both methods with following simple
+SQL queries.
+
+```SQL
+-- add to favorites query
+INSERT INTO users_favorite_recipes
+ (recipe_id, user_id)
+ VALUES (?, ?)
+
+-- remove from favorites query
+DELETE FROM users_favorite_recipes
+ WHERE recipe_id = ? AND user_id = ?
+``` 
+
+It could've been done with easier `@NativeQuery`, but well, 
+I found that pretty late, so this later can be refactored.
+
+The functionality tested at DAO level with the following tests
+in {RecipeDaoTest}:
+
+* `recipeCanBeAddedToFavorites`
+* `recipeCanBeRemovedFromFavorites`
 
 === Task 4 : Search Features
 
