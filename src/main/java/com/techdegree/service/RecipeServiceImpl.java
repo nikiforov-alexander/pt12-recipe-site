@@ -137,7 +137,7 @@ public class RecipeServiceImpl implements RecipeService {
     public boolean checkIfRecipeIsFavoriteForUser(Recipe recipe, User user) {
         // TODO : figure out what to do with equals and hashCode problems
         List<Long> listOfFavoriteRecipesIds =
-                findFavoriteRecipesForUser(user)
+                recipeDao.findAllFavoriteRecipesFor(user)
                         .stream()
                         .map(Recipe::getId)
                         .collect(Collectors.toList());
