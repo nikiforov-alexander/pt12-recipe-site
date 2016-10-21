@@ -416,4 +416,60 @@ public class RecipeServiceTest {
 
         // Then AccessDeniedException should be thrown
     }
+
+    @Test
+    public void trueIsReturnedWhenRecipeIsFavoriteForCheckIfFavoriteMethod()
+            throws Exception {
+        // Given testRecipe with id = 1, that will be returned as
+        // favorite:
+        Recipe testRecipe = new Recipe();
+        testRecipe.setId(1L);
+
+        // Given that recipeDao.findAllFavoriteRecipesForUser will
+        // return List<Recipe> with one test recipe
+        when(
+                recipeDao.findAllFavoriteRecipesFor(any(User.class))
+        ).thenReturn(Collections.singletonList(testRecipe));
+
+        // When recipeService.checkIfRecipeIsFavorite is called
+        // Then true should be returned
+        assertTrue(
+                recipeService.checkIfRecipeIsFavoriteForUser(
+                        testRecipe, any(User.class)
+                )
+        );
+
+        // Verify mocks
+        verify(recipeDao).findAllFavoriteRecipesFor(
+                any(User.class)
+        );
+    }
+
+    @Test
+    public void falseIsReturnedWhenRecipeIsNotFavoriteForCheckIfFavoriteMethod()
+            throws Exception {
+        // Given testRecipe with id = 1, that will be passed as
+        // argument to check method
+        Recipe testRecipe = new Recipe();
+        testRecipe.setId(1L);
+
+        // Given that recipeDao.findAllFavoriteRecipesForUser will
+        // return new empty ArrayList<>
+        when(
+                recipeDao.findAllFavoriteRecipesFor(any(User.class))
+        ).thenReturn(new ArrayList<>());
+
+        // When recipeService.checkIfRecipeIsFavorite is called
+        // Then false should be returned
+        assertFalse(
+                recipeService.checkIfRecipeIsFavoriteForUser(
+                        testRecipe, any(User.class)
+                )
+        );
+
+        // Verify mocks
+        verify(recipeDao).findAllFavoriteRecipesFor(
+                any(User.class)
+        );
+    }
 }
