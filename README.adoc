@@ -849,7 +849,35 @@ phrase in the description.
 
 ---
 
-Under construction.
+At {RecipeDao} interface Spring "query" method
+`findByDescriptionContaining` was added, that does all the hard work 
+for us.
+
+The functionality is tested just in case in {RecipeDaoTest}
+
+* `recipeCanBeSearchedByDescription`
+
+At {RecipeServiceImpl} class defined
+DAO method without no changes is used. And I decided not to test
+this.
+
+At {RecipeController} class `filterByDescription` method is introduced,
+with one `@RequestParam` "description". It looks very similar to
+`filterByCategory` method. I'm glad I've decided to re-use that
+"circular" `fillModelWithRecipesFavoritesAndCategories` method.
+
+The functionality is tested in {RecipeControllerTest}:
+
+* `recipesCanBeSearchedByDescriptionOnIndexPage`
+
+In actual {index_html} template inline `<form>` was introduced
+with GET method and simple one parameter "description". So that
+when user presses button "Search" recipes are searched by 
+"description" provided.
+
+As a future TODO we definitely will be doing combined search,
+but only after submission of the project. It's been two months
+now. And it is time to finish this.
 
 === Task 5 : Security
 

@@ -27,4 +27,7 @@ public interface RecipeDao extends
     void delete(@Param("recipe") Recipe recipe);
 
     List<Recipe> findByRecipeCategory(RecipeCategory recipeCategory);
+
+    // TODO : test in REST API Integration test
+    List<Recipe> findByDescriptionContaining(String description);
 }

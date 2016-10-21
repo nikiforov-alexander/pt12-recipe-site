@@ -33,13 +33,15 @@ public class DataLoader implements ApplicationRunner {
     /**
      * saves Recipe with two ingredients and steps with
      * recipeName and recipeCategory
-     * @param recipeName : Recipe.name to be set
+     * @param recipeNumber : number of recipe that will be prefixed
+     *                     to recipe fields, like "description 1",
+     *                     "name 1", etc.
      * @param recipeCategory RecipeCategory to be set
      * @param owner User that will be set as Recipe.owner to recipe
      *              saved
      */
     private void saveRecipeWithTwoIngredientsAndSteps(
-            String recipeName,
+            String recipeNumber,
             RecipeCategory recipeCategory,
             User owner
     ) {
@@ -61,12 +63,12 @@ public class DataLoader implements ApplicationRunner {
 
         // create recipe
         Recipe recipe = new Recipe(
-                recipeName,
-                "Description 1",
+                "Recipe " + recipeNumber,
+                "Description " + recipeNumber,
                 recipeCategory,
-                "photoUrl 1",
-                "preparationTime 1",
-                "cookTime 1"
+                "photoUrl " + recipeNumber,
+                "preparationTime " + recipeNumber,
+                "cookTime " + recipeNumber
         );
         // put ingredients into recipe
         recipe.addIngredient(ingredient1);
@@ -171,7 +173,7 @@ public class DataLoader implements ApplicationRunner {
         int recipeNumber = 1;
         for (RecipeCategory category : RecipeCategory.values()) {
             saveRecipeWithTwoIngredientsAndSteps(
-                    "Recipe " + recipeNumber,
+                    recipeNumber + "",
                     category,
                     johnDoeOwnerOfRecipes
             );

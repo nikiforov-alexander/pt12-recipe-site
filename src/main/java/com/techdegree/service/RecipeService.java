@@ -13,6 +13,7 @@ public interface RecipeService {
     void delete(Recipe recipe);
 
     List<Recipe> findByRecipeCategoryName(String name);
+    List<Recipe> findByDescriptionContaining(String description);
 
     List<Recipe> findFavoriteRecipesForUser(User user);
 

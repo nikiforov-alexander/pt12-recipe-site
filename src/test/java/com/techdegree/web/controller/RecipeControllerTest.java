@@ -18,12 +18,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.NestedServletException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
-import static com.techdegree.web.WebConstants.getEditRecipePageWithId;
-import static com.techdegree.web.WebConstants.updateFavoriteStatusPageWithId;
+import static com.techdegree.web.WebConstants.*;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasProperty;
@@ -665,5 +665,59 @@ public class RecipeControllerTest {
         ).andDo(print());
 
         // Then NestedServletException should be thrown
+    }
+
+    @Test
+    public void recipesCanBeSearchedByDescriptionOnIndexPage()
+            throws Exception {
+        // Given listWithOneTestRecipe with testRecipe1
+        List<Recipe> listWithOneTestRecipe =
+                Collections.singletonList(
+                        testRecipe1
+                );
+
+        // Given that recipeService.findByRecipeDescription
+        // will return listWithOneTestRecipe
+        when(
+                recipeService.findByDescriptionContaining(anyString())
+        ).thenReturn(listWithOneTestRecipe);
+
+        // Given that recipeService.findFavoriteRecipesForUser
+        // will return new ArrayList<>
+        when(
+                recipeService.findFavoriteRecipesForUser(any(User.class))
+        ).thenReturn(new ArrayList<>());
+
+        // When GET request to RECIPES_HOME_PAGE is
+        // made with "description" parameter.
+        // Then:
+        // - status should be OK
+        // - view named INDEX_TEMPLATE
+        // - model should contain "recipes" with
+        //   our listWithOneTestRecipe
+        mockMvc.perform(
+                get(RECIPES_HOME_PAGE)
+                .param("description", "1")
+        ).andDo(print())
+                .andExpect(
+                        status().isOk()
+                )
+                .andExpect(
+                        view().name(INDEX_TEMPLATE)
+                )
+                .andExpect(
+                        model().attribute(
+                                "recipes",
+                                listWithOneTestRecipe
+                        )
+                );
+
+        // verify mock interactions
+        verify(recipeService).findFavoriteRecipesForUser(
+                any(User.class)
+        );
+        verify(recipeService).findByDescriptionContaining(
+                anyString()
+        );
     }
 }

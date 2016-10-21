@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.List;
+
 import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.getSizeOfIterable;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -315,6 +317,25 @@ public class RecipeDaoTest {
                         userWithOneFavoriteRecipe
                 ),
                 iterableWithSize(0)
+        );
+    }
+
+    @Test
+    public void recipeCanBeSearchedByDescription() throws Exception {
+        // Given that we have DataLoader that will load
+        // recipes with following descriptions:
+        // "Description 1"
+        // "Description 2"
+        // ...
+
+        // When we findByDescriptionContaining "1"
+        List<Recipe> recipesWithDescriptionOne =
+                recipeDao.findByDescriptionContaining("1");
+
+        // Then iterable with size "1" should be returned
+        assertThat(
+                recipesWithDescriptionOne,
+                iterableWithSize(1)
         );
     }
 }

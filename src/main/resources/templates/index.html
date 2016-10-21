@@ -47,14 +47,23 @@
                     </select>
                 </div>
                 <!--/*
-                      TODO: implement search by name index page
-                      this input should be in form that makes
-                      get request ... And I have to read about this more
-                      in Thymeleaf docs
+                      TODO: implement search by name index page together with category
+                      Right now two searches are separated: one
+                      can search by "description", or by "category"
+                      I could not find a better way to search them
+                      together. That is for after submission
                 */-->
                 <div class="grid-40">
-                    <input type="text"
-                           placeholder="Search">
+                    <form method="get"
+                          th:action="@{/recipes/}">
+                        <input type="text"
+                               placeholder="Search by Description"
+                               id="description"
+                               name="description">
+                        <button type="submit">
+                            Search
+                        </button>
+                    </form>
                 </div>
 
                 <!--/*
