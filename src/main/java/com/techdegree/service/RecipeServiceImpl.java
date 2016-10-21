@@ -170,6 +170,11 @@ public class RecipeServiceImpl implements RecipeService {
                 );
     }
 
+    @Override
+    public List<Recipe> findByDescriptionContaining(String description) {
+        return recipeDao.findByDescriptionContaining(description);
+    }
+
     // one more candidate to include delete(Long id) ...
     // this may be added later if needed. For now it is
     // not so interesting
