@@ -694,7 +694,66 @@ to JavaScript Unit Testing someday.
 [[steps_list_edit_recipe]]
 ==== User Can Add Steps
 
-Under construction.
+Allows a user to provide a list of steps. Each step includes a description
+
+---
+
+The way "Add New Step" button works on "edit" recipe page, is the
+same as ingredient. It is also defined in {app_js} file using
+Jquery that is tracking the click on button with
+`id="add-another-step-button"`. 
+
+Upon click in the same manner new `<div>` with new `Step` 
+is added in a bit different and easier manner, because `Step`
+has only one field `description`:
+
+- get last `<div class="step-row">`
+- get `id` or index of last `step` at page
+- increment `id`
+- create new `div` with new `id` and `name` attributes
+- insert new `div` after `divWithLastStep`
+
+So if initial div in blank "add new" recipe page looks like
+
+```HTML
+<div class="step-row">
+    <input 
+        hidden="" 
+        type="text" 
+        id="steps0.id" 
+        name="steps[0].id" 
+        value="">
+    <input 
+        hidden="" 
+        type="text" 
+        id="steps0.version" 
+        name="steps[0].version" 
+        value="">
+    <div class="prefix-20 grid-80">
+        <p>
+            <input 
+                id="steps0.description" 
+                name="steps[0].description" 
+                value="">
+        </p>
+    </div>
+</div>
+```
+
+Then according new `div` with new `Step` should look like:
+
+```HTML
+<div class="step-row">
+    <div class="prefix-20 grid-80">
+        <p>
+            <input 
+                id="steps1.description" 
+                name="steps[1].description" 
+                value="">
+        </p>
+    </div>
+</div>
+```
 
 [[recipe_favorite_detail_page]]
 ==== User Can Add/Remove Recipe to/from Favorites
