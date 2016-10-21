@@ -819,6 +819,27 @@ The functionality is tested in {RecipeServiceTest}:
 * `trueIsReturnedWhenRecipeIsFavoriteForCheckIfFavoriteMethod`
 * `falseIsReturnedWhenRecipeIsNotFavoriteForCheckIfFavoriteMethod`
 
+===== Controller
+
+Finally in {RecipeController} we introduced `updateFavoriteStatusOfRecipe`
+method that is responsible for inline form POST request,
+that updates favorite recipe for user, using method introduced in
+{RecipeServiceImpl} and sets flash message depending whether the
+recipe was removed or added from favorites.
+
+In the 'detail' recipe page, `detailRecipePage` method, 
+we use introduced in Service Layer
+method `checkIfRecipeIsFavoriteForUser` to pass proper
+heart icon, filled or empty and proper button name
+changing favorite status of recipe.
+
+The following tests were added in "mock" {RecipeControllerTest}:
+
+* `detailRecipePageWithFavoriteRecipeShouldRenderSuccessfully`
+* `detailRecipePageWithNonFavoriteRecipeShouldRenderSuccessfully`
+* `userCanAddRecipeToFavoritesFromDetailPage`
+* `userCanRemoveRecipeFromFavoritesFromDetailPage`
+
 === Task 4 : Search Features
 
 The recipe list page should have a search feature.
