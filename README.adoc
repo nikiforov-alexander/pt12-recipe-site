@@ -258,9 +258,9 @@ elsewhere is `null`. This list is passed along with all recipes
 to `Model`.
 
 The list to be passed is generated in a
-[java]`RecipeController.generateFavoritesWithNullsForNonFavoritesList`
+`RecipeController.generateFavoritesWithNullsForNonFavoritesList`
 method. And because of that is tested separately in
-[java]`@Test favoritesWithNonNullsListIsGeneratedCorrectly` in
+`@Test favoritesWithNonNullsListIsGeneratedCorrectly` in
 {RecipeControllerTest}
 
 Simple list with favorite recipes for users is generated at DAO
@@ -401,9 +401,18 @@ Allows the user to edit or delete a recipe
 
 ---
 
-For now user can delete recipe, without any problems.
-No restrictions on that. About edit, the same policy
-applies, see section about saving recipe above.
+User can delete Recipe only if he is owner, or admin.
+
+This is enforced by `@PreAuthorize` in {RecipeDao} and works
+both for REST API part and non-REST part.
+
+Unfortunately in order to enforce security upon editing recipe,
+I had to use {RecipeEventHandler} for REST API and
+`checkIfUserCanEditRecipe` method in {RecipeServiceImpl}
+
+See the <<rest_recipes_security, REST Recipes Security>> and
+<<recipe_details_owner, Only Owner Or Admin Can Edit/Update Recipe>>
+for more.
 
 [[recipe_owner]]
 ==== Recipe Owner
@@ -1104,6 +1113,7 @@ to be deleted.
 
 ==== Security
 
+[[rest_recipes_security]]
 ===== Recipes
 
 `Recipe` can be updated only by owner of `Recipe` or admin user.
