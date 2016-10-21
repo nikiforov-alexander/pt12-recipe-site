@@ -11,6 +11,7 @@
 :PasswordMatchesValidator: {main_package}validator/PasswordMatchesValidator.java[PasswordMatchesValidator]
 :PasswordMatches: {main_package}validator/PasswordMatches.java[PasswordMatches]
 :ValidItem: {main_package}validator/ValidItem.java[ValidItem]
+:UserService: {main_package}service/UserService.java[UserService]
 :CustomUserDetailsService: {main_package}service/CustomUserDetailsService.java[CustomUserDetailsService]
 :IngredientService: {main_package}service/IngredientService.java[IngredientService]
 :StepService: {main_package}service/StepService.java[StepService]
@@ -147,7 +148,8 @@ All {User} related DAOs are not exposed to REST API.
 {FavoriteRecipesDao} is interface that allows us to add custom
 methods to Spring-Data DAOs. And {RecipeDaoImpl} is the class that
 implements {FavoriteRecipesDao} and defines manually defined
-methods (For now only method listing favorite recipes for user).
+methods, all of them are relevant to deal with `@ManyToMany`
+relationship between `User.favoriteRecipes`, and `User.favoriteUsers`
 
 [[task-1-service]]
 ==== Service
@@ -155,6 +157,7 @@ methods (For now only method listing favorite recipes for user).
 Service layer implementations do not have anything in particular,
 except repeating commands at DAO layer:
 
+* {UserService}
 * {CustomUserDetailsService}
 * {IngredientService}
 * {IngredientServiceImpl}
@@ -165,15 +168,17 @@ except repeating commands at DAO layer:
 * {StepService}
 * {StepServiceImpl}
 
-Most of them repeat commands at DAO layer with few exceptions:
+Most of them repeat commands at DAO layer with exceptions, that
+are relevant for {RecipeServiceImpl}, because we actually can
+access `Ingredient`, `Item` or `Step` only through changing
+recipe.
 
-{RecipeDao} has significantly different `save` method that takes
-into consideration that recipe has favorites and owner, see
-related <<favorites, Favorites>> and <<recipe_owner, Recipe Owner>>
-sections for more:
+There are many methods that were introduced to facilitate
+request processing in {RecipeController}.
 
 {CustomUserDetailsService} `implements UserDetailsService` and is very
-common service that has `loadUserByUsername` method
+common service that has `loadUserByUsername` method. It is used
+through the {UserService} interface.
 
 [[task-1-coverage]]
 ==== Coverage
