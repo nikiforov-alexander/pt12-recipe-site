@@ -793,6 +793,32 @@ in {RecipeDaoTest}:
 * `recipeCanBeAddedToFavorites`
 * `recipeCanBeRemovedFromFavorites`
 
+===== Service Layer
+
+At Service Layer we decided to take into account the check
+if recipe is favorite for user or not, and based on that
+update favorite status of recipe.
+
+That is why in {RecipeServiceImpl} two new methods were
+introduced:
+
+* `updateFavoriteRecipesForUser`
+* `checkIfRecipeIsFavoriteForUser`
+
+The last one simply checks and returns `true` if
+recipe is favorite and `false` otherwise.
+
+The first one uses the last one, and depending on 
+that calls respective method in DAO layer, that adds
+or removes recipe from favorites
+
+The functionality is tested in {RecipeServiceTest}:
+
+* `updatingRecipeWhenRecipeIsAlreadyFavoriteShouldRemoveRecipeFromFavorites`
+* `updatingRecipeWhenRecipeIsNotFavoriteShouldAddRecipeToFavorites`
+* `trueIsReturnedWhenRecipeIsFavoriteForCheckIfFavoriteMethod`
+* `falseIsReturnedWhenRecipeIsNotFavoriteForCheckIfFavoriteMethod`
+
 === Task 4 : Search Features
 
 The recipe list page should have a search feature.
