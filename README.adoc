@@ -443,7 +443,7 @@ Use the following requirements list to ensure all functionality
 is included in the recipe detail page.
 
 .Recipe Detail
-. <<recipe_details_owner, Only Owner Can Edit Recipe>>
+. <<recipe_details_owner, Only Owner And Admin Can Edit And/Or Update Recipe>>
 +
 Allows a user to add a recipe, or edit the recipe if they are the owner
 
@@ -467,9 +467,40 @@ Any user can add the recipe to their favorites
 ---
 
 [[recipe_details_owner]]
-==== Only owner can edit recipe
+==== Only Owner And Admin Can Edit And/Or Update recipe
 
-Under construction.
+In order to introduce security here, additional method that 
+`throws AccessDeniedException` was introduced in *Service* layer,
+in {RecipeServiceImpl}:
+
+```
+checkIfUserCanEditRecipe
+
+```
+
+This method is used in `saveRecipe` processing POST request
+to add/update `Recipe` and in `editRecipePage` that is
+responsible to GET request that is sent when user wants
+to see "edit" recipe page.
+
+The sole purpose of this method as it follows from name
+is to check is user is admin or owner. If he is not, than
+exception is thrown.
+
+The functionality tested on all levels:
+
+* {RecipeServiceTest}
+
+** `permissionDeniedIsThrownWhenUserIsNonOwnerNonAdmin`
+
+* {RecipeControllerTest}
+
+** `nonOwnerNonAdminCannotAccessEditRecipePage`
+
+** `nonOwnerNonAdminCannotUpdateRecipe`
+
+In {RecipeControllerItTest} only positive test is done, i.e. for now
+all the updates are made with logged owner user.
 
 [[provide_recipe_details]]
 ==== User Can Add Recipe Details
