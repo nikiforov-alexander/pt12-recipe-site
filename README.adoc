@@ -89,6 +89,7 @@
 :jqueryPasswordCheckerLink: https://www.formget.com/password-strength-checker-in-jquery/
 
 image:https://travis-ci.org/nikiforov-alexander/pt12-recipe-site.svg?branch=master["Build Status", link="https://travis-ci.org/nikiforov-alexander/pt12-recipe-site"]
+image:https://coveralls.io/repos/github/nikiforov-alexander/pt12-recipe-site/badge.svg?branch=master["Coverage Status", link="https://coveralls.io/github/nikiforov-alexander/pt12-recipe-site?branch=master"]
 
 toc::[]
 
