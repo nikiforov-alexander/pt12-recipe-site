@@ -88,6 +88,8 @@
 :passwordRegexLink: http://regexlib.com/REDetails.aspx?regexp_id=31
 :jqueryPasswordCheckerLink: https://www.formget.com/password-strength-checker-in-jquery/
 
+image:https://travis-ci.org/nikiforov-alexander/pt12-recipe-site.svg?branch=master["Build Status", link="https://travis-ci.org/nikiforov-alexander/pt12-recipe-site"]
+
 toc::[]
 
 [[eclipse]]
