@@ -27,9 +27,11 @@ import static com.techdegree.testing_shared_helpers.IterablesConverterHelper.get
 import static com.techdegree.web.WebConstants.RECIPES_REST_PAGE;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -136,7 +138,7 @@ public class RecipeRestIntegrationTest {
             throws Exception {
         // Arrange : mockMvc is arranged
 
-        // Arrange : create test Recipe
+        // Arrange : create test Recipe with 1 step
         Recipe testRecipe = new Recipe.RecipeBuilder(null)
                 .withVersion(null)
                 .withName("test name")
@@ -146,6 +148,7 @@ public class RecipeRestIntegrationTest {
                 .withPreparationTime("test prep time")
                 .withCookTime("test cook time")
                 .build();
+        testRecipe.addStep("step 1");
 
         // Arrange : calculate number of recipes before req
         int numberOfRecipesBeforeReq =
@@ -188,15 +191,25 @@ public class RecipeRestIntegrationTest {
                 is(numberOfRecipesBeforeReq + 1)
         );
 
-        // Assert that user owns the recipe
-        // NOTE: numberOfRecipesBeforeReq + 1 is equal to "id" of
-        // newly created recipe
         assertThat(
+                "logged user owns the recipe",
+                // NOTE: numberOfRecipesBeforeReq + 1 is equal to "id" of
+                // newly created recipe
                 recipeDao.findOne(
                         (long) numberOfRecipesBeforeReq + 1
                 ),
                 hasProperty(
                         "owner", equalTo(user)
+                )
+        );
+
+        assertThat(
+                "recipe has step 'step 1'",
+                recipeDao.findStepsForRecipe(
+                        (long) numberOfRecipesBeforeReq + 1
+                ),
+                containsInAnyOrder(
+                        "step 1"
                 )
         );
     }
