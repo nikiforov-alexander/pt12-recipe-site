@@ -59,9 +59,8 @@ public class Recipe extends BaseEntity{
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     private List<Ingredient> ingredients = new ArrayList<>();
 
-    @Valid
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
-    private List<Step> steps = new ArrayList<>();
+    @ElementCollection
+    private List<String> steps = new ArrayList<>();
 
     // users with favorite recipes
     @ManyToMany
@@ -133,11 +132,11 @@ public class Recipe extends BaseEntity{
         this.ingredients = ingredients;
     }
 
-    public List<Step> getSteps() {
+    public List<String> getSteps() {
         return steps;
     }
 
-    public void setSteps(List<Step> steps) {
+    public void setSteps(List<String> steps) {
         this.steps = steps;
     }
 
@@ -189,7 +188,7 @@ public class Recipe extends BaseEntity{
         ingredients.add(ingredient);
     }
 
-    public void addStep(Step step) {
+    public void addStep(String step) {
         steps.add(step);
     }
 
