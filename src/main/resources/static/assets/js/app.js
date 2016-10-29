@@ -55,8 +55,8 @@ $("#add-another-step-button").click(function () {
 
     // set new id
     var newId = id + 1;
-    var newStepInputId = 'steps' + newId + '.description';
-    var newStepInputName = 'steps[' + newId + '].description';
+    var newStepInputId = 'steps' + newId + '';
+    var newStepInputName = 'steps[' + newId + ']';
 
     // create new div
     var newDiv =
