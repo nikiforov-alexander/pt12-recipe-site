@@ -27,15 +27,7 @@ repositories {
     mavenCentral()
 }
 
-// note automatic build example was taken from here:
-// https://dzone.com/articles/continuous-auto-restart-with-spring-boot-devtools
-configurations {
-    dev
-}
-
 dependencies {
-    // automatic restart try
-    dev("org.springframework.boot:spring-boot-devtools")
 
     // spring data rest
     compile 'org.springframework.boot:spring-boot-starter-data-rest'
@@ -83,6 +75,3 @@ dependencies {
 
 cobertura.coverageFormats = ['html', 'xml']
 
-bootRun {
-    classpath = sourceSets.main.runtimeClasspath + configurations.dev
-}
