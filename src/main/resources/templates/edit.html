@@ -359,21 +359,14 @@
                 */-->
                 <div th:each="step : *{steps}" class="step-row">
                     <!--/* span with error message */-->
-                    <span th:errors="*{steps[__${stepStat.index}__].description}">
+                    <span th:errors="*{steps[__${stepStat.index}__]}">
                     </span>
 
-                    <input th:field="*{steps[__${stepStat.index}__].id}"
-                           type="text"
-                           hidden>
-                    <input th:field="*{steps[__${stepStat.index}__].version}"
-                           type="text"
-                           hidden>
-
-                    <div th:classappend="${#fields.hasErrors('steps[' + __${stepStat.index}__ + '].description')}? 'error' : ''"
+                    <div th:classappend="${#fields.hasErrors('steps[' + __${stepStat.index}__ + ']')}? 'error' : ''"
                         class="prefix-20 grid-80">
                         <p>
-                            <input th:field="*{steps[__${stepStat.index}__].description}"
-                                   th:autofocus="${#fields.hasErrors('steps[' + __${stepStat.index}__ + '].description')}"
+                            <input th:field="*{steps[__${stepStat.index}__]}"
+                                   th:autofocus="${#fields.hasErrors('steps[' + __${stepStat.index}__ + ']')}"
                             >
                         </p>
                     </div>
