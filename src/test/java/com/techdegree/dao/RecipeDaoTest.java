@@ -338,4 +338,19 @@ public class RecipeDaoTest {
                 iterableWithSize(1)
         );
     }
+
+    @Test
+    public void recipeStepsCanBeInitializedAndReturnedThroughDao() throws Exception {
+        // Given that we have first recipe with some steps
+
+        // When we try to get Recipe.steps using dao method
+        List<String> listWithSomeRecipeSteps =
+                recipeDao.findStepsForRecipe(1L);
+
+        assertThat(
+               "list with some recipe steps is iterable with size 2",
+               listWithSomeRecipeSteps,
+               iterableWithSize(2)
+        );
+    }
 }
