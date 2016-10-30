@@ -1,6 +1,8 @@
 package com.techdegree.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import cz.jirutka.validator.collection.constraints.EachNotEmpty;
+import cz.jirutka.validator.collection.constraints.EachNotNull;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
@@ -59,6 +61,16 @@ public class Recipe extends BaseEntity{
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     private List<Ingredient> ingredients = new ArrayList<>();
 
+    // here I used ElementCollection, because I feel that is
+    // proper way to keep recipe.steps that are unique to
+    // recipe, and thus not having DAO for it helps a lot
+    // EachNotNull and EachNotEmpty are used like
+    // @Valid for List<Object>, because there is no standard
+    // annotation for it, we used it from jirutka repo
+    // see this stack discussion
+    // http://stackoverflow.com/questions/4308224/hibernate-validation-of-collections-of-primitives
+    @EachNotNull
+    @EachNotEmpty
     @ElementCollection
     private List<String> steps = new ArrayList<>();
 
