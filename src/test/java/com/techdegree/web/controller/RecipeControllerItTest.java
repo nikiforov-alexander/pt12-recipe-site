@@ -16,6 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 
+import java.util.Comparator;
+import java.util.Optional;
+
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -77,6 +80,27 @@ public class RecipeControllerItTest {
         testRecipeWithAllValidFields1.addStep(
                 testStep
         );
+    }
+
+    /**
+     * finds maximum {@code id} value from all
+     * recipes returned by {@code recipeService.findAll()}.
+     * Taken from
+     * http://stackoverflow.com/questions/24378646/finding-max-with-lambda-expression-in-java
+     * @return {@literal Long} max value, or {@literal null}
+     * otherwise
+     */
+    private Long getIdOfNewlyCreatedRecipe() {
+        Optional<Long> maxId =
+                recipeService.findAll().stream()
+                .map(Recipe::getId)
+                .max(
+                        Comparator.comparing(i -> i)
+                );
+        if (maxId.isPresent()) {
+            return maxId.get();
+        }
+        return null;
     }
 
     @Before
@@ -251,7 +275,11 @@ public class RecipeControllerItTest {
         // Add recipe to be deleted and get its id to
         // pass to request
         Long idOfNewlyAddedRecipe =
-                (long) addRecipeToBeDeletedAfterwards(user);
+                addRecipeToBeDeletedAfterwards(user);
+        assertNotNull(
+                "newly added recipe's id to be deleted should not be null",
+                idOfNewlyAddedRecipe
+        );
 
         // When POST request for updating firstRecipeFromDatabase
         // with all correct and changed parameters is made
@@ -349,8 +377,6 @@ public class RecipeControllerItTest {
         int numberOfRecipesBeforeReq = recipeService.findAll().size();
         int numberOfIngredientsBeforeReq = ingredientService.findAll().size();
 
-        Long idOfNewlyAddedRecipe = (long) numberOfRecipesBeforeReq + 1;
-
         // When POST request
         // or adding new one (because they are same)
         // with all correct parameters
@@ -398,6 +424,15 @@ public class RecipeControllerItTest {
                         )
                 )
         );
+
+        Long idOfNewlyAddedRecipe = getIdOfNewlyCreatedRecipe();
+
+        assertNotNull(
+                "id of newly created recipe is not null, " +
+                        "otherwise our tests will not make any sense",
+                idOfNewlyAddedRecipe
+        );
+
         assertThat(
                 "recipe has now one step 'step 0'",
                 recipeService.findStepsForRecipe(idOfNewlyAddedRecipe),
@@ -428,7 +463,7 @@ public class RecipeControllerItTest {
      * @throws Exception because we use mockMvc and it throws
      * exception
      */
-    private int addRecipeToBeDeletedAfterwards(User user) throws Exception {
+    private Long addRecipeToBeDeletedAfterwards(User user) throws Exception {
         mockMvc.perform(
         post(BASE_URI + "/recipes/save")
                 .with(
@@ -452,19 +487,7 @@ public class RecipeControllerItTest {
                 .param("ingredients[0].condition", "condition")
                 .param("ingredients[0].quantity", "quantity")
         );
-        // here we check recipe with highest id, that will be the one
-        // we just added
-        int idOfNewlyCreatedRecipe = recipeService.findAll().size();
-        Recipe recipe = recipeService.findOne(
-                (long) idOfNewlyCreatedRecipe
-        );
-        while (recipe == null) {
-            idOfNewlyCreatedRecipe--;
-            recipe = recipeService.findOne(
-                    (long) idOfNewlyCreatedRecipe
-            );
-        }
-        return idOfNewlyCreatedRecipe;
+        return getIdOfNewlyCreatedRecipe();
     }
 
     @Test
@@ -490,7 +513,11 @@ public class RecipeControllerItTest {
 
         // Add recipe to be deleted and get its id to
         // pass to request
-        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+        Long idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+        assertNotNull(
+                "newly added recipe should not be null",
+                idOfNewlyAddedRecipe
+        );
 
         // When POST request to "/recipes/delete/idOfNewlyAddedRecipe"
         // is made
@@ -559,7 +586,11 @@ public class RecipeControllerItTest {
 
         // Add recipe to be deleted and get its id to
         // pass to request
-        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+        Long idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+        assertNotNull(
+                "id of newly added recipe should not be null",
+                idOfNewlyAddedRecipe
+        );
 
         // When POST request to "/recipes/delete/idOfNewlyAddedRecipe"
         // with admin user is made
