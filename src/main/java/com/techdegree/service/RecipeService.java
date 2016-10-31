@@ -23,4 +23,6 @@ public interface RecipeService {
 
     void checkIfUserCanEditRecipe(User user, Recipe recipe)
             throws AccessDeniedException;
+
+    List<String> findStepsForRecipe(Long recipeId);
 }
