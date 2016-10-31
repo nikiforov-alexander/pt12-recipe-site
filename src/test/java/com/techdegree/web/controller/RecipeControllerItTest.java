@@ -181,7 +181,7 @@ public class RecipeControllerItTest {
         // - status should be 3xx : redirect
         // - redirected page should be "/recipes/add-new"
         // - flash message should be sent with failure status
-        // - bindingResult should have 9 errors by the number of
+        // - bindingResult should have 10 errors by the number of
         // input fields:
         mockMvc.perform(
                 post(BASE_URI + "/recipes/save")
@@ -190,15 +190,16 @@ public class RecipeControllerItTest {
                                         user
                                 )
                         )
-                        .param("name", "") // @NotEmpty
-                        .param("description", "") // @NotEmpty
-                        .param("recipeCategory", "") // @NotEmpty
-                        .param("photoUrl", "") // @NotEmpty
-                        .param("cookTime", "") // @NotEmpty
-                        .param("preparationTime", "") // @NotEmpty
-                        .param("ingredients[0].item.id", "0") // @ValidItem
-                        .param("ingredients[0].condition", "") // @NotEmpty
-                        .param("ingredients[0].quantity", "") // @NotEmpty
+                        .param("name", "") // 1. @NotEmpty
+                        .param("description", "") // 2. @NotEmpty
+                        .param("recipeCategory", "") // 3. @NotEmpty
+                        .param("photoUrl", "") // 4. @NotEmpty
+                        .param("cookTime", "") // 5. @NotEmpty
+                        .param("preparationTime", "") // 6. @NotEmpty
+                        .param("ingredients[0].item.id", "0") // 7. @ValidItem
+                        .param("ingredients[0].condition", "") // 8. @NotEmpty
+                        .param("ingredients[0].quantity", "") // 9. @NotEmpty
+                        .param("steps[0]","") // 10. @NotEmpty as part of @EachNotEmpty
         ).andDo(print())
         .andExpect(
             status().is3xxRedirection()
@@ -219,12 +220,12 @@ public class RecipeControllerItTest {
             flash().attribute(
                 "org.springframework.validation.BindingResult.recipe",
                 hasProperty("fieldErrorCount",
-                        equalTo(9)
+                        equalTo(10)
                 )
             )
         );
-        // Assert that number of recipes stayed same:
         assertThat(
+                "number of recipes in db stayed same",
                 recipeService.findAll().size(),
                 is(numberOfRecipeBeforeReq)
         );
