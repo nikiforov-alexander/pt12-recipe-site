@@ -398,8 +398,11 @@ public class RecipeControllerItTest {
                         )
                 )
         );
-        // Assert that number of recipes, ingredients,
-        // and owners increased by one
+        assertThat(
+                "recipe has now one step 'step 0'",
+                recipeService.findStepsForRecipe(idOfNewlyAddedRecipe),
+                containsInAnyOrder("step 0")
+        );
         assertThat(
                 "number of recipes increased by 1",
                 recipeService.findAll().size(),
