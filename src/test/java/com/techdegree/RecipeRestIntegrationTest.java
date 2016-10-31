@@ -106,7 +106,10 @@ public class RecipeRestIntegrationTest {
 
         // Act and Assert:
         // When POST request to RECIPES_REST_PAGE is made
-        // with empty JSON "{}"
+        // with empty JSON with one empty step:
+        // {
+        //  "steps" : [""]
+        // }
         // Then :
         // - status should be bad request
         // - 11 errors should be returned:
@@ -116,11 +119,12 @@ public class RecipeRestIntegrationTest {
         //   @NotNull, @NotEmpty for "photoUrl"
         //   @NotNull, @NotEmpty for "preparationTime"
         //   @NotNull, @NotEmpty for "cookTime"
+        //   @NotEmpty for first step
         mockMvc.perform(
                 post(
                         BASE_URL + RECIPES_REST_PAGE
                 ).contentType(contentType)
-                .content("{}")
+                .content("{\"steps\":[\"\"]}")
         ).andDo(print())
         .andExpect(
                 status().isBadRequest()
@@ -128,7 +132,7 @@ public class RecipeRestIntegrationTest {
         .andExpect(
                 jsonPath(
                         "$.errors",
-                        hasSize(11)
+                        hasSize(12)
                 )
         );
     }
