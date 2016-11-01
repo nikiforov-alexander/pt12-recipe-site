@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import static com.techdegree.web.WebConstants.POST_SAVE_ADDRESS;
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
+import static com.techdegree.web.WebConstants.getDeleteRecipePageWithId;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -520,7 +521,7 @@ public class RecipeControllerItTest {
         // - redirected page should be RECIPES_HOME_PAGE
         // - successful flash should be sent
         mockMvc.perform(
-                post("/recipes/delete/" + idOfNewlyAddedRecipe)
+                post(getDeleteRecipePageWithId("" + idOfNewlyAddedRecipe))
                 .with(
                         SecurityMockMvcRequestPostProcessors.user(
                                 user
@@ -593,7 +594,7 @@ public class RecipeControllerItTest {
         // - redirected page should be RECIPES_HOME_PAGE
         // - successful flash should be sent
         mockMvc.perform(
-                post("/recipes/delete/" + idOfNewlyAddedRecipe)
+                post(getDeleteRecipePageWithId("" + idOfNewlyAddedRecipe))
                         .with(
                                 // log admin user
                                 SecurityMockMvcRequestPostProcessors.user(
@@ -668,7 +669,7 @@ public class RecipeControllerItTest {
         // - redirected page should be RECIPES_HOME_PAGE
         // - successful flash should be sent
         mockMvc.perform(
-                post("/recipes/delete/" + 1L)
+                post(getDeleteRecipePageWithId("1"))
                         .with(
                                 SecurityMockMvcRequestPostProcessors.user(
                                        nonOwnerNonAdmin
