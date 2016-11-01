@@ -382,7 +382,7 @@ public class RecipeControllerTest {
         //  - "categories"
         //  - "action"
         mockMvc.perform(
-                get(BASE_URI + "/recipes/add-new")
+                get(ADD_NEW_PAGE)
         ).andDo(print())
                 .andExpect(
                         status().isOk()
