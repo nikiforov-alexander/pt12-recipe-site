@@ -7,10 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
@@ -19,6 +17,7 @@ import org.springframework.web.util.NestedServletException;
 import java.util.Comparator;
 import java.util.Optional;
 
+import static com.techdegree.web.WebConstants.POST_SAVE_ADDRESS;
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -33,12 +32,6 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
         properties = "spring.datasource.url = jdbc:h2:./database/test-RecipeControllerItTest-recipes;DB_CLOSE_ON_EXIT=FALSE"
 )
 public class RecipeControllerItTest {
-    // constants
-
-    @LocalServerPort
-    private int actualPortNumber;
-
-    private String BASE_URI;
 
     // mocked classes and dependencies
 
@@ -107,7 +100,6 @@ public class RecipeControllerItTest {
 
     @Before
     public void setUp() throws Exception {
-        BASE_URI = "http://localhost:" + actualPortNumber;
         mockMvc =
                 webAppContextSetup(webApplicationContext)
                         .build();
@@ -152,7 +144,7 @@ public class RecipeControllerItTest {
         //  - ingredients[0].quantity can be null
         //  - steps can be null
         mockMvc.perform(
-                post(BASE_URI + "/recipes/save")
+                post(POST_SAVE_ADDRESS)
                         .param("id", "1")
                         .param("version", "0")
                 .with(
@@ -210,7 +202,7 @@ public class RecipeControllerItTest {
         // - bindingResult should have 10 errors by the number of
         // input fields:
         mockMvc.perform(
-                post(BASE_URI + "/recipes/save")
+                post(POST_SAVE_ADDRESS)
                         .with(
                                 SecurityMockMvcRequestPostProcessors.user(
                                         user
@@ -290,7 +282,7 @@ public class RecipeControllerItTest {
         // - redirected page should be RECIPES_HOME_PAGE
         // - flash message should be sent with success status
         mockMvc.perform(
-        post(BASE_URI + "/recipes/save")
+        post(POST_SAVE_ADDRESS)
                 .with(
                         SecurityMockMvcRequestPostProcessors.user(
                                 user
@@ -388,7 +380,7 @@ public class RecipeControllerItTest {
         // - redirected page should be RECIPES_HOME_PAGE
         // - flash message should be sent with success status
         mockMvc.perform(
-            post(BASE_URI + "/recipes/save")
+            post(POST_SAVE_ADDRESS)
                 .with(
                         SecurityMockMvcRequestPostProcessors.user(
                                 user
@@ -467,7 +459,7 @@ public class RecipeControllerItTest {
      */
     private Long addRecipeToBeDeletedAfterwards(User user) throws Exception {
         mockMvc.perform(
-        post(BASE_URI + "/recipes/save")
+        post(POST_SAVE_ADDRESS)
                 .with(
                         SecurityMockMvcRequestPostProcessors.user(
                                 user
