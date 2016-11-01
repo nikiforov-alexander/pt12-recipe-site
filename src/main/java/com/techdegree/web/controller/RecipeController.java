@@ -19,12 +19,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.techdegree.web.WebConstants.EDIT_RECIPE_PAGE_PREFIX;
-import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
-import static com.techdegree.web.WebConstants.UPDATE_FAVORITES_PAGE_PREFIX;
+import static com.techdegree.web.WebConstants.*;
 
 @Controller
-@RequestMapping("/recipes")
 @ComponentScan
 public class RecipeController {
 
@@ -116,7 +113,7 @@ public class RecipeController {
     }
 
     // home page with all recipes
-    @RequestMapping("/")
+    @RequestMapping(RECIPES_HOME_PAGE)
     public String homePageWithAllRecipes(
             @AuthenticationPrincipal User user,
             Model model
@@ -126,11 +123,11 @@ public class RecipeController {
                 recipeService.findAll(),
                 user
         );
-        return "index";
+        return INDEX_TEMPLATE;
     }
 
     // filter recipes by categories
-    @RequestMapping(value = "/", params = "category")
+    @RequestMapping(value = RECIPES_HOME_PAGE, params = "category")
     public String filterByCategory(
             @RequestParam ("category") String categoryName,
             @AuthenticationPrincipal User user,
@@ -148,11 +145,11 @@ public class RecipeController {
                         categoryName
                 )
         );
-        return "index";
+        return INDEX_TEMPLATE;
     }
 
     // filter recipes by description
-    @RequestMapping(value = "/", params = "description")
+    @RequestMapping(value = RECIPES_HOME_PAGE, params = "description")
     public String filterByDescription(
             @RequestParam ("description") String description,
             @AuthenticationPrincipal User user,
@@ -170,11 +167,11 @@ public class RecipeController {
                         ""
                 )
         );
-        return "index";
+        return INDEX_TEMPLATE;
     }
 
     // detail recipe page
-    @RequestMapping("/{id}")
+    @RequestMapping(RECIPES_HOME_PAGE + "{id}")
     public String detailRecipePage(
             @PathVariable Long id,
             Model model,
@@ -204,7 +201,7 @@ public class RecipeController {
                     "Add To Favorites"
             );
         }
-        return "detail";
+        return DETAIL_TEMPLATE;
     }
 
     /**
@@ -270,7 +267,7 @@ public class RecipeController {
     }
 
     // add new recipe page GET
-    @RequestMapping("/add-new")
+    @RequestMapping(ADD_NEW_PAGE)
     public String addNewRecipePage(Model model) {
         // empty recipe with ingredients and steps
         // is generated in separate method for
@@ -280,12 +277,13 @@ public class RecipeController {
                 model
         );
 
-        return "edit";
+        return EDIT_TEMPLATE;
     }
 
     // edit recipe page GET
     // it does not work when "/id/edit" in tests :(
-    @RequestMapping(EDIT_RECIPE_PAGE_PREFIX + "/{id}")
+    @RequestMapping(RECIPES_HOME_PAGE +
+            EDIT_RECIPE_PAGE_PREFIX + "/{id}")
     public String editRecipePage(
             @PathVariable Long id,
             @AuthenticationPrincipal User user,
@@ -304,10 +302,12 @@ public class RecipeController {
                 model
         );
 
-        return "edit";
+        return EDIT_TEMPLATE;
     }
 
-    @RequestMapping(value = UPDATE_FAVORITES_PAGE_PREFIX + "/{id}",
+    @RequestMapping(value = RECIPES_HOME_PAGE
+            + UPDATE_FAVORITES_PAGE_PREFIX
+            + "/{id}",
             method = RequestMethod.POST)
     public String updateFavoriteStatusOfRecipe(
             @AuthenticationPrincipal User user,
@@ -341,7 +341,7 @@ public class RecipeController {
     }
 
     // POST request to change saved item
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    @RequestMapping(value = POST_SAVE_ADDRESS, method = RequestMethod.POST)
     public String saveRecipe(
             Recipe recipe, // no @Valid here, it comes later
             BindingResult bindingResult,
@@ -422,7 +422,9 @@ public class RecipeController {
     }
 
     // delete recipe POST request
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = RECIPES_HOME_PAGE
+            + DELETE_RECIPE_PAGE_PREFIX
+            + "/" + "{id}", method = RequestMethod.POST)
     public String deleteRecipe(
             @PathVariable Long id,
             RedirectAttributes redirectAttributes
