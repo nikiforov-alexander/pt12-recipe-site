@@ -30,8 +30,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:./test-ItemRestIntegrationTest.properties")
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.datasource.url = jdbc:h2:./database/test-ItemRestIntegrationTest-recipes;DB_CLOSE_ON_EXIT=FALSE"
+)
 public class ItemRestIntegrationTest {
 
     // will be something like "/api/v1":

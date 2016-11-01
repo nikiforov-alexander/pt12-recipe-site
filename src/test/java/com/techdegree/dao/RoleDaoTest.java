@@ -1,26 +1,23 @@
 package com.techdegree.dao;
 
-import com.techdegree.model.Role;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment =
-        SpringBootTest.WebEnvironment.RANDOM_PORT
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.datasource.url = jdbc:h2:./database/test-RoleDaoTest-recipes;DB_CLOSE_ON_EXIT=FALSE"
 )
-@TestPropertySource("classpath:./test-RoleDaoTest.properties")
 public class RoleDaoTest {
     @Autowired
     private RoleDao roleDao;

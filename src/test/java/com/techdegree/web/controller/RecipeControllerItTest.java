@@ -28,8 +28,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:./test-RecipeControllerItTest.properties")
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.datasource.url = jdbc:h2:./database/test-RecipeControllerItTest-recipes;DB_CLOSE_ON_EXIT=FALSE"
+)
 public class RecipeControllerItTest {
     // constants
 
