@@ -26,8 +26,6 @@ public class DataLoader implements ApplicationRunner {
     @Autowired
     private RoleDao roleDao;
     @Autowired
-    private StepDao stepDao;
-    @Autowired
     private UserDao userDao;
 
     /**
@@ -58,8 +56,8 @@ public class DataLoader implements ApplicationRunner {
                         "quantity 2");
 
         // create steps
-        Step step1 = new Step("step 1");
-        Step step2 = new Step("step 2");
+        String step1 = "step 1";
+        String step2 = "step 2";
 
         // create recipe
         Recipe recipe = new Recipe(
@@ -81,9 +79,6 @@ public class DataLoader implements ApplicationRunner {
         // set ingredient1-2.recipes to recipe
         ingredient1.setRecipe(recipe);
         ingredient2.setRecipe(recipe);
-        // set step1-2.recipes to recipe
-        step1.setRecipe(recipe);
-        step2.setRecipe(recipe);
 
         // set owner to recipe
         recipe.setOwner(owner);
@@ -94,12 +89,10 @@ public class DataLoader implements ApplicationRunner {
         // save recipe
         recipeDao.save(recipe);
 
-        // save ingredients and steps, otherwise they are not
+        // save ingredients otherwise they are not
         // saved with recipes
         ingredientDao.save(ingredient1);
         ingredientDao.save(ingredient2);
-        stepDao.save(step1);
-        stepDao.save(step2);
     }
 
     /**

@@ -14,13 +14,11 @@
 :UserService: {main_package}service/UserService.java[UserService]
 :CustomUserDetailsService: {main_package}service/CustomUserDetailsService.java[CustomUserDetailsService]
 :IngredientService: {main_package}service/IngredientService.java[IngredientService]
-:StepService: {main_package}service/StepService.java[StepService]
 :ItemService: {main_package}service/ItemService.java[ItemService]
 :RecipeService: {main_package}service/RecipeService.java[RecipeService]
 :RecipeServiceImpl: {main_package}service/RecipeServiceImpl.java[RecipeServiceImpl]
 :IngredientServiceImpl: {main_package}service/IngredientServiceImpl.java[IngredientServiceImpl]
 :ItemServiceImpl: {main_package}service/ItemServiceImpl.java[ItemServiceImpl]
-:StepServiceImpl: {main_package}service/StepServiceImpl.java[StepServiceImpl]
 :DataLoader: {main_package}DataLoader.java[DataLoader]
 :Application: {main_package}Application.java[Application]
 :BaseEntity: {main_package}model/BaseEntity.java[BaseEntity]
@@ -32,12 +30,10 @@
 :RecipeCategory: {main_package}model/RecipeCategory.java[RecipeCategory]
 :Ingredient: {main_package}model/Ingredient.java[Ingredient]
 :Item: {main_package}model/Item.java[Item]
-:Step: {main_package}model/Step.java[Step]
 :Recipe: {main_package}model/Recipe.java[Recipe]
 :RecipeDaoImpl: {main_package}dao/RecipeDaoImpl.java[RecipeDaoImpl]
 :RoleDao: {main_package}dao/RoleDao.java[RoleDao]
 :UserDao: {main_package}dao/UserDao.java[UserDao]
-:StepDao: {main_package}dao/StepDao.java[StepDao]
 :ItemDao: {main_package}dao/ItemDao.java[ItemDao]
 :IngredientDao: {main_package}dao/IngredientDao.java[IngredientDao]
 :RecipeDao: {main_package}dao/RecipeDao.java[RecipeDao]
@@ -56,7 +52,6 @@
 :RecipeCategoryTest: {test_package}/model/RecipeCategoryTest.java[RecipeCategoryTest]
 :RecipeDaoTest: {test_package}/dao/RecipeDaoTest.java[RecipeDaoTest]
 :RoleDaoTest: {test_package}/dao/RoleDaoTest.java[RoleDaoTest]
-:StepDaoTest: {test_package}/dao/StepDaoTest.java[StepDaoTest]
 :IngredientDaoTest: {test_package}/dao/IngredientDaoTest.java[IngredientDaoTest]
 :RecipeServiceTest: {test_package}/service/RecipeServiceTest.java[RecipeServiceTest]
 :UserServiceTest: {test_package}/service/UserServiceTest.java[UserServiceTest]
@@ -69,7 +64,6 @@
 :UserControllerTest: {test_package}/web/controller/UserControllerTest.java[UserControllerTest]
 :RecipeRestIntegrationTest: {test_package}/RecipeRestIntegrationTest.java[RecipeRestIntegrationTest]
 :IngredientRestIntegrationTest: {test_package}/IngredientRestIntegrationTest.java[IngredientRestIntegrationTest]
-:StepRestIntegrationTest: {test_package}/StepRestIntegrationTest.java[StepRestIntegrationTest]
 :ItemRestIntegrationTest: {test_package}/ItemRestIntegrationTest.java[ItemRestIntegrationTest]
 :build_gradle: link:./build.gradle[build.gradle]
 :main_resources: link:./src/main/resources/
@@ -120,7 +114,6 @@ Model classes created are:
 * {Item}
 * {Recipe}
 * {RoleClass}
-* {Step}
 * {User}
 
 Some of them inherit {BaseEntity}, which is the `@MappedSuperClass`
@@ -146,7 +139,6 @@ DAO interfaces are created as Spring-Data `CrudRepository`-ies:
 .Other DAOs
 * {IngredientDao}
 * {ItemDao}
-* {StepDao}
 
 All {User} related DAOs are not exposed to REST API.
 
@@ -170,12 +162,10 @@ except repeating commands at DAO layer:
 * {ItemServiceImpl}
 * {RecipeService}
 * {RecipeServiceImpl}
-* {StepService}
-* {StepServiceImpl}
 
 Most of them repeat commands at DAO layer with exceptions, that
 are relevant for {RecipeServiceImpl}, because we actually can
-access `Ingredient`, `Item` or `Step` only through changing
+access `Ingredient`, `Item` only through changing
 recipe.
 
 There are many methods that were introduced to facilitate
@@ -724,7 +714,7 @@ Jquery that is tracking the click on button with
 
 Upon click in the same manner new `<div>` with new `Step` 
 is added in a bit different and easier manner, because `Step`
-has only one field `description`:
+has only one field: itself `description`:
 
 - get last `<div class="step-row">`
 - get `id` or index of last `step` at page
@@ -736,23 +726,11 @@ So if initial div in blank "add new" recipe page looks like
 
 ```HTML
 <div class="step-row">
-    <input 
-        hidden="" 
-        type="text" 
-        id="steps0.id" 
-        name="steps[0].id" 
-        value="">
-    <input 
-        hidden="" 
-        type="text" 
-        id="steps0.version" 
-        name="steps[0].version" 
-        value="">
     <div class="prefix-20 grid-80">
         <p>
             <input 
-                id="steps0.description" 
-                name="steps[0].description" 
+                id="steps0" 
+                name="steps[0]" 
                 value="">
         </p>
     </div>
@@ -766,8 +744,8 @@ Then according new `div` with new `Step` should look like:
     <div class="prefix-20 grid-80">
         <p>
             <input 
-                id="steps1.description" 
-                name="steps[1].description" 
+                id="steps1"
+                name="steps[1]" 
                 value="">
         </p>
     </div>
@@ -1062,12 +1040,18 @@ end.
 
 ==== Life Cycle of REST requests
 
-It is impossible to create `Recipe` with `Ingredient`-s and `Step`-s
-in one request unfortunately.
-And I don't know how to do it. In order to create new Recipe
+It is impossible to create `Recipe` with `Ingredient`
+in one request unfortunately. 
+
+However one can create recipe
+with `recipe.steps`, because it is `@ElementCollection`,
+which means `List<String>` that is controlled solely by
+`Recipe` without DAO.
+
+In order to create new Recipe
 one has to do the following:
 
-* make POST request to create new `Recipe` without links:
+* make POST request to create new `Recipe` without `Ingredient`:
 +
 ```
 {
@@ -1080,7 +1064,10 @@ one has to do the following:
     "preparationTime" : "test prep time",
     "cookTime" : "test cook time",
     "ingredients" : [],
-    "steps" : []
+    "steps" : [
+        "step 1",
+        "step 2"
+    ]
 }
 ```
 * make POST request to create new `Ingredient` with `Recipe`
@@ -1098,17 +1085,6 @@ and `Item` link:
 ```
 +
 NOTE: `Item` can be created without links easily via POST with: `{ "name" : "item" }`
-+
-* make POST request to create new `Step` with `Recipe` link:
-+
-```
-{
-   "id" : "null",
-   "version" : "null",
-   "description" : "description",
-   "recipe" : "http://localhost:8080/api/v1/recipes/1"
-}
-```
 
 `PUT` requests can be done in the same manner. So I omit this
 section description here
@@ -1135,23 +1111,18 @@ Expression, that is enabled in {SecurityConfig} class. The idea
 here is naturally same: only owner of `Recipe` or admin user
 can delete Recipe.
 
-===== Ingredients and Steps
+===== Ingredients
 
 For both of these entities `save` and `delete` methods are 
 introduced with the same Spring Security `@PreAuthorize` 
 expression that permits actions only to `ingredient.recipe.owner` or 
 admin.
 
-For `Step` `delete` method is not introduced, and for `Ingredient` 
-method `delete` is not fully tested. `save` method is tested for
-both `Ingredient` and `Step`
-
 ==== Tests
 
 Mostly REST API is tested with following integration tests:
 
 * {RecipeRestIntegrationTest}
-* {StepRestIntegrationTest}
 * {IngredientRestIntegrationTest}
 * {ItemRestIntegrationTest}
 
@@ -1169,13 +1140,11 @@ Mostly REST API is tested with following integration tests:
 * {UserService}
 * {CustomUserDetailsService}
 * {IngredientService}
-* {StepService}
 * {ItemService}
 * {RecipeService}
 * {RecipeServiceImpl}
 * {IngredientServiceImpl}
 * {ItemServiceImpl}
-* {StepServiceImpl}
 
 .Misc
 * {DataLoader}
@@ -1189,7 +1158,6 @@ Mostly REST API is tested with following integration tests:
 * {RecipeCategory}
 * {Ingredient}
 * {Item}
-* {Step}
 * {Recipe}
 
 .Exceptions
@@ -1200,7 +1168,6 @@ Mostly REST API is tested with following integration tests:
 * {RecipeDaoImpl}
 * {RoleDao}
 * {UserDao}
-* {StepDao}
 * {ItemDao}
 * {IngredientDao}
 * {RecipeDao}
@@ -1227,7 +1194,6 @@ Mostly REST API is tested with following integration tests:
 
 .Dao Tests
 * {RecipeDaoTest}
-* {StepDaoTest}
 * {IngredientDaoTest}
 * {RoleDaoTest}
 
@@ -1250,7 +1216,6 @@ Mostly REST API is tested with following integration tests:
 * {LoginControllerItTest}
 * {RecipeRestIntegrationTest}
 * {IngredientRestIntegrationTest}
-* {StepRestIntegrationTest}
 * {ItemRestIntegrationTest}
 
 .resources

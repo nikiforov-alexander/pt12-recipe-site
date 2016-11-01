@@ -18,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.techdegree.web.WebConstants.EDIT_RECIPE_PAGE_PREFIX;
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
@@ -33,8 +32,6 @@ public class RecipeController {
     private RecipeService recipeService;
     @Autowired
     private ItemService itemsService;
-    @Autowired
-    private StepService stepService;
     @Autowired
     private IngredientService ingredientService;
     @Autowired
@@ -225,7 +222,7 @@ public class RecipeController {
         Ingredient ingredient = new Ingredient(item, "", "");
         recipe.addIngredient(ingredient);
 
-        Step step = new Step("");
+        String step = "";
         recipe.addStep(step);
         return recipe;
     }
@@ -367,14 +364,11 @@ public class RecipeController {
                     user, recipe
             );
         }
-        // for each recipe.ingredient and recipe.step we set
+        // for each recipe.ingredient we set
         // recipe. Thymeleaf cannot make it right somehow ...
         // after that we can write if (result.hasErrors())
         recipe.getIngredients().forEach(
                 i -> i.setRecipe(recipe)
-        );
-        recipe.getSteps().forEach(
-                s -> s.setRecipe(recipe)
         );
         validator.validate(recipe, bindingResult);
 
@@ -401,9 +395,9 @@ public class RecipeController {
             return "redirect:" + pageFromWherePostReqWasMade;
         }
 
-        // if everything is OK, we save recipes, steps
+        // if everything is OK, we save recipes
         // and ingredients
-        // because steps and ingredients
+        // because ingredients
         // have foreign key in their table
         // so we have to do that
         // but we have to save them using saved recipe
@@ -411,9 +405,6 @@ public class RecipeController {
         Recipe savedRecipe = recipeService.save(recipe, user);
         savedRecipe.getIngredients().forEach(
                 i -> ingredientService.save(i)
-        );
-        savedRecipe.getSteps().forEach(
-            step -> stepService.save(step)
         );
 
         // we also set good flash message with redirect

@@ -2,6 +2,7 @@ package com.techdegree.dao;
 
 import com.techdegree.model.Recipe;
 import com.techdegree.model.User;
+import org.hibernate.Hibernate;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -57,5 +58,24 @@ public class RecipeDaoImpl implements FavoriteRecipesDao {
                 .setParameter(1, recipeId)
                 .setParameter(2, userId)
                 .executeUpdate();
+    }
+
+    /**
+     * finds steps for recipe with {@literal recipeId}.
+     * If taken directly : recipeDao.findOne(1L).getSteps()
+     * gives Lazy Instantiation problem
+      * @param recipeId : recipe id, for which steps will be
+     *                  printed
+     * @return {@code List<String>} list of recipe.steps
+     */
+   @Override
+    public List<String> findStepsForRecipe(Long recipeId) {
+        Recipe recipe = (Recipe) entityManager.createNativeQuery(
+                "SELECT * from recipe WHERE id = ?",
+                Recipe.class
+        ).setParameter(1, recipeId)
+        .getSingleResult();
+        Hibernate.initialize(recipe.getSteps());
+        return recipe.getSteps();
     }
 }

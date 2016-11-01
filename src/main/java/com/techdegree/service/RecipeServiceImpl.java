@@ -175,6 +175,11 @@ public class RecipeServiceImpl implements RecipeService {
         return recipeDao.findByDescriptionContaining(description);
     }
 
+    @Override
+    public List<String> findStepsForRecipe(Long recipeId) {
+        return recipeDao.findStepsForRecipe(recipeId);
+    }
+
     // one more candidate to include delete(Long id) ...
     // this may be added later if needed. For now it is
     // not so interesting

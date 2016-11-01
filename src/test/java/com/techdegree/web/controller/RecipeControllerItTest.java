@@ -16,6 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 
+import java.util.Comparator;
+import java.util.Optional;
+
 import static com.techdegree.web.WebConstants.RECIPES_HOME_PAGE;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -46,8 +49,6 @@ public class RecipeControllerItTest {
     @Autowired
     private IngredientService ingredientService;
     @Autowired
-    private StepService stepService;
-    @Autowired
     private CustomUserDetailsService userService;
 
     @Autowired
@@ -75,12 +76,31 @@ public class RecipeControllerItTest {
         testRecipeWithAllValidFields1.addIngredient(
                 testIngredient
         );
-        Step testStep = new Step(
-                "test step"
-        );
+        String testStep = "test step";
         testRecipeWithAllValidFields1.addStep(
                 testStep
         );
+    }
+
+    /**
+     * finds maximum {@code id} value from all
+     * recipes returned by {@code recipeService.findAll()}.
+     * Taken from
+     * http://stackoverflow.com/questions/24378646/finding-max-with-lambda-expression-in-java
+     * @return {@literal Long} max value, or {@literal null}
+     * otherwise
+     */
+    private Long getIdOfNewlyCreatedRecipe() {
+        Optional<Long> maxId =
+                recipeService.findAll().stream()
+                .map(Recipe::getId)
+                .max(
+                        Comparator.comparing(i -> i)
+                );
+        if (maxId.isPresent()) {
+            return maxId.get();
+        }
+        return null;
     }
 
     @Before
@@ -128,7 +148,7 @@ public class RecipeControllerItTest {
         //  - ingredients[0].item.id can be null
         //  - ingredients[0].condition can be null
         //  - ingredients[0].quantity can be null
-        //  - steps[0].description can be null
+        //  - steps can be null
         mockMvc.perform(
                 post(BASE_URI + "/recipes/save")
                         .param("id", "1")
@@ -185,7 +205,7 @@ public class RecipeControllerItTest {
         // - status should be 3xx : redirect
         // - redirected page should be "/recipes/add-new"
         // - flash message should be sent with failure status
-        // - bindingResult should have 11 errors by the number of
+        // - bindingResult should have 10 errors by the number of
         // input fields:
         mockMvc.perform(
                 post(BASE_URI + "/recipes/save")
@@ -194,16 +214,16 @@ public class RecipeControllerItTest {
                                         user
                                 )
                         )
-                        .param("name", "") // @NotEmpty
-                        .param("description", "") // @NotEmpty
-                        .param("recipeCategory", "") // @NotEmpty
-                        .param("photoUrl", "") // @NotEmpty
-                        .param("cookTime", "") // @NotEmpty
-                        .param("preparationTime", "") // @NotEmpty
-                        .param("ingredients[0].item.id", "0") // @ValidItem
-                        .param("ingredients[0].condition", "") // @NotEmpty
-                        .param("ingredients[0].quantity", "") // @NotEmpty
-                        .param("steps[0].description", "") // @NotEmpty
+                        .param("name", "") // 1. @NotEmpty
+                        .param("description", "") // 2. @NotEmpty
+                        .param("recipeCategory", "") // 3. @NotEmpty
+                        .param("photoUrl", "") // 4. @NotEmpty
+                        .param("cookTime", "") // 5. @NotEmpty
+                        .param("preparationTime", "") // 6. @NotEmpty
+                        .param("ingredients[0].item.id", "0") // 7. @ValidItem
+                        .param("ingredients[0].condition", "") // 8. @NotEmpty
+                        .param("ingredients[0].quantity", "") // 9. @NotEmpty
+                        .param("steps[0]","") // 10. @NotEmpty as part of @EachNotEmpty
         ).andDo(print())
         .andExpect(
             status().is3xxRedirection()
@@ -228,8 +248,8 @@ public class RecipeControllerItTest {
                 )
             )
         );
-        // Assert that number of recipes stayed same:
         assertThat(
+                "number of recipes in db stayed same",
                 recipeService.findAll().size(),
                 is(numberOfRecipeBeforeReq)
         );
@@ -255,7 +275,11 @@ public class RecipeControllerItTest {
         // Add recipe to be deleted and get its id to
         // pass to request
         Long idOfNewlyAddedRecipe =
-                (long) addRecipeToBeDeletedAfterwards(user);
+                addRecipeToBeDeletedAfterwards(user);
+        assertNotNull(
+                "newly added recipe's id to be deleted should not be null",
+                idOfNewlyAddedRecipe
+        );
 
         // When POST request for updating firstRecipeFromDatabase
         // with all correct and changed parameters is made
@@ -289,7 +313,7 @@ public class RecipeControllerItTest {
                         testRecipeWithAllValidFields1.getPreparationTime())
                 // in contrast to add-new test, here we change
                 // recipe.ingredients, that is why we also include
-                // "id" and "version" for both recipe.steps and
+                // "id" and "version" for
                 // recipe.ingredients
                 // we know "id" of those, because we added recipe
                 // in test before
@@ -299,10 +323,7 @@ public class RecipeControllerItTest {
                 .param("ingredients[0].item.id", "1")
                 .param("ingredients[0].condition", "condition")
                 .param("ingredients[0].quantity", "quantity")
-                .param("steps[0].id",
-                        stepService.findAll().size() + "")
-                .param("steps[0].version", "0")
-                .param("steps[0].description", "description")
+                .param("steps[0]", "step 0")
         ).andDo(print())
                 .andExpect(
                         status().is3xxRedirection()
@@ -351,13 +372,10 @@ public class RecipeControllerItTest {
         User user = (User) userService.loadUserByUsername("jd");
 
         // and we calculate number of
-        // recipes, steps, ingredients before
+        // recipes, ingredients before
         // request to compare later on
         int numberOfRecipesBeforeReq = recipeService.findAll().size();
         int numberOfIngredientsBeforeReq = ingredientService.findAll().size();
-        int numberOfStepsBeforeRequest = stepService.findAll().size();
-
-        Long idOfNewlyAddedRecipe = (long) numberOfRecipesBeforeReq + 1;
 
         // When POST request
         // or adding new one (because they are same)
@@ -389,7 +407,7 @@ public class RecipeControllerItTest {
                 .param("ingredients[0].item.id", "1")
                 .param("ingredients[0].condition", "condition")
                 .param("ingredients[0].quantity", "quantity")
-                .param("steps[0].description", "description")
+                .param("steps[0]", "step 0")
         ).andDo(print())
         .andExpect(
                 status().is3xxRedirection()
@@ -406,8 +424,20 @@ public class RecipeControllerItTest {
                         )
                 )
         );
-        // Assert that number of recipes, ingredients,
-        // steps and owners increased by one
+
+        Long idOfNewlyAddedRecipe = getIdOfNewlyCreatedRecipe();
+
+        assertNotNull(
+                "id of newly created recipe is not null, " +
+                        "otherwise our tests will not make any sense",
+                idOfNewlyAddedRecipe
+        );
+
+        assertThat(
+                "recipe has now one step 'step 0'",
+                recipeService.findStepsForRecipe(idOfNewlyAddedRecipe),
+                containsInAnyOrder("step 0")
+        );
         assertThat(
                 "number of recipes increased by 1",
                 recipeService.findAll().size(),
@@ -417,11 +447,6 @@ public class RecipeControllerItTest {
                 "number of ingredients increased by 1",
                 ingredientService.findAll().size(),
                 is(numberOfIngredientsBeforeReq + 1)
-        );
-        assertThat(
-                "number of steps increased by 1",
-                stepService.findAll().size(),
-                is(numberOfStepsBeforeRequest + 1)
         );
         assertThat(
                 "recipe owner was set",
@@ -438,7 +463,7 @@ public class RecipeControllerItTest {
      * @throws Exception because we use mockMvc and it throws
      * exception
      */
-    private int addRecipeToBeDeletedAfterwards(User user) throws Exception {
+    private Long addRecipeToBeDeletedAfterwards(User user) throws Exception {
         mockMvc.perform(
         post(BASE_URI + "/recipes/save")
                 .with(
@@ -461,21 +486,8 @@ public class RecipeControllerItTest {
                 .param("ingredients[0].item.id", "1")
                 .param("ingredients[0].condition", "condition")
                 .param("ingredients[0].quantity", "quantity")
-                .param("steps[0].description", "description")
         );
-        // here we check recipe with highest id, that will be the one
-        // we just added
-        int idOfNewlyCreatedRecipe = recipeService.findAll().size();
-        Recipe recipe = recipeService.findOne(
-                (long) idOfNewlyCreatedRecipe
-        );
-        while (recipe == null) {
-            idOfNewlyCreatedRecipe--;
-            recipe = recipeService.findOne(
-                    (long) idOfNewlyCreatedRecipe
-            );
-        }
-        return idOfNewlyCreatedRecipe;
+        return getIdOfNewlyCreatedRecipe();
     }
 
     @Test
@@ -491,19 +503,21 @@ public class RecipeControllerItTest {
         User user = (User) userService.loadUserByUsername("jd");
 
         // Calculate number of
-        // recipes, ingredients, steps
+        // recipes, ingredients,
         // before request. To check consistency
         // afterwards
         int numberOfIngredientsBeforeAddingRecipeToDelete =
                 ingredientService.findAll().size();
-        int numberOfStepsBeforeAddingRecipeToDelete =
-                stepService.findAll().size();
         int numberOfRecipesBeforeAddingRecipesToDelete =
                 recipeService.findAll().size();
 
         // Add recipe to be deleted and get its id to
         // pass to request
-        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+        Long idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+        assertNotNull(
+                "newly added recipe should not be null",
+                idOfNewlyAddedRecipe
+        );
 
         // When POST request to "/recipes/delete/idOfNewlyAddedRecipe"
         // is made
@@ -536,7 +550,7 @@ public class RecipeControllerItTest {
         );
         // Assert that system after add and delete
         // should be as it was, i.e. number of recipes,
-        // ingredients and steps added with this request
+        // ingredients added with this request
         // should stay the same
         assertThat(
                 "number of recipes should be the same",
@@ -547,11 +561,6 @@ public class RecipeControllerItTest {
                 "number of ingredients should be the same",
                 ingredientService.findAll().size(),
                 is(numberOfIngredientsBeforeAddingRecipeToDelete)
-        );
-        assertThat(
-                "number of steps should be the same",
-                stepService.findAll().size(),
-                is(numberOfStepsBeforeAddingRecipeToDelete)
         );
     }
 
@@ -567,19 +576,21 @@ public class RecipeControllerItTest {
         User user = (User) userService.loadUserByUsername("jd");
 
         // Calculate number of
-        // recipes, ingredients, steps
+        // recipes, ingredients,
         // before request. To check consistency
         // afterwards
         int numberOfIngredientsBeforeAddingRecipeToDelete =
                 ingredientService.findAll().size();
-        int numberOfStepsBeforeAddingRecipeToDelete =
-                stepService.findAll().size();
         int numberOfRecipesBeforeAddingRecipesToDelete =
                 recipeService.findAll().size();
 
         // Add recipe to be deleted and get its id to
         // pass to request
-        int idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+        Long idOfNewlyAddedRecipe = addRecipeToBeDeletedAfterwards(user);
+        assertNotNull(
+                "id of newly added recipe should not be null",
+                idOfNewlyAddedRecipe
+        );
 
         // When POST request to "/recipes/delete/idOfNewlyAddedRecipe"
         // with admin user is made
@@ -613,7 +624,7 @@ public class RecipeControllerItTest {
                 );
         // Assert that system after add and delete
         // should be as it was, i.e. number of recipes,
-        // ingredients and steps added with this request
+        // ingredients added with this request
         // should stay the same
         assertThat(
                 "number of recipes should be the same",
@@ -624,11 +635,6 @@ public class RecipeControllerItTest {
                 "number of ingredients should be the same",
                 ingredientService.findAll().size(),
                 is(numberOfIngredientsBeforeAddingRecipeToDelete)
-        );
-        assertThat(
-                "number of steps should be the same",
-                stepService.findAll().size(),
-                is(numberOfStepsBeforeAddingRecipeToDelete)
         );
     }
 
