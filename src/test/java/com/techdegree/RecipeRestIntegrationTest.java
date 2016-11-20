@@ -104,9 +104,18 @@ public class RecipeRestIntegrationTest {
             throws Exception {
         // Arrange : mockMvc with webAppContext is set up
 
+        // Arrange : get Admin user
+        User user = (User) userService.loadUserByUsername("sa");
+
+        assertThat(
+                "user is admin",
+                user.getRole().getName(),
+                is("ROLE_ADMIN")
+        );
+
         // Act and Assert:
         // When POST request to RECIPES_REST_PAGE is made
-        // with empty JSON with one empty step:
+        // by admin with empty JSON with one empty step:
         // {
         //  "steps" : [""]
         // }
@@ -124,6 +133,11 @@ public class RecipeRestIntegrationTest {
                 post(
                         BASE_URL + RECIPES_REST_PAGE
                 ).contentType(contentType)
+                .with(
+                        SecurityMockMvcRequestPostProcessors.user(
+                                user
+                        )
+                )
                 .content("{\"steps\":[\"\"]}")
         ).andDo(print())
         .andExpect(
